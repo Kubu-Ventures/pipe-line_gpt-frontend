@@ -80,6 +80,7 @@ export default function AdminPage() {
   const [users,       setUsers]       = useState<UserRow[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [loading,     setLoading]     = useState(true)
+  const [fetchError,  setFetchError]  = useState<string | null>(null)
   const [inviteOpen,  setInviteOpen]  = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole,  setInviteRole]  = useState<UserRole>('OPERATOR')
@@ -88,24 +89,32 @@ export default function AdminPage() {
   const [inviteError,  setInviteError]  = useState<string | null>(null)
   const [copyMsg,     setCopyMsg]     = useState(false)
 
-  const headers = { Authorization: `Bearer ${session?.accessToken}` }
-
   const loadData = useCallback(async () => {
     if (!session?.accessToken) return
     setLoading(true)
+    setFetchError(null)
+    const authHeaders = { Authorization: `Bearer ${session.accessToken}` }
     try {
       const [usersRes, invRes] = await Promise.all([
-        fetch(`${API_URL}/admin/users`, { headers }),
-        fetch(`${API_URL}/admin/invitations`, { headers }),
+        fetch(`${API_URL}/admin/users`, { headers: authHeaders }),
+        fetch(`${API_URL}/admin/invitations`, { headers: authHeaders }),
       ])
-      if (usersRes.ok) {
-        const d = await usersRes.json()
-        setUsers(d.users ?? d)
+      if (usersRes.status === 401) {
+        setFetchError('Session expired — please sign out and sign back in.')
+        return
       }
+      if (!usersRes.ok) {
+        setFetchError(`Backend error ${usersRes.status} — confirm the server is running.`)
+        return
+      }
+      const d = await usersRes.json()
+      setUsers(d.users ?? d)
       if (invRes.ok) {
-        const d = await invRes.json()
-        setInvitations(Array.isArray(d) ? d : d.items ?? [])
+        const inv = await invRes.json()
+        setInvitations(Array.isArray(inv) ? inv : inv.items ?? [])
       }
+    } catch {
+      setFetchError('Cannot reach backend — confirm it is running on port 8000.')
     } finally {
       setLoading(false)
     }
@@ -116,7 +125,7 @@ export default function AdminPage() {
   async function updateStatus(userId: string, status: UserStatus) {
     await fetch(`${API_URL}/admin/users/${userId}/status`, {
       method: 'PATCH',
-      headers: { ...headers, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${session?.accessToken}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
     await loadData()
@@ -129,7 +138,7 @@ export default function AdminPage() {
     try {
       const res = await fetch(`${API_URL}/admin/invite`, {
         method: 'POST',
-        headers: { ...headers, 'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${session?.accessToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
       })
       const data = await res.json()
@@ -173,6 +182,19 @@ export default function AdminPage() {
 
       <main style={{ flex: 1 }}>
         <div className="page-content" style={{ maxWidth: 1200, margin: '0 auto' }}>
+
+          {/* Backend error banner */}
+          {fetchError && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: '#FEF3C7', border: '1px solid #FDE68A', borderLeft: '3px solid #D97706',
+              borderRadius: 4, padding: '10px 16px', marginBottom: 16,
+              fontFamily: F, fontSize: 13, color: '#92400E',
+            }}>
+              <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+              <span><strong>Could not load data:</strong> {fetchError}</span>
+            </div>
+          )}
 
           {/* Metric strip */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', border: '1px solid #d4d6d8', borderTop: `4px solid ${BLUE}`, background: '#fff', marginBottom: 24, overflow: 'hidden' }}>
