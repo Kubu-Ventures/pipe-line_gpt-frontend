@@ -9,7 +9,7 @@ export function TabsList({ className, ...props }: TabsPrimitive.TabsListProps) {
   return (
     <TabsPrimitive.List
       className={cn(
-        'inline-flex items-center gap-1 p-1 rounded-[4px] bg-[#F2F4F7] border border-[#E4E8EF]',
+        'inline-flex items-center gap-1 p-1 bg-[#edeff0] border border-[#d4d6d8]',
         className
       )}
       {...props}
@@ -21,9 +21,9 @@ export function TabsTrigger({ className, ...props }: TabsPrimitive.TabsTriggerPr
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        'px-4 py-1.5 rounded-[3px] text-sm font-500 text-[#4A5568] transition-all',
-        'data-[state=active]:bg-white data-[state=active]:text-[#005DAA] data-[state=active]:shadow-sm data-[state=active]:font-600',
-        'hover:text-[#1A1A2A]',
+        'px-4 py-1.5 text-sm font-500 text-[#55606e] transition-all',
+        'data-[state=active]:bg-white data-[state=active]:text-[#006eb5] data-[state=active]:shadow-sm data-[state=active]:font-600',
+        'hover:text-[#232e3e]',
         className
       )}
       {...props}

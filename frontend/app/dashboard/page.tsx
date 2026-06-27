@@ -9,7 +9,7 @@ import { AlertTriangle, Clock, CheckCircle, TrendingUp } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
-import { NextStep } from '@/app/page'
+import { NextStep } from '@/app/home/page'
 
 const F = 'Inter, system-ui, sans-serif'
 
@@ -110,7 +110,7 @@ export default function DashboardPage() {
   const urgentDeadlines = DEADLINES.filter(d => d.urgent).length
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F2F4F7', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0', fontFamily: F }}>
       <TopNav activeTab="dashboard" />
       <PageHero
         step="Step 4 of 5 · Analytics"
@@ -141,7 +141,7 @@ export default function DashboardPage() {
 
           {/* ── Metric strip ── */}
           <div className="metric-strip" style={{
-            background: '#FFFFFF', border: '1px solid #E4E8EF',
+            background: '#FFFFFF', border: '1px solid #d4d6d8',
             borderRadius: 4, marginBottom: 24, overflow: 'hidden',
           }}>
             {METRICS.map((m, i) => (
@@ -159,9 +159,9 @@ export default function DashboardPage() {
           <div className="grid-2col" style={{ marginBottom: 24 }}>
 
             {/* Incident root cause — PHMSA hazardous liquid TX 2015–2023 */}
-            <div className="rosen-card chart-panel" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div className="rosen-card chart-panel" style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A2A', marginBottom: 3 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#232e3e', marginBottom: 3 }}>
                   Incident Root Causes — Hazardous Liquid (TX 2015–2023)
                 </h3>
                 <p style={{ fontSize: 12, color: '#8896A8' }}>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
                   layout="vertical"
                   margin={{ top: 0, right: 48, bottom: 0, left: 8 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E4E8EF" horizontal={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#d4d6d8" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 11, fill: '#8896A8' }} axisLine={false} tickLine={false} unit="%" />
                   <YAxis
                     type="category" dataKey="cause"
@@ -183,9 +183,9 @@ export default function DashboardPage() {
                   />
                   <Tooltip
                     formatter={(v: number, _: string, entry: any) => [`${entry.payload.count} incidents (${v}%)`, 'Share']}
-                    contentStyle={{ fontSize: 12, border: '1px solid #E4E8EF', borderRadius: 4 }}
+                    contentStyle={{ fontSize: 12, border: '1px solid #d4d6d8', borderRadius: 4 }}
                   />
-                  <Bar dataKey="pct" fill="#005DAA" radius={[0, 3, 3, 0]} barSize={18} />
+                  <Bar dataKey="pct" fill="#006eb5" radius={[0, 3, 3, 0]} barSize={18} />
                 </BarChart>
               </ResponsiveContainer>
               <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 12 }}>
@@ -194,9 +194,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Wall loss progression across ILI runs */}
-            <div className="rosen-card chart-panel" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div className="rosen-card chart-panel" style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A2A', marginBottom: 3 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#232e3e', marginBottom: 3 }}>
                   Wall Loss Progression — Max Corrosion Depth (%)
                 </h3>
                 <p style={{ fontSize: 12, color: '#8896A8' }}>
@@ -205,18 +205,18 @@ export default function DashboardPage() {
               </div>
               <ResponsiveContainer width="100%" height={230}>
                 <LineChart data={WALL_LOSS_DATA} margin={{ top: 8, right: 16, bottom: 0, left: -12 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E4E8EF" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#d4d6d8" vertical={false} />
                   <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#8896A8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 12, fill: '#8896A8' }} axisLine={false} tickLine={false} domain={[0, 55]} unit="%" />
                   <Tooltip
                     formatter={(v: number, name: string) => [`${v}% wall loss`, name]}
-                    contentStyle={{ fontSize: 12, border: '1px solid #E4E8EF', borderRadius: 4 }}
+                    contentStyle={{ fontSize: 12, border: '1px solid #d4d6d8', borderRadius: 4 }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <ReferenceLine y={40} stroke="#991B1B" strokeDasharray="6 4" strokeWidth={1.5} label={{ value: 'Action threshold 40%', position: 'insideTopRight', fontSize: 10, fill: '#991B1B' }} />
                   <Line type="monotone" dataKey="Segment 4B"       stroke="#991B1B" strokeWidth={2.5} dot={{ r: 4, fill: '#991B1B' }} />
                   <Line type="monotone" dataKey="Platform Delta-18" stroke="#D97706" strokeWidth={2} dot={{ r: 3, fill: '#D97706' }} />
-                  <Line type="monotone" dataKey="Mill Creek HCA"   stroke="#005DAA" strokeWidth={2} dot={{ r: 3, fill: '#005DAA' }} />
+                  <Line type="monotone" dataKey="Mill Creek HCA"   stroke="#006eb5" strokeWidth={2} dot={{ r: 3, fill: '#006eb5' }} />
                 </LineChart>
               </ResponsiveContainer>
               <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 12 }}>
@@ -229,13 +229,13 @@ export default function DashboardPage() {
           <div className="grid-3-2">
 
             {/* Segment risk register */}
-            <div className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ padding: '18px 24px', borderBottom: '1px solid #E4E8EF', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div style={{ padding: '18px 24px', borderBottom: '1px solid #d4d6d8', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A2A', marginBottom: 2 }}>Segment Risk Register</h3>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: '#232e3e', marginBottom: 2 }}>Segment Risk Register</h3>
                   <p style={{ fontSize: 12, color: '#8896A8' }}>Ranked by current risk level — ask PipelineGPT for any segment</p>
                 </div>
-                <Link href="/chat" style={{ fontSize: 12, fontWeight: 600, color: '#005DAA', textDecoration: 'none' }}>
+                <Link href="/chat" style={{ fontSize: 12, fontWeight: 600, color: '#006eb5', textDecoration: 'none' }}>
                   Query AI →
                 </Link>
               </div>
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                       { label: 'Last ILI',         hide: true  },
                       { label: 'Required Action',  hide: false },
                     ].map(({ label, hide }) => (
-                      <th key={label} className={hide ? 'col-hide-mobile' : ''} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: '1px solid #E4E8EF' }}>
+                      <th key={label} className={hide ? 'col-hide-mobile' : ''} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: '1px solid #d4d6d8' }}>
                         {label}
                       </th>
                     ))}
@@ -260,9 +260,9 @@ export default function DashboardPage() {
                   {SEGMENTS.map((s, i) => {
                     const rs = RISK_STYLE[s.risk]
                     return (
-                      <tr key={s.id} style={{ borderBottom: i < SEGMENTS.length - 1 ? '1px solid #F2F4F7' : 'none' }}>
+                      <tr key={s.id} style={{ borderBottom: i < SEGMENTS.length - 1 ? '1px solid #edeff0' : 'none' }}>
                         <td style={{ padding: '12px 16px' }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1A2A' }}>{s.name}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#232e3e' }}>{s.name}</div>
                           <div style={{ fontSize: 11, color: '#9CA3AF', fontFamily: 'monospace' }}>{s.id}</div>
                         </td>
                         <td style={{ padding: '12px 16px' }}>
@@ -289,9 +289,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Compliance deadline tracker */}
-            <div id="deadlines" className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-              <div style={{ padding: '18px 24px', borderBottom: '1px solid #E4E8EF' }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1A1A2A', marginBottom: 2 }}>Compliance Deadlines</h3>
+            <div id="deadlines" className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div style={{ padding: '18px 24px', borderBottom: '1px solid #d4d6d8' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: '#232e3e', marginBottom: 2 }}>Compliance Deadlines</h3>
                 <p style={{ fontSize: 12, color: '#8896A8' }}>PHMSA / ASME regulatory obligations</p>
               </div>
 
@@ -299,11 +299,11 @@ export default function DashboardPage() {
                 {DEADLINES.map((d, i) => (
                   <div key={i} style={{
                     padding: '14px 20px',
-                    borderBottom: i < DEADLINES.length - 1 ? '1px solid #F2F4F7' : 'none',
-                    borderLeft: d.daysLeft <= 3 ? '3px solid #991B1B' : d.daysLeft <= 20 ? '3px solid #D97706' : '3px solid #E4E8EF',
+                    borderBottom: i < DEADLINES.length - 1 ? '1px solid #edeff0' : 'none',
+                    borderLeft: d.daysLeft <= 3 ? '3px solid #991B1B' : d.daysLeft <= 20 ? '3px solid #D97706' : '3px solid #d4d6d8',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#1A1A2A', lineHeight: 1.4 }}>{d.item}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#232e3e', lineHeight: 1.4 }}>{d.item}</span>
                       <span style={{
                         flexShrink: 0, fontSize: 11, fontWeight: 700,
                         color: d.daysLeft <= 3 ? '#991B1B' : d.daysLeft <= 20 ? '#92400E' : '#1A7A4A',
@@ -315,13 +315,13 @@ export default function DashboardPage() {
                     </div>
                     <div style={{ display: 'flex', gap: 12 }}>
                       <span style={{ fontSize: 11, color: '#9CA3AF' }}>{d.due}</span>
-                      <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#005DAA', background: '#E8F0F9', padding: '0 5px', borderRadius: 2 }}>{d.ref}</span>
+                      <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#006eb5', background: '#dff0ff', padding: '0 5px', borderRadius: 2 }}>{d.ref}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ padding: '12px 20px', borderTop: '1px solid #E4E8EF', background: '#F8F9FB' }}>
+              <div style={{ padding: '12px 20px', borderTop: '1px solid #d4d6d8', background: '#F8F9FB' }}>
                 <p style={{ fontSize: 11, color: '#9CA3AF' }}>
                   Ask PipelineGPT: <em>"What are my upcoming PHMSA compliance obligations?"</em>
                 </p>

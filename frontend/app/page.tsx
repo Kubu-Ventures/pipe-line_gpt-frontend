@@ -1,246 +1,256 @@
-'use client'
-
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { ArrowRight } from 'lucide-react'
-import { TopNav } from '@/components/TopNav'
 
-/* ── Reusable "Next Step" footer ─────────────────────────────── */
-export function NextStep({ href, label, description }: {
-  href: string; label: string; description: string
-}) {
+// ─────────────────────────────────────────────────────────────────────────────
+// UNDP Design System tokens (css-custom-properties.md)
+// Font:     ProximaNova → Inter (loaded substitute)
+// Primary:  #006eb5   Secondary blue: #1f5a95   Dark bg: #232e3e
+// Yellow:   #ffeb00   Azure: #60d4f2
+// Body:     1.25rem / 138% lh   Heading: 110% lh   Display: 100% lh
+// Heading weight default: 600   Bold: 700   Display bold: 800
+// Header height: 75px   Border: 2px
+// ─────────────────────────────────────────────────────────────────────────────
+
+const F     = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
+const BLUE  = '#006eb5'   // --undpds-color-brand
+const DARK  = '#232e3e'   // --undpds-color-ebony-clay
+const NAVY  = '#1f5a95'   // --undpds-color-blue-700
+const AZURE = '#60d4f2'   // --undpds-color-azure
+const YELLOW = '#ffeb00'  // --undpds-color-accent
+const GRAY_300 = '#edeff0'
+const GRAY_500 = '#a9b1b7'
+const TEXT  = '#232e3e'
+
+const NAV_H  = 75  // --undpds-header-height-medium
+const FEAT_H = 260 // feature strip
+
+const FEATURES = [
+  {
+    color: BLUE,
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
+        <circle cx="14" cy="14" r="13" stroke={BLUE} strokeWidth="2"/>
+        <path d="M9 10h10M9 14h7M9 18h5" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    title: 'Natural Language Queries',
+    body:  'Ask any question about your pipeline data in plain English — no SQL, no special syntax. The system retrieves answers directly from your uploaded ILI reports, SCADA exports, and PHMSA records.',
+  },
+  {
+    color: AZURE,
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
+        <rect x="5" y="4" width="18" height="20" rx="2" stroke={AZURE} strokeWidth="2"/>
+        <path d="M9 10h10M9 14h10M9 18h6" stroke={AZURE} strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="21" cy="21" r="5" fill="#fff" stroke={AZURE} strokeWidth="2"/>
+        <path d="M19 21l1.5 1.5L23 19" stroke={AZURE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    title: 'Cited, Traceable Answers',
+    body:  'Every AI response cites its exact source document and page. No hallucinated references. Full, immutable audit trail exportable for PHMSA compliance reporting.',
+  },
+  {
+    color: YELLOW,
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden>
+        <circle cx="14" cy="9" r="4" stroke={DARK} strokeWidth="2"/>
+        <path d="M7 23c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke={DARK} strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="22" cy="16" r="4" fill={YELLOW} stroke={DARK} strokeWidth="1.5"/>
+        <path d="M20.5 16l1 1 2-2" stroke={DARK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    title: 'Engineer Review, Always',
+    body:  'High-risk AI recommendations are automatically routed to a qualified engineer for review and sign-off. No unreviewed output ever influences an operational decision.',
+  },
+]
+
+export default function LandingPage() {
   return (
-    <div style={{ background: '#E8F0F9', borderTop: '1px solid #C5D8EF', padding: '20px 32px' }}>
-      <div style={{
-        maxWidth: 1200, margin: '0 auto',
+    <div style={{
+      fontFamily: F, background: '#fff',
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+    }}>
+
+      {/* ── NAV (UNDP: white, 75px, brand blue wordmark) ──────────────────── */}
+      <header style={{
+        height: NAV_H, flexShrink: 0,
+        background: '#fff',
+        borderBottom: `1px solid ${GRAY_300}`,
         display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', gap: 24, flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        padding: '0 80px',
+        position: 'sticky', top: 0, zIndex: 50,
       }}>
-        <div>
-          <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#005DAA', marginBottom: 3 }}>
-            Next Step
-          </p>
-          <p style={{ fontFamily: F, fontSize: 15, fontWeight: 600, color: '#1A1A2A' }}>{label}</p>
-          <p style={{ fontFamily: F, fontSize: 13, color: '#4A5568', marginTop: 2 }}>{description}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden>
+            <rect width="32" height="32" fill={BLUE} />
+            <path d="M7 7h9c3.04 0 5.5 2.46 5.5 5.5S19.04 18 16 18H7V7Z" fill="#fff" />
+            <path d="M16 18l7 7h-6l-4-7h3Z" fill="#fff" fillOpacity="0.55" />
+          </svg>
+          <span style={{ fontFamily: F, fontWeight: 700, fontSize: 18, color: DARK, letterSpacing: '-0.02em' }}>
+            PipelineGPT
+          </span>
         </div>
-        <Link href={href} style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '10px 22px',
-          border: '2px solid #001B3A',
-          background: '#001B3A', color: '#fff',
-          textDecoration: 'none',
-          fontFamily: F, fontSize: 12, fontWeight: 700,
-          letterSpacing: '0.08em', textTransform: 'uppercase' as const,
-          whiteSpace: 'nowrap' as const,
+
+        <Link href="/login" style={{
+          fontFamily: F, fontSize: '1rem', fontWeight: 400,
+          color: DARK, textDecoration: 'none', letterSpacing: '0.01em',
+          display: 'flex', alignItems: 'center', gap: 4,
         }}>
-          {label} <ArrowRight size={13} />
+          Sign in <span style={{ color: BLUE }}>→</span>
         </Link>
-      </div>
-    </div>
-  )
-}
+      </header>
 
-/* ── Constants ────────────────────────────────────────────────── */
-const PIPE_TYPES = [
-  'Gas Transmission',
-  'Hazardous Liquid',
-  'Offshore / Subsea',
-  'Distribution Network',
-  'Gathering Lines',
-]
-
-const ANALYSIS_TYPES = [
-  'ILI Report Analysis',
-  'SCADA Data Review',
-  'PHMSA Incident Trends',
-  'Corrosion Risk Assessment',
-  'Compliance Review',
-  'Integrity Management',
-]
-
-/* ROSEN brand fonts: Inter (or system sans-serif) — clean and corporate */
-const F = 'Inter, system-ui, sans-serif'
-
-export default function HomePage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [pipeType,     setPipeType]     = useState('')
-  const [analysisType, setAnalysisType] = useState('')
-
-  useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login')
-  }, [status, router])
-
-  if (status === 'loading' || status === 'unauthenticated') return null
-
-  const canSubmit = pipeType.length > 0 && analysisType.length > 0
-
-  function handleBegin(e: React.FormEvent) {
-    e.preventDefault()
-    if (!canSubmit) return
-    router.push(`/ingest?${new URLSearchParams({ pipeType, analysisType })}`)
-  }
-
-  return (
-    <div style={{ minHeight: '100vh', background: '#F2F4F7', fontFamily: F }}>
-      <TopNav />
-
-      {/* ── Hero — ROSEN dark navy, white text, ROSEN blue accent ── */}
+      {/* ── HERO (UNDP: full-bleed photo, DARK overlay, yellow accent, display type) ── */}
       <section style={{
-        background: 'linear-gradient(135deg, #001020 0%, #001B3A 60%, #00285A 100%)',
-        padding: '64px 32px 56px',
-        borderBottom: '4px solid #005DAA',
+        flex: 1,
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'flex-end',
+        minHeight: 420,
       }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        {/* Pipeline photo — confirmed: aerial mountain pipeline landscape */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://images.unsplash.com/photo-1559510981-10719ce4266a?q=80&w=1920&auto=format&fit=crop"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', objectPosition: 'center 50%',
+          }}
+          loading="eager"
+        />
+
+        {/* UNDP-style dark overlay — ebony clay tint */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(to top,
+            rgba(35,46,62,0.90) 0%,
+            rgba(35,46,62,0.62) 50%,
+            rgba(35,46,62,0.20) 100%)`,
+        }} />
+
+        {/* Hero content — UNDP keeps it bottom-left, generous padding */}
+        <div style={{
+          position: 'relative', zIndex: 10,
+          padding: '0 80px 56px',
+          maxWidth: 1000,
+        }}>
+          {/* UNDP signature: yellow accent bar above headline */}
+          <div style={{ width: 56, height: 4, background: YELLOW, marginBottom: 28 }} />
+
+          {/* Category label — UNDP: small, uppercase, spaced */}
           <p style={{
-            fontFamily: F, fontWeight: 700, fontSize: 11,
-            letterSpacing: '0.14em', textTransform: 'uppercase',
-            color: '#5B9BD4',        /* ROSEN blue tint — not E4C teal */
-            marginBottom: 16,
+            fontFamily: F, fontSize: '0.75rem', fontWeight: 600,
+            letterSpacing: '0.18em', textTransform: 'uppercase' as const,
+            color: AZURE, marginBottom: 20,
           }}>
-            AI-Powered Pipeline Integrity Intelligence
+            Pipeline Integrity Intelligence · PHMSA Data · Cited Answers
           </p>
+
+          {/* Display headline — UNDP display-large = 3.5rem, bold weight 700 */}
           <h1 style={{
-            fontFamily: F, fontWeight: 700, fontSize: 38,
-            lineHeight: '48px', color: '#FFFFFF',
-            marginBottom: 20, maxWidth: 620,
-            letterSpacing: '-0.02em',
+            fontFamily: F, fontWeight: 700,
+            fontSize: 'clamp(2.25rem, 5vw, 3.5rem)',
+            lineHeight: '100%',
+            letterSpacing: '-0.025em',
+            color: '#fff',
+            marginBottom: 20,
+            maxWidth: 720,
           }}>
-            Query Your Pipeline Data<br />in Plain English
+            Query your pipeline data<br />in plain English.
           </h1>
+
+          {/* Body — UNDP body-default = 1.25rem / 138% */}
           <p style={{
-            fontFamily: F, fontWeight: 400, fontSize: 17,
-            lineHeight: '27px', color: 'rgba(255,255,255,0.60)',
-            maxWidth: 540,
+            fontFamily: F, fontSize: '1.125rem', fontWeight: 400,
+            lineHeight: '138%', color: 'rgba(255,255,255,0.68)',
+            marginBottom: 40, maxWidth: 540,
           }}>
-            Upload ILI reports, SCADA exports, and PHMSA datasets. Ask any question.
-            Get cited answers. Every high-risk recommendation reviewed by a qualified engineer.
+            PipelineGPT turns your ILI reports, SCADA exports, and PHMSA incident records
+            into an instantly queryable knowledge base — with citations and human oversight built in.
           </p>
+
+          {/* CTAs — UNDP: outlined (light) primary + plain text secondary */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' as const }}>
+            <Link href="/login" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              border: '2px solid #fff', color: '#fff',
+              padding: '12px 28px',
+              fontFamily: F, fontSize: '0.875rem', fontWeight: 600,
+              letterSpacing: '0.06em', textTransform: 'uppercase' as const,
+              textDecoration: 'none',
+            }}>
+              Try the demo
+            </Link>
+
+            <Link href="/login" style={{
+              fontFamily: F, fontSize: '0.875rem', fontWeight: 400,
+              color: 'rgba(255,255,255,0.62)',
+              textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              letterSpacing: '0.02em',
+            }}>
+              Sign in with credentials <span style={{ color: AZURE }}>→</span>
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── Action form ── */}
-      <main style={{ maxWidth: 900, margin: '0 auto', padding: '48px 32px 64px' }}>
-        <form onSubmit={handleBegin}>
-
-          {/* Pipeline type chips */}
-          <div style={{ marginBottom: 40 }}>
-            <p style={{
-              fontFamily: F, fontWeight: 700, fontSize: 11,
-              letterSpacing: '0.12em', textTransform: 'uppercase',
-              color: '#005DAA',        /* ROSEN blue label */
-              marginBottom: 14,
-            }}>
-              What type of pipeline are you working with?
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {PIPE_TYPES.map(t => (
-                <button key={t} type="button" onClick={() => setPipeType(t)}
-                  style={{
-                    fontFamily: F, fontSize: 14,
-                    padding: '9px 20px',
-                    border: pipeType === t ? '2px solid #005DAA' : '1px solid #C5D8EF',
-                    background: pipeType === t ? '#005DAA' : '#FFFFFF',
-                    color: pipeType === t ? '#FFFFFF' : '#005DAA',
-                    cursor: 'pointer', transition: 'all 0.12s',
-                  }}>
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Analysis type chips */}
-          <div style={{ marginBottom: 40 }}>
-            <p style={{
-              fontFamily: F, fontWeight: 700, fontSize: 11,
-              letterSpacing: '0.12em', textTransform: 'uppercase',
-              color: '#005DAA',
-              marginBottom: 14,
-            }}>
-              What do you need to analyse?
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {ANALYSIS_TYPES.map(a => (
-                <button key={a} type="button" onClick={() => setAnalysisType(a)}
-                  style={{
-                    fontFamily: F, fontSize: 14,
-                    padding: '9px 20px',
-                    border: analysisType === a ? '2px solid #001B3A' : '1px solid #D1D5DB',
-                    background: analysisType === a ? '#001B3A' : '#FFFFFF',
-                    color: analysisType === a ? '#FFFFFF' : '#374151',
-                    cursor: 'pointer', transition: 'all 0.12s',
-                  }}>
-                  {a}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Info box — ROSEN blue left border */}
-          <div style={{
-            background: '#E8F0F9',
-            borderLeft: '4px solid #005DAA',
-            padding: '16px 20px',
-            marginBottom: 32,
+      {/* ── FEATURES (UNDP: white strip, 3-col, icon + bold title + body) ── */}
+      <section style={{
+        height: FEAT_H, flexShrink: 0,
+        background: '#fff',
+        borderTop: `4px solid ${YELLOW}`,   // UNDP yellow top-rule on feature sections
+        display: 'flex', alignItems: 'stretch',
+        padding: '0 80px',
+      }}>
+        {FEATURES.map((f, i) => (
+          <div key={f.title} style={{
+            flex: 1,
+            padding: '28px 32px',
+            borderRight: i < FEATURES.length - 1 ? `1px solid ${GRAY_300}` : 'none',
+            display: 'flex', flexDirection: 'column' as const, gap: 12,
           }}>
+            {/* Icon */}
+            <div>{f.icon}</div>
+
+            {/* Feature title — UNDP heading-small = 1.5rem, weight 600 */}
             <p style={{
-              fontFamily: F, fontWeight: 700, fontSize: 11,
-              letterSpacing: '0.1em', textTransform: 'uppercase',
-              color: '#001B3A', marginBottom: 10,
+              fontFamily: F, fontSize: '1rem', fontWeight: 700,
+              color: TEXT, lineHeight: '110%', letterSpacing: '-0.01em',
             }}>
-              What happens after you begin
+              {f.title}
             </p>
-            {[
-              'Step 1 — Upload your pipeline documents (PDF, CSV, GeoJSON, ZIP)',
-              'Step 2 — Ask questions in plain English; the AI retrieves cited answers from your data',
-              'Step 3 — High-risk recommendations are routed to a qualified engineer for sign-off',
-              'Step 4 — View trends, confidence scores, and query analytics on the dashboard',
-              'Step 5 — Export your immutable audit trail for PHMSA compliance reporting',
-            ].map(item => (
-              <p key={item} style={{
-                fontFamily: F, fontSize: 14,
-                color: '#1A3A5C',      /* ROSEN dark blue text, not E4C teal */
-                marginBottom: 4, lineHeight: 1.55,
-              }}>
-                ✓ {item}
-              </p>
-            ))}
+
+            {/* Body — UNDP body-small = 1rem, 138% */}
+            <p style={{
+              fontFamily: F, fontSize: '0.875rem', fontWeight: 400,
+              color: '#55606e', lineHeight: '138%',
+              margin: 0,
+            }}>
+              {f.body}
+            </p>
           </div>
+        ))}
+      </section>
 
-          {/* CTA — dotted border, ROSEN dark navy */}
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            style={{
-              fontFamily: F,
-              fontWeight: 700, fontSize: 13,
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              width: '100%', padding: '14px 24px',
-              border: canSubmit ? '2px dotted #001B3A' : '2px dotted #9CA3AF',
-              background: canSubmit ? '#001B3A' : '#F3F4F6',
-              color: canSubmit ? '#FFFFFF' : '#9CA3AF',
-              cursor: canSubmit ? 'pointer' : 'not-allowed',
-              transition: 'all 0.15s',
-            }}
-          >
-            {canSubmit
-              ? `Begin Analysis — ${pipeType} · ${analysisType} →`
-              : 'Select a pipeline type and analysis type to continue'}
-          </button>
-        </form>
-
-        <p style={{
-          fontFamily: F, fontSize: 12, color: '#8896A8',
-          lineHeight: 1.6, marginTop: 28,
-        }}>
-          PipelineGPT is a prototype submitted for the ASME Foundation Hermann Rosen Award
-          for Pipeline Innovation 2026. All AI outputs require human review before any pipeline
-          action is taken. No unreviewed recommendation ever triggers an operational change.
+      {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
+      <footer style={{
+        flexShrink: 0, background: DARK,
+        padding: '14px 80px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap' as const, gap: 8,
+      }}>
+        <p style={{ fontFamily: F, fontSize: '0.75rem', color: GRAY_500, letterSpacing: '0.02em' }}>
+          © 2026 PipelineGPT · ASME Foundation Hermann Rosen Award for Pipeline Innovation
         </p>
-      </main>
+        <p style={{ fontFamily: F, fontSize: '0.75rem', color: GRAY_500 }}>
+          All AI outputs require human review before operational action.
+        </p>
+      </footer>
     </div>
   )
 }

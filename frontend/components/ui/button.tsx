@@ -3,15 +3,15 @@ import { cn } from '@/lib/utils'
 import { type ButtonHTMLAttributes, forwardRef } from 'react'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005DAA] disabled:opacity-50 disabled:pointer-events-none',
+  'inline-flex items-center justify-center font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006eb5] disabled:opacity-50 disabled:pointer-events-none',
   {
     variants: {
       variant: {
-        primary: 'bg-[#005DAA] text-white hover:bg-[#004A8F] rounded-[4px]',
-        ghost: 'border border-[#C8D0DC] text-[#4A5568] bg-transparent hover:border-[#005DAA] hover:text-[#005DAA] rounded-[4px]',
-        danger: 'bg-[#B91C1C] text-white hover:bg-[#991B1B] rounded-[4px]',
-        success: 'bg-[#1A7A4A] text-white hover:bg-[#15653D] rounded-[4px]',
-        link: 'text-[#005DAA] underline-offset-4 hover:underline p-0 h-auto',
+        primary: 'bg-[#006eb5] text-white hover:bg-[#1f5a95] ',
+        ghost: 'border border-[#C8D0DC] text-[#4A5568] bg-transparent hover:border-[#006eb5] hover:text-[#006eb5] ',
+        danger: 'bg-[#B91C1C] text-white hover:bg-[#991B1B] ',
+        success: 'bg-[#1A7A4A] text-white hover:bg-[#15653D] ',
+        link: 'text-[#006eb5] underline-offset-4 hover:underline p-0 h-auto',
       },
       size: {
         sm: 'px-4 py-1.5 text-sm',

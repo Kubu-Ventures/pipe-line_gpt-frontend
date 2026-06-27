@@ -5,7 +5,7 @@ import { ClipboardCheck, CheckCircle, AlertCircle } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
-import { NextStep } from '@/app/page'
+import { NextStep } from '@/app/home/page'
 import { ReviewCard } from './components/ReviewCard'
 import { useReviewQueue } from '@/hooks/useReviewQueue'
 
@@ -109,7 +109,7 @@ export default function ReviewPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F2F4F7', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0', fontFamily: F }}>
       <TopNav activeTab="review" />
 
       <PageHero
@@ -122,7 +122,7 @@ export default function ReviewPage() {
       {/* ── Controls strip ── */}
       <div style={{
         background: '#FFFFFF',
-        borderBottom: '1px solid #E4E8EF',
+        borderBottom: '1px solid #d4d6d8',
         padding: '20px 40px 0',
         /* padding overridden at ≤768px by .page-content */
       }}>
@@ -134,7 +134,7 @@ export default function ReviewPage() {
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 background: '#FDF4F4', border: '1px solid #E8BCBC',
-                borderRadius: 4, padding: '8px 16px',
+                borderLeft: '4px solid #991B1B', padding: '8px 16px',
               }}>
                 <AlertCircle size={15} color="#991B1B" />
                 <span style={{ fontFamily: F, fontSize: 13, fontWeight: 600, color: '#991B1B' }}>
@@ -147,8 +147,8 @@ export default function ReviewPage() {
 
           {/* ── Metric strip ── */}
           <div className="metric-strip" style={{
-            background: '#FFFFFF', border: '1px solid #E4E8EF',
-            borderRadius: 4, marginBottom: 24, overflow: 'hidden',
+            background: '#FFFFFF', border: '1px solid #d4d6d8',
+            borderTop: '4px solid #006eb5', marginBottom: 24, overflow: 'hidden',
           }}>
             {[
               {
@@ -186,7 +186,7 @@ export default function ReviewPage() {
                   fontSize: 32,
                   fontWeight: 700,
                   letterSpacing: '-0.03em',
-                  color: m.urgent ? m.urgentColor : '#1A1A2A',
+                  color: m.urgent ? m.urgentColor : '#232e3e',
                   lineHeight: 1,
                   marginBottom: 6,
                 }}>
@@ -214,7 +214,7 @@ export default function ReviewPage() {
           </div>
 
           {/* Tab bar */}
-          <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #E4E8EF', marginBottom: -2 }}>
+          <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #d4d6d8', marginBottom: -2 }}>
             {TABS.map(({ key, label }) => {
               const isActive = activeTab === key
               const count = tabCounts[key] ?? 0
@@ -226,9 +226,9 @@ export default function ReviewPage() {
                     fontFamily: F,
                     padding: '10px 20px',
                     border: 'none',
-                    borderBottom: isActive ? '2px solid #005DAA' : '2px solid transparent',
+                    borderBottom: isActive ? '2px solid #006eb5' : '2px solid transparent',
                     background: 'none',
-                    color: isActive ? '#005DAA' : '#6B7280',
+                    color: isActive ? '#006eb5' : '#6B7280',
                     fontSize: 14, fontWeight: isActive ? 600 : 400,
                     cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 7,
@@ -239,10 +239,10 @@ export default function ReviewPage() {
                   {label}
                   {count > 0 && (
                     <span style={{
-                      background: isActive ? '#005DAA' : '#E4E8EF',
+                      background: isActive ? '#006eb5' : '#d4d6d8',
                       color: isActive ? '#fff' : '#6B7280',
                       fontSize: 11, fontWeight: 700,
-                      borderRadius: 10, padding: '1px 6px',
+                      padding: '1px 6px',
                       lineHeight: '16px',
                     }}>
                       {count}
@@ -262,7 +262,7 @@ export default function ReviewPage() {
             <div style={{ textAlign: 'center', padding: '80px', color: '#8896A8' }}>
               <div style={{
                 display: 'inline-block', width: 28, height: 28,
-                border: '3px solid #E4E8EF', borderTopColor: '#005DAA',
+                border: '3px solid #d4d6d8', borderTopColor: '#006eb5',
                 borderRadius: '50%', animation: 'spin 0.7s linear infinite',
                 marginBottom: 14,
               }} />
@@ -271,10 +271,11 @@ export default function ReviewPage() {
           ) : filteredItems.length === 0 ? (
             <div style={{
               textAlign: 'center', padding: '80px',
-              background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6,
+              background: '#FFFFFF', border: '1px solid #d4d6d8',
+              borderTop: '4px solid #d4d6d8',
             }}>
               <CheckCircle size={48} color="#1A7A4A" style={{ marginBottom: 16 }} />
-              <p style={{ fontFamily: F, fontSize: 16, fontWeight: 600, color: '#1A1A2A', marginBottom: 6 }}>
+              <p style={{ fontFamily: F, fontSize: 16, fontWeight: 600, color: '#232e3e', marginBottom: 6 }}>
                 Queue is clear
               </p>
               <p style={{ fontFamily: F, fontSize: 14, color: '#6B7280' }}>

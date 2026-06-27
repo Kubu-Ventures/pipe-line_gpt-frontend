@@ -11,7 +11,7 @@ export function CitationPanel({ citation, onClose }: CitationPanelProps) {
     <div
       style={{
         position: 'fixed',
-        top: '72px',
+        top: '79px',
         right: 0,
         bottom: 0,
         width: '400px',
@@ -37,7 +37,7 @@ export function CitationPanel({ citation, onClose }: CitationPanelProps) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <FileText size={16} color="#005DAA" />
+          <FileText size={16} color="#006eb5" />
           <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1A1A2A' }}>Source Reference</span>
         </div>
         <button
@@ -57,8 +57,8 @@ export function CitationPanel({ citation, onClose }: CitationPanelProps) {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              background: '#E8F0F9',
-              color: '#005DAA',
+              background: '#dff0ff',
+              color: '#006eb5',
               fontSize: '0.75rem',
               fontWeight: 600,
               fontFamily: 'monospace',
@@ -133,7 +133,7 @@ export function CitationPanel({ citation, onClose }: CitationPanelProps) {
                 border: '1px solid #E4E8EF',
                 borderRadius: '6px',
                 padding: '14px',
-                borderLeft: '3px solid #005DAA',
+                borderLeft: '3px solid #006eb5',
               }}
             >
               {citation.text}

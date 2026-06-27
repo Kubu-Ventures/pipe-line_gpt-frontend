@@ -6,7 +6,7 @@ import { Upload, RefreshCw, File, CheckCircle, XCircle, Clock, Database } from '
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
-import { NextStep } from '@/app/page'
+import { NextStep } from '@/app/home/page'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { ingestFile, syncPHMSA } from '@/lib/api'
@@ -74,7 +74,7 @@ export default function IngestPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#FFFFFF' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0' }}>
       <TopNav activeTab="ingest" />
       <PageHero
         step="Step 1 of 5 · Upload Data"
@@ -88,7 +88,7 @@ export default function IngestPage() {
 
           {/* Upload section */}
           <div className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: '6px', padding: '32px', marginBottom: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1A1A2A', marginBottom: '6px' }}>Upload Documents</h2>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#232e3e', marginBottom: '6px' }}>Upload Documents</h2>
             <p style={{ fontSize: '0.875rem', color: '#8896A8', marginBottom: '20px' }}>
               Supported formats: PDF, CSV, TSV, ZIP (PHMSA), GeoJSON, XLSX · Max {MAX_MB} MB per file
             </p>
@@ -97,12 +97,12 @@ export default function IngestPage() {
             <label
               style={{
                 display: 'block',
-                border: dragging ? '2px dashed #005DAA' : '2px dashed #C8D0DC',
+                border: dragging ? '2px dashed #006eb5' : '2px dashed #C8D0DC',
                 borderRadius: '8px',
                 padding: '48px 24px',
                 textAlign: 'center',
                 cursor: 'pointer',
-                background: dragging ? '#E8F0F9' : '#F8F9FB',
+                background: dragging ? '#dff0ff' : '#F8F9FB',
                 transition: 'all 0.15s',
               }}
               onDragOver={e => { e.preventDefault(); setDragging(true) }}
@@ -110,11 +110,11 @@ export default function IngestPage() {
               onDrop={onDrop}
             >
               <input type="file" multiple accept={ACCEPTED} style={{ display: 'none' }} onChange={e => addFiles(e.target.files)} />
-              <Upload size={32} color={dragging ? '#005DAA' : '#C8D0DC'} style={{ margin: '0 auto 12px' }} />
-              <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: dragging ? '#005DAA' : '#1A1A2A', marginBottom: '4px' }}>
+              <Upload size={32} color={dragging ? '#006eb5' : '#C8D0DC'} style={{ margin: '0 auto 12px' }} />
+              <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: dragging ? '#006eb5' : '#232e3e', marginBottom: '4px' }}>
                 {dragging ? 'Drop files here' : 'Drag & drop files here'}
               </p>
-              <p style={{ fontSize: '0.875rem', color: '#8896A8' }}>or <span style={{ color: '#005DAA', fontWeight: 500 }}>browse to select</span></p>
+              <p style={{ fontSize: '0.875rem', color: '#8896A8' }}>or <span style={{ color: '#006eb5', fontWeight: 500 }}>browse to select</span></p>
             </label>
 
             {/* File list */}
@@ -122,8 +122,8 @@ export default function IngestPage() {
               <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {files.map((f, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: '#F8F9FB', border: '1px solid #E4E8EF', borderRadius: '4px' }}>
-                    <File size={16} color="#005DAA" />
-                    <span style={{ flex: 1, fontSize: '0.875rem', color: '#1A1A2A' }}>{f.name}</span>
+                    <File size={16} color="#006eb5" />
+                    <span style={{ flex: 1, fontSize: '0.875rem', color: '#232e3e' }}>{f.name}</span>
                     <span style={{ fontSize: '0.8125rem', color: '#8896A8' }}>{(f.size / 1024 / 1024).toFixed(2)} MB</span>
                     <button onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#8896A8', padding: '2px' }}>×</button>
                   </div>
@@ -134,7 +134,7 @@ export default function IngestPage() {
                   style={{
                     marginTop: '8px',
                     padding: '10px 24px',
-                    background: uploading ? '#8896A8' : '#005DAA',
+                    background: uploading ? '#8896A8' : '#006eb5',
                     color: '#FFF',
                     border: 'none',
                     borderRadius: '4px',
@@ -173,7 +173,7 @@ export default function IngestPage() {
             style={{
               background: '#FFFFFF',
               border: '1px solid #E4E8EF',
-              borderLeft: '4px solid #005DAA',
+              borderLeft: '4px solid #006eb5',
               borderRadius: '6px',
               padding: '24px 28px',
               marginBottom: '32px',
@@ -184,11 +184,11 @@ export default function IngestPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', background: '#E8F0F9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Database size={22} color="#005DAA" />
+              <div style={{ width: '48px', height: '48px', background: '#dff0ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Database size={22} color="#006eb5" />
               </div>
               <div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#1A1A2A', marginBottom: '2px' }}>PHMSA Public Dataset Sync</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#232e3e', marginBottom: '2px' }}>PHMSA Public Dataset Sync</h3>
                 <p style={{ fontSize: '0.875rem', color: '#8896A8' }}>
                   Download the latest PHMSA hazardous liquid and gas pipeline incident files from phmsa.dot.gov.
                 </p>
@@ -207,7 +207,7 @@ export default function IngestPage() {
                 alignItems: 'center',
                 gap: '8px',
                 padding: '10px 20px',
-                background: syncDone ? '#1A7A4A' : syncing ? '#8896A8' : '#005DAA',
+                background: syncDone ? '#1A7A4A' : syncing ? '#8896A8' : '#006eb5',
                 color: '#FFF',
                 border: 'none',
                 borderRadius: '4px',
@@ -224,7 +224,7 @@ export default function IngestPage() {
 
           {/* History table */}
           <div className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: '6px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginTop: 8 }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1A1A2A', marginBottom: '16px', padding: '20px 24px 0' }}>Ingestion History</h2>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#232e3e', marginBottom: '16px', padding: '20px 24px 0' }}>Ingestion History</h2>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -239,7 +239,7 @@ export default function IngestPage() {
               <TableBody>
                 {MOCK_HISTORY.map((row, i) => (
                   <TableRow key={i}>
-                    <TableCell style={{ fontWeight: 500, color: '#1A1A2A' }}>{row.filename}</TableCell>
+                    <TableCell style={{ fontWeight: 500, color: '#232e3e' }}>{row.filename}</TableCell>
                     <TableCell>
                       <Badge variant="gray">{row.type}</Badge>
                     </TableCell>
