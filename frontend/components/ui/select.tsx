@@ -11,15 +11,15 @@ export function SelectTrigger({ className, children, ...props }: SelectPrimitive
   return (
     <SelectPrimitive.Trigger
       className={cn(
-        'flex items-center justify-between w-full px-3 py-2 rounded-[4px] border border-[#C8D0DC] bg-white text-sm text-[#1A1A2A]',
-        'focus:outline-none focus:border-[#005DAA] focus:ring-1 focus:ring-[#005DAA]',
-        'placeholder:text-[#8896A8]',
+        'flex items-center justify-between w-full px-3 py-2 border border-[#d4d6d8] bg-white text-sm text-[#232e3e]',
+        'focus:outline-none focus:border-[#006eb5] focus:ring-1 focus:ring-[#006eb5]',
+        'placeholder:text-[#a9b1b7]',
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown size={14} className="text-[#8896A8]" />
+      <ChevronDown size={14} className="text-[#a9b1b7]" />
     </SelectPrimitive.Trigger>
   )
 }
@@ -29,7 +29,7 @@ export function SelectContent({ className, children, ...props }: SelectPrimitive
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         className={cn(
-          'bg-white border border-[#E4E8EF] rounded-[6px] shadow-lg z-50 overflow-hidden min-w-[120px]',
+          'bg-white border border-[#d4d6d8] shadow-lg z-50 overflow-hidden min-w-[120px]',
           className
         )}
         position="popper"
@@ -46,9 +46,9 @@ export function SelectItem({ className, children, ...props }: SelectPrimitive.Se
   return (
     <SelectPrimitive.Item
       className={cn(
-        'flex items-center gap-2 px-3 py-2 text-sm text-[#4A5568] rounded-[3px] cursor-pointer',
-        'data-[highlighted]:bg-[#E8F0F9] data-[highlighted]:text-[#005DAA] data-[highlighted]:outline-none',
-        'data-[state=checked]:text-[#005DAA] data-[state=checked]:font-600',
+        'flex items-center gap-2 px-3 py-2 text-sm text-[#55606e] cursor-pointer',
+        'data-[highlighted]:bg-[#dff0ff] data-[highlighted]:text-[#006eb5] data-[highlighted]:outline-none',
+        'data-[state=checked]:text-[#006eb5] data-[state=checked]:font-600',
         className
       )}
       {...props}

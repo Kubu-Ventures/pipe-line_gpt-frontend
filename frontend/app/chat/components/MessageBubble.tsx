@@ -71,7 +71,7 @@ export function MessageBubble({
             width: '32px',
             height: '32px',
             borderRadius: '50%',
-            background: '#001B3A',
+            background: '#232e3e',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -92,10 +92,10 @@ export function MessageBubble({
           style={{
             padding: '12px 16px',
             borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-            background: isUser ? '#005DAA' : '#FFFFFF',
+            background: isUser ? '#006eb5' : '#FFFFFF',
             border: isUser ? 'none' : '1px solid #E4E8EF',
             boxShadow: isUser ? 'none' : '0 1px 4px rgba(0,0,0,0.06)',
-            color: isUser ? '#FFFFFF' : '#1A1A2A',
+            color: isUser ? '#FFFFFF' : '#232e3e',
             fontSize: '0.9375rem',
             lineHeight: 1.6,
             position: 'relative',
@@ -120,9 +120,9 @@ export function MessageBubble({
             <span
               style={{
                 fontSize: '0.75rem',
-                color: '#005DAA',
+                color: '#006eb5',
                 fontWeight: 500,
-                background: '#E8F0F9',
+                background: '#dff0ff',
                 padding: '2px 8px',
                 borderRadius: '3px',
                 border: '1px solid rgba(0,93,170,0.15)',

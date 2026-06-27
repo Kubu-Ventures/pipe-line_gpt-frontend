@@ -7,7 +7,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        email:    { label: 'Email',    type: 'email'    },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
@@ -17,15 +17,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const loginRes = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
+            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
           })
           if (!loginRes.ok) return null
-          const { access_token } = await loginRes.json()
+          const loginData = await loginRes.json()
+          const { access_token, mfa_setup_required = false } = loginData
 
-          // Step 2: fetch the user profile with that token
+          // Step 2: fetch the user profile
           const meRes = await fetch(`${API_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${access_token}` },
           })
@@ -33,11 +31,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const me = await meRes.json()
 
           return {
-            id: me.id,
-            email: me.email,
-            name: me.email.split('@')[0],
-            accessToken: access_token,
-            role: me.role,
+            id:               me.id,
+            email:            me.email,
+            name:             me.email.split('@')[0],
+            accessToken:      access_token,
+            role:             me.role,
+            mfaEnabled:       me.mfa_enabled ?? false,
+            mfaSetupRequired: mfa_setup_required,
           }
         } catch {
           return null
@@ -48,14 +48,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.accessToken
-        token.role = user.role
+        token.accessToken      = user.accessToken
+        token.role             = user.role
+        token.mfaEnabled       = user.mfaEnabled
+        token.mfaSetupRequired = user.mfaSetupRequired
       }
       return token
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken
-      session.user.role = token.role
+      session.accessToken            = token.accessToken
+      session.user.role              = token.role
+      session.user.mfaEnabled        = token.mfaEnabled
+      session.user.mfaSetupRequired  = token.mfaSetupRequired
       return session
     },
   },
