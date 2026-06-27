@@ -28,7 +28,7 @@ const ADMIN_ONLY_EVENT_TYPES = [
   'USER_LOGIN', 'USER_INVITED', 'USER_INVITED_ACCEPTED', 'CONFIG_CHANGE',
 ] as const
 
-/* ── Color legend — system-events entry shown to admins only ────────────── */
+/* ── Color legend ───────────────────────────────────────────────────────── */
 const OPERATIONAL_LEGEND = [
   { dot: '#1A7A4A', label: 'Approved · Healthy · Successful' },
   { dot: '#991B1B', label: 'Rejected · Critical · High-risk flag' },
@@ -81,7 +81,6 @@ const EVENT_CONFIG: Record<string, {
     color: '#065F46', bg: '#D1FAE5', border: '#6EE7B7',
     description: e => `${e.payload.filename ?? 'Unknown file'} ingested — ${e.payload.chunks?.toLocaleString() ?? '—'} chunks indexed`,
   },
-  /* Admin-only event types */
   USER_LOGIN: {
     icon: LogIn, label: 'User Login',
     color: '#4A5568', bg: '#edeff0', border: '#CBD5E0',
@@ -122,7 +121,7 @@ const RISK_STYLE: Record<string, { color: string; bg: string }> = {
   LOW:    { color: '#1A7A4A', bg: '#D1FAE5' },
 }
 
-/* ── Demo events (operational only — engineers and admins both see these) ── */
+/* ── Demo events ────────────────────────────────────────────────────────── */
 const DEMO_OPERATIONAL: AuditEvent[] = [
   {
     id: 'demo-1', event_type: 'ANOMALY_ESCALATED',
@@ -168,7 +167,6 @@ const DEMO_OPERATIONAL: AuditEvent[] = [
   },
 ]
 
-/* ── Admin-only demo events (logins, config changes) ───────────────────── */
 const DEMO_ADMIN_ONLY: AuditEvent[] = [
   {
     id: 'demo-adm-1', event_type: 'USER_LOGIN',
@@ -272,16 +270,17 @@ function EventRow({ event, expanded, setExpanded, isLast }: {
   const Icon = cfg.icon
   const isExpanded = expanded === event.id
   const riskLevel = event.payload.risk_level as string | undefined
+  const timestamp = new Date(event.created_at).toISOString().replace('T', ' ').slice(0, 19)
 
   return (
     <div style={{ borderBottom: !isLast ? '1px solid #edeff0' : 'none' }}>
       <div
         onClick={() => setExpanded(isExpanded ? null : event.id)}
-        style={{ display: 'grid', gridTemplateColumns: '28px 1fr 180px 160px 160px', gap: '0 16px', alignItems: 'center', padding: '13px 20px', cursor: 'pointer' }}
+        className="a-row"
         onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
       >
-        <div style={{ color: '#9CA3AF' }}>
+        <div style={{ color: '#9CA3AF', paddingTop: 2 }}>
           {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </div>
 
@@ -289,7 +288,7 @@ function EventRow({ event, expanded, setExpanded, isLast }: {
           <div style={{ width: 28, height: 28, borderRadius: 4, background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
             <Icon size={13} color={cfg.color} />
           </div>
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
               {riskLevel && (
@@ -306,19 +305,25 @@ function EventRow({ event, expanded, setExpanded, isLast }: {
             <p style={{ fontSize: 12, color: '#6B7280', margin: 0, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {cfg.description(event)}
             </p>
+            {/* Shown on mobile only (actor + timestamp columns hidden) */}
+            <div className="a-mobile-meta">
+              <span style={{ color: event.actor_display === 'system' ? '#9CA3AF' : '#374151', fontStyle: event.actor_display === 'system' ? 'italic' : 'normal' }}>
+                {event.actor_display}
+              </span>
+              <span style={{ color: '#9CA3AF', fontFamily: 'monospace' }}>{timestamp}</span>
+            </div>
           </div>
         </div>
 
-        <div style={{ fontSize: 13, color: event.actor_display === 'system' ? '#9CA3AF' : '#374151', fontStyle: event.actor_display === 'system' ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {/* Desktop-only columns */}
+        <div className="a-col-actor" style={{ fontSize: 13, color: event.actor_display === 'system' ? '#9CA3AF' : '#374151', fontStyle: event.actor_display === 'system' ? 'italic' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {event.actor_display}
         </div>
-
-        <div style={{ fontSize: 12, color: BLUE, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div className="a-col-ctx" style={{ fontSize: 12, color: BLUE, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {event.context}
         </div>
-
-        <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#9CA3AF' }}>
-          {new Date(event.created_at).toISOString().replace('T', ' ').slice(0, 19)}
+        <div className="a-col-ts" style={{ fontFamily: 'monospace', fontSize: 12, color: '#9CA3AF' }}>
+          {timestamp}
         </div>
       </div>
 
@@ -342,14 +347,12 @@ export default function AuditPage() {
   const [fetchError,  setFetchError]  = useState<string | null>(null)
   const [exporting,   setExporting]   = useState(false)
 
-  /* Filter chips shown depend on role */
   const filterTypes = [
     'All',
     ...OPERATIONAL_EVENT_TYPES,
     ...(isAdmin ? ADMIN_ONLY_EVENT_TYPES : []),
   ]
 
-  /* Demo events for current role */
   const allDemoEvents = isAdmin
     ? [...DEMO_OPERATIONAL, ...DEMO_ADMIN_ONLY]
     : DEMO_OPERATIONAL
@@ -385,14 +388,12 @@ export default function AuditPage() {
 
   useEffect(() => { fetchEvents() }, [fetchEvents])
 
-  /* Blend live + demo, filtered by type */
   const filteredDemo = filterType === 'All'
     ? allDemoEvents
     : allDemoEvents.filter(e => e.event_type === filterType)
 
   const allEvents = [...liveEvents, ...filteredDemo]
 
-  /* Metric counts */
   const hitlCount     = allEvents.filter(e => e.event_type.startsWith('HITL_')).length
   const rejectedCount = allEvents.filter(e => e.event_type === 'HITL_REJECTED').length
   const criticalCount = allEvents.filter(e => ['ANOMALY_ESCALATED', 'COMPLIANCE_FLAG'].includes(e.event_type)).length
@@ -426,8 +427,83 @@ export default function AuditPage() {
     ? [...OPERATIONAL_LEGEND, ADMIN_LEGEND_EXTRA]
     : OPERATIONAL_LEGEND
 
+  /* CSS class names are prefixed "a-" to avoid collisions */
+  const css = `
+    .a-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 180px 160px 160px;
+      gap: 0 16px;
+      align-items: center;
+      padding: 13px 20px;
+      cursor: pointer;
+    }
+    .a-hdr {
+      display: grid;
+      grid-template-columns: 28px 1fr 180px 160px 160px;
+      gap: 0 16px;
+      align-items: center;
+      padding: 10px 20px;
+      background: #fafafa;
+      border-bottom: 1px solid #d4d6d8;
+    }
+    .a-mobile-meta { display: none; }
+    .a-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: #FFFFFF;
+      border: 1px solid #d4d6d8;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .a-metric {
+      padding: 18px 28px;
+    }
+    .a-metric + .a-metric { border-left: 1px solid #d4d6d8; }
+    .a-filterbar {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .a-search-grp {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .a-search-input {
+      padding: 7px 10px;
+      border: 1px solid #C8D0DC;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #232e3e;
+      background: #FFF;
+      outline: none;
+      min-width: 200px;
+    }
+    @media (max-width: 900px) {
+      .a-metric { padding: 14px 18px; }
+    }
+    @media (max-width: 768px) {
+      .a-metrics { grid-template-columns: repeat(2, 1fr); }
+      .a-metric { padding: 14px 16px; }
+      .a-metric:nth-child(1), .a-metric:nth-child(2) { border-bottom: 1px solid #d4d6d8; }
+      .a-row { grid-template-columns: 28px 1fr; gap: 0 8px; padding: 11px 12px; align-items: flex-start; }
+      .a-hdr { grid-template-columns: 28px 1fr; gap: 0 8px; padding: 8px 12px; }
+      .a-col-actor, .a-col-ctx, .a-col-ts { display: none; }
+      .a-mobile-meta { display: flex; gap: 10px; margin-top: 5px; font-size: 11px; flex-wrap: wrap; }
+      .a-filterbar { gap: 16px; }
+      .a-search-grp { flex-direction: column; align-items: stretch; gap: 8px; }
+      .a-search-input { min-width: unset; width: 100%; box-sizing: border-box; }
+    }
+    @media (max-width: 480px) {
+      .a-metric { padding: 12px 12px; }
+    }
+  `
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0', fontFamily: F }}>
+      <style dangerouslySetInnerHTML={{ __html: css }} />
       <TopNav activeTab="audit" />
       <PageHero
         step="Step 5 of 5 · Audit Trail"
@@ -443,7 +519,7 @@ export default function AuditPage() {
       <main style={{ flex: 1 }}>
         <div className="page-content" style={{ maxWidth: 1280, margin: '0 auto' }}>
 
-          {/* ── Color legend ── */}
+          {/* Color legend */}
           <div style={{
             display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px 20px',
             background: '#fff', border: '1px solid #d4d6d8', borderRadius: 4,
@@ -460,7 +536,7 @@ export default function AuditPage() {
             ))}
           </div>
 
-          {/* ── Role notice for engineers ── */}
+          {/* Role notice for engineers */}
           {!isAdmin && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
@@ -476,7 +552,7 @@ export default function AuditPage() {
             </div>
           )}
 
-          {/* ── Backend error ── */}
+          {/* Backend error */}
           {fetchError && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
@@ -488,15 +564,15 @@ export default function AuditPage() {
             </div>
           )}
 
-          {/* ── Metric strip ── */}
-          <div style={{ display: 'flex', background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 4, marginBottom: 24, overflow: 'hidden' }}>
+          {/* Metric strip */}
+          <div className="a-metrics">
             {[
-              { value: totalLive,     label: 'Live Events',         sub: isAdmin ? 'All events in database' : 'Operational events in database', color: DARK },
-              { value: hitlCount,     label: 'Engineer Decisions',  sub: 'HITL approvals, edits, rejects',  color: BLUE },
-              { value: rejectedCount, label: 'Responses Rejected',  sub: 'Returned for correction',          color: rejectedCount > 0 ? '#991B1B' : '#1A7A4A' },
-              { value: criticalCount, label: 'Critical Flags',      sub: 'Anomalies + compliance alerts',    color: criticalCount > 0 ? '#92400E' : '#1A7A4A' },
-            ].map((m, i, arr) => (
-              <div key={m.label} style={{ flex: 1, padding: '18px 28px', borderRight: i < arr.length - 1 ? '1px solid #d4d6d8' : 'none' }}>
+              { value: totalLive,     label: 'Live Events',        sub: isAdmin ? 'All events in database' : 'Operational events in database', color: DARK },
+              { value: hitlCount,     label: 'Engineer Decisions', sub: 'HITL approvals, edits, rejects',  color: BLUE },
+              { value: rejectedCount, label: 'Responses Rejected', sub: 'Returned for correction',          color: rejectedCount > 0 ? '#991B1B' : '#1A7A4A' },
+              { value: criticalCount, label: 'Critical Flags',     sub: 'Anomalies + compliance alerts',    color: criticalCount > 0 ? '#92400E' : '#1A7A4A' },
+            ].map(m => (
+              <div key={m.label} className="a-metric">
                 <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.03em', color: m.color, lineHeight: 1, marginBottom: 5 }}>
                   {loading ? '—' : m.value}
                 </div>
@@ -506,71 +582,73 @@ export default function AuditPage() {
             ))}
           </div>
 
-          {/* ── Filter bar ── */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, padding: '16px 20px', marginBottom: 8, display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-            <div style={{ flex: 1, minWidth: 300 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8', marginBottom: 8 }}>Event Type</div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {filterTypes.map(t => {
-                  const cfg = t !== 'All' ? EVENT_CONFIG[t] : null
-                  const active = filterType === t
-                  const isAdminType = ADMIN_ONLY_EVENT_TYPES.includes(t as any)
-                  return (
-                    <button
-                      key={t}
-                      onClick={() => setFilterType(t)}
-                      style={{
-                        fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 3,
-                        cursor: 'pointer', border: isAdminType ? '1px dashed #CBD5E0' : 'none',
-                        background: active ? (cfg?.bg ?? '#E8F0F9') : '#edeff0',
-                        color: active ? (cfg?.color ?? BLUE) : '#6B7280',
-                        outline: active ? `1px solid ${cfg?.border ?? '#C5D8EF'}` : 'none',
-                        transition: 'all 0.1s',
-                      }}
-                      title={isAdminType ? 'Admin-only event type' : undefined}
-                    >
-                      {cfg?.label ?? 'All Events'}
-                      {isAdminType && <span style={{ marginLeft: 4, opacity: 0.5, fontSize: 10 }}>🔒</span>}
-                    </button>
-                  )
-                })}
+          {/* Filter bar */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, padding: '16px 20px', marginBottom: 8 }}>
+            <div className="a-filterbar">
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8', marginBottom: 8 }}>Event Type</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {filterTypes.map(t => {
+                    const cfg = t !== 'All' ? EVENT_CONFIG[t] : null
+                    const active = filterType === t
+                    const isAdminType = ADMIN_ONLY_EVENT_TYPES.includes(t as any)
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => setFilterType(t)}
+                        style={{
+                          fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 3,
+                          cursor: 'pointer', border: isAdminType ? '1px dashed #CBD5E0' : 'none',
+                          background: active ? (cfg?.bg ?? '#E8F0F9') : '#edeff0',
+                          color: active ? (cfg?.color ?? BLUE) : '#6B7280',
+                          outline: active ? `1px solid ${cfg?.border ?? '#C5D8EF'}` : 'none',
+                          transition: 'all 0.1s',
+                        }}
+                        title={isAdminType ? 'Admin-only event type' : undefined}
+                      >
+                        {cfg?.label ?? 'All Events'}
+                        {isAdminType && <span style={{ marginLeft: 4, opacity: 0.5, fontSize: 10 }}>🔒</span>}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8', marginBottom: 6 }}>Actor email</div>
-                <input
-                  type="text"
-                  placeholder="Search by email…"
-                  value={actorSearch}
-                  onChange={e => setActorSearch(e.target.value)}
-                  style={{ padding: '7px 10px', border: '1px solid #C8D0DC', borderRadius: 4, fontSize: 13, color: DARK, background: '#FFF', outline: 'none', minWidth: 200 }}
-                  onFocus={e => (e.currentTarget.style.borderColor = BLUE)}
-                  onBlur={e  => (e.currentTarget.style.borderColor = '#C8D0DC')}
-                />
+              <div className="a-search-grp">
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8', marginBottom: 6 }}>Actor email</div>
+                  <input
+                    type="text"
+                    placeholder="Search by email…"
+                    value={actorSearch}
+                    onChange={e => setActorSearch(e.target.value)}
+                    className="a-search-input"
+                    onFocus={e => (e.currentTarget.style.borderColor = BLUE)}
+                    onBlur={e  => (e.currentTarget.style.borderColor = '#C8D0DC')}
+                  />
+                </div>
+                <button
+                  onClick={handleExport}
+                  disabled={exporting}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '7px 16px', background: exporting ? '#9CA3AF' : BLUE,
+                    border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600,
+                    color: '#FFF', cursor: exporting ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.15s', whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => { if (!exporting) e.currentTarget.style.background = '#004A8F' }}
+                  onMouseLeave={e => { if (!exporting) e.currentTarget.style.background = BLUE }}
+                  title={isAdmin ? 'Download full audit log as CSV' : 'Download operational events as CSV'}
+                >
+                  <Download size={14} />
+                  {exporting ? 'Preparing…' : 'Export for PHMSA Report'}
+                </button>
               </div>
-              <button
-                onClick={handleExport}
-                disabled={exporting}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '7px 16px', background: exporting ? '#9CA3AF' : BLUE,
-                  border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600,
-                  color: '#FFF', cursor: exporting ? 'not-allowed' : 'pointer',
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={e => { if (!exporting) e.currentTarget.style.background = '#004A8F' }}
-                onMouseLeave={e => { if (!exporting) e.currentTarget.style.background = BLUE }}
-                title={isAdmin ? 'Download full audit log as CSV' : 'Download operational events as CSV'}
-              >
-                <Download size={14} />
-                {exporting ? 'Preparing…' : 'Export for PHMSA Report'}
-              </button>
             </div>
           </div>
 
-          {/* ── Export info strip ── */}
+          {/* Export info strip */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
             padding: '8px 16px', background: '#F8F9FB', border: '1px solid #d4d6d8',
@@ -585,7 +663,7 @@ export default function AuditPage() {
             </span>
           </div>
 
-          {/* ── Immutability notice ── */}
+          {/* Immutability notice */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
             padding: '10px 16px', background: '#E8F0F9', border: '1px solid rgba(0,93,170,0.2)',
@@ -598,14 +676,16 @@ export default function AuditPage() {
             </span>
           </div>
 
-          {/* ── Event list ── */}
+          {/* Event list */}
           <div style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
 
             {/* Column header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 180px 160px 160px', gap: '0 16px', padding: '10px 20px', background: '#fafafa', borderBottom: '1px solid #d4d6d8' }}>
-              {['', 'Event', 'Actor', 'Context', 'Timestamp (UTC)'].map((h, i) => (
-                <div key={i} style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>{h}</div>
-              ))}
+            <div className="a-hdr">
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }} />
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>Event</div>
+              <div className="a-col-actor" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>Actor</div>
+              <div className="a-col-ctx" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>Context</div>
+              <div className="a-col-ts" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>Timestamp (UTC)</div>
             </div>
 
             {loading && liveEvents.length === 0 ? (
@@ -619,7 +699,6 @@ export default function AuditPage() {
               </div>
             ) : (
               <>
-                {/* Live section */}
                 {liveEvents.length > 0 && (
                   <div style={{ padding: '6px 20px', background: '#F0FDF4', borderBottom: '1px solid #d4d6d8', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A7A4A', display: 'inline-block' }} />
@@ -636,7 +715,6 @@ export default function AuditPage() {
                   />
                 ))}
 
-                {/* Demo section */}
                 {filteredDemo.length > 0 && (
                   <div style={{ padding: '6px 20px', background: '#F8F9FB', borderTop: liveEvents.length > 0 ? '1px solid #d4d6d8' : undefined, borderBottom: '1px solid #d4d6d8', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} />
