@@ -5,23 +5,15 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UNDP Design System tokens — mirrors landing page exactly
-// Font: Inter (ProximaNova substitute)
-// Brand blue: #006eb5  Dark: #232e3e  Yellow: #ffeb00  Azure: #60d4f2
-// Border: 2px (no radius — UNDP rectangular style)
-// Body: 1.25rem / 138%  Label: 0.875rem  Header: 75px
-// ─────────────────────────────────────────────────────────────────────────────
-
-const F      = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
-const BLUE   = '#006eb5'
-const DARK   = '#232e3e'
-const YELLOW = '#ffeb00'
-const AZURE  = '#60d4f2'
+const F        = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
+const BLUE     = '#006eb5'
+const DARK     = '#232e3e'
+const YELLOW   = '#ffeb00'
+const AZURE    = '#60d4f2'
 const GRAY_300 = '#edeff0'
 const GRAY_400 = '#d4d6d8'
 const GRAY_500 = '#a9b1b7'
-const TEXT   = '#232e3e'
+const TEXT     = '#232e3e'
 
 const DEMO_EMAIL    = 'demo-operator@pipelinegpt.com'
 const DEMO_PASSWORD = 'DemoOp2026!'
@@ -45,7 +37,6 @@ export default function LoginPage() {
       setError('Incorrect email or password.')
       return
     }
-    // Check whether MFA setup is required before redirecting
     const session = await fetch('/api/auth/session').then(r => r.json()).catch(() => null)
     setL(false)
     if (session?.user?.mfaSetupRequired) {
@@ -69,7 +60,6 @@ export default function LoginPage() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* UNDP-style inputs: 2px border, no radius, rectangular */
         .undp-input {
           display: block; width: 100%;
           padding: 12px 16px;
@@ -81,92 +71,143 @@ export default function LoginPage() {
           transition: border-color 0.15s;
           box-sizing: border-box;
         }
-        .undp-input:focus { border-color: ${BLUE}; }
+        .undp-input:focus  { border-color: ${BLUE}; }
         .undp-input::placeholder { color: ${GRAY_500}; }
-        .undp-input.error { border-color: #d12800; background: #fff5f5; }
+        .undp-input.error  { border-color: #d12800; background: #fff5f5; }
+
+        /* ── Layout shells ── */
+        .login-root {
+          min-height: 100vh;
+          display: flex;
+          font-family: ${F};
+          background: ${GRAY_300};
+        }
+
+        /* Left decorative panel */
+        .login-left {
+          width: 42%;
+          flex-shrink: 0;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        /* Mobile top bar — hidden on desktop */
+        .login-mobile-bar {
+          display: none;
+        }
+
+        /* Right form panel */
+        .login-right {
+          flex: 1;
+          background: #fff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 60px 48px;
+        }
+
+        /* ── Tablet (≤ 1024px): narrow left panel ── */
+        @media (max-width: 1024px) {
+          .login-left  { width: 36%; }
+          .login-right { padding: 48px 36px; }
+        }
+
+        /* ── Mobile (≤ 768px): hide left panel, show compact top bar ── */
+        @media (max-width: 768px) {
+          .login-root  { flex-direction: column; background: #fff; }
+          .login-left  { display: none; }
+          .login-mobile-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 60px;
+            flex-shrink: 0;
+            background: ${DARK};
+            border-bottom: 3px solid ${YELLOW};
+          }
+          .login-right {
+            flex: 1;
+            padding: 32px 20px 40px;
+            justify-content: flex-start;
+          }
+        }
+
+        /* ── Small phones (≤ 480px) ── */
+        @media (max-width: 480px) {
+          .login-right { padding: 28px 16px 36px; }
+        }
       `}</style>
 
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        fontFamily: F,
-        background: GRAY_300,
-      }}>
+      <div className="login-root">
 
-        {/* ── LEFT PANEL: pipeline image + branding ────────────────────── */}
-        <div style={{
-          width: '42%', flexShrink: 0,
-          position: 'relative',
-          display: 'flex', flexDirection: 'column',
-          overflow: 'hidden',
-        }}>
-          {/* Forest pipeline photograph (confirmed real pipeline) */}
+        {/* ── Mobile top bar (replaces left panel on small screens) ── */}
+        <div className="login-mobile-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <svg width="28" height="28" viewBox="0 0 36 36" fill="none" aria-hidden>
+              <rect width="36" height="36" fill={BLUE} />
+              <path d="M8 8h10c3.31 0 6 2.69 6 6s-2.69 6-6 6H8V8Z" fill="#fff" />
+              <path d="M18 20l8 8h-7L15 20h3Z" fill="#fff" fillOpacity="0.55" />
+            </svg>
+            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', letterSpacing: '-0.02em' }}>
+              PipelineGPT
+            </span>
+          </div>
+          <Link href="/" style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+            ← Home
+          </Link>
+        </div>
+
+        {/* ── LEFT PANEL: pipeline image + branding (desktop/tablet only) ── */}
+        <div className="login-left">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://images.unsplash.com/photo-1507823690283-48b0929e727b?q=80&w=1200&auto=format&fit=crop"
-            alt=""
-            aria-hidden
-            style={{
-              position: 'absolute', inset: 0,
-              width: '100%', height: '100%',
-              objectFit: 'cover', objectPosition: 'center',
-            }}
+            alt="" aria-hidden
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
           />
-          {/* Dark overlay — UNDP ebony clay */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: `linear-gradient(to bottom,
-              rgba(35,46,62,0.88) 0%,
-              rgba(35,46,62,0.75) 60%,
-              rgba(35,46,62,0.92) 100%)`,
+            background: `linear-gradient(to bottom, rgba(35,46,62,0.88) 0%, rgba(35,46,62,0.75) 60%, rgba(35,46,62,0.92) 100%)`,
           }} />
 
-          {/* UNDP yellow top bar */}
-          <div style={{
-            position: 'relative', zIndex: 10,
-            height: 4, background: YELLOW, flexShrink: 0,
-          }} />
+          {/* Yellow top rule */}
+          <div style={{ position: 'relative', zIndex: 10, height: 4, background: YELLOW, flexShrink: 0 }} />
 
-          {/* Panel content */}
           <div style={{
             position: 'relative', zIndex: 10,
             flex: 1, display: 'flex', flexDirection: 'column',
             justifyContent: 'space-between',
             padding: '40px 48px',
           }}>
-            {/* Top: back link */}
             <Link href="/" style={{
-              fontFamily: F, fontSize: '0.875rem', fontWeight: 400,
+              fontSize: '0.875rem', fontWeight: 400,
               color: 'rgba(255,255,255,0.60)', textDecoration: 'none',
               display: 'inline-flex', alignItems: 'center', gap: 6,
             }}>
               <span aria-hidden>←</span> Back to home
             </Link>
 
-            {/* Middle: wordmark + value prop */}
             <div>
-              {/* Wordmark */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
                 <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden>
                   <rect width="36" height="36" fill={BLUE} />
                   <path d="M8 8h10c3.31 0 6 2.69 6 6s-2.69 6-6 6H8V8Z" fill="#fff" />
                   <path d="M18 20l8 8h-7L15 20h3Z" fill="#fff" fillOpacity="0.55" />
                 </svg>
-                <span style={{
-                  fontFamily: F, fontWeight: 700, fontSize: '1.25rem',
-                  color: '#fff', letterSpacing: '-0.02em',
-                }}>
+                <span style={{ fontWeight: 700, fontSize: '1.25rem', color: '#fff', letterSpacing: '-0.02em' }}>
                   PipelineGPT
                 </span>
               </div>
 
-              {/* Yellow accent */}
               <div style={{ width: 40, height: 3, background: YELLOW, marginBottom: 20 }} />
 
-              {/* Headline */}
               <h2 style={{
-                fontFamily: F, fontWeight: 700,
-                fontSize: 'clamp(1.5rem, 2.5vw, 2rem)',
+                fontWeight: 700,
+                fontSize: 'clamp(1.375rem, 2.5vw, 2rem)',
                 lineHeight: '110%',
                 letterSpacing: '-0.02em',
                 color: '#fff',
@@ -175,9 +216,8 @@ export default function LoginPage() {
                 Pipeline integrity<br />intelligence, powered<br />by plain English.
               </h2>
 
-              {/* Body */}
               <p style={{
-                fontFamily: F, fontSize: '0.9375rem', fontWeight: 400,
+                fontSize: '0.9375rem', fontWeight: 400,
                 lineHeight: '138%', color: 'rgba(255,255,255,0.55)',
                 maxWidth: 300,
               }}>
@@ -185,33 +225,23 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Bottom: award badge */}
             <p style={{
-              fontFamily: F, fontSize: '0.6875rem', fontWeight: 600,
+              fontSize: '0.6875rem', fontWeight: 600,
               color: 'rgba(255,255,255,0.30)',
-              letterSpacing: '0.10em', textTransform: 'uppercase' as const,
+              letterSpacing: '0.10em', textTransform: 'uppercase',
             }}>
               ASME Foundation · Hermann Rosen Award 2026
             </p>
           </div>
         </div>
 
-        {/* ── RIGHT PANEL: form ────────────────────────────────────────── */}
-        <div style={{
-          flex: 1,
-          background: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '60px 48px',
-        }}>
+        {/* ── RIGHT PANEL: form ── */}
+        <div className="login-right">
           <div style={{ width: '100%', maxWidth: 400 }}>
 
-            {/* Heading */}
             <h1 style={{
-              fontFamily: F, fontWeight: 700,
-              fontSize: '2rem',            // heading-medium
+              fontWeight: 700,
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
               lineHeight: '110%',
               letterSpacing: '-0.02em',
               color: TEXT,
@@ -220,14 +250,14 @@ export default function LoginPage() {
               Sign in
             </h1>
             <p style={{
-              fontFamily: F, fontSize: '1rem', fontWeight: 400,
+              fontSize: '1rem', fontWeight: 400,
               lineHeight: '138%', color: GRAY_500,
-              marginBottom: 36,
+              marginBottom: 32,
             }}>
               Access is by invitation only. Use your credentials or the demo account.
             </p>
 
-            {/* ── Demo button — primary action ── */}
+            {/* Demo button */}
             <button
               type="button"
               onClick={handleDemo}
@@ -239,40 +269,32 @@ export default function LoginPage() {
                 color: '#fff',
                 border: `2px solid ${demoLoading ? '#1f5a95' : DARK}`,
                 borderRadius: 0,
-                fontFamily: F, fontSize: '0.9375rem', fontWeight: 600,
+                fontSize: '0.9375rem', fontWeight: 600,
                 letterSpacing: '0.02em',
                 cursor: busy ? 'not-allowed' : 'pointer',
                 marginBottom: 24,
                 transition: 'background 0.15s, border-color 0.15s',
-                textAlign: 'center' as const,
+                textAlign: 'center',
               }}
             >
               {demoLoading ? <Spinner label="Loading demo…" /> : 'Continue as demo user →'}
             </button>
 
             {/* Divider */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
               <div style={{ flex: 1, height: 1, background: GRAY_300 }} />
-              <span style={{
-                fontFamily: F, fontSize: '0.75rem', fontWeight: 400,
-                color: GRAY_500, whiteSpace: 'nowrap' as const,
-                letterSpacing: '0.04em',
-              }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 400, color: GRAY_500, whiteSpace: 'nowrap', letterSpacing: '0.04em' }}>
                 or sign in with credentials
               </span>
               <div style={{ flex: 1, height: 1, background: GRAY_300 }} />
             </div>
 
-            {/* ── Credentials form ── */}
+            {/* Credentials form */}
             <form onSubmit={handleSubmit}>
-
-              {/* Email */}
               <div style={{ marginBottom: 20 }}>
                 <label style={{
                   display: 'block',
-                  fontFamily: F, fontSize: '0.875rem', fontWeight: 600,
+                  fontSize: '0.875rem', fontWeight: 600,
                   color: TEXT, marginBottom: 8, letterSpacing: '0.01em',
                 }}>
                   Email address
@@ -288,11 +310,10 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Password */}
               <div style={{ marginBottom: 28 }}>
                 <label style={{
                   display: 'block',
-                  fontFamily: F, fontSize: '0.875rem', fontWeight: 600,
+                  fontSize: '0.875rem', fontWeight: 600,
                   color: TEXT, marginBottom: 8, letterSpacing: '0.01em',
                 }}>
                   Password
@@ -308,13 +329,12 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Error */}
               {error && (
                 <div style={{
                   padding: '12px 16px',
                   background: '#fff5f5',
                   border: `2px solid #ffbcb7`,
-                  fontFamily: F, fontSize: '0.875rem',
+                  fontSize: '0.875rem',
                   color: '#d12800',
                   marginBottom: 20, lineHeight: '138%',
                 }}>
@@ -322,7 +342,6 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* Sign in button — UNDP outlined/secondary */}
               <button
                 type="submit"
                 disabled={busy}
@@ -333,22 +352,21 @@ export default function LoginPage() {
                   color: busy ? GRAY_500 : BLUE,
                   border: `2px solid ${busy ? GRAY_400 : BLUE}`,
                   borderRadius: 0,
-                  fontFamily: F, fontSize: '0.9375rem', fontWeight: 600,
+                  fontSize: '0.9375rem', fontWeight: 600,
                   letterSpacing: '0.02em',
                   cursor: busy ? 'not-allowed' : 'pointer',
                   transition: 'color 0.15s, border-color 0.15s',
-                  textAlign: 'center' as const,
+                  textAlign: 'center',
                 }}
               >
                 {loading ? <Spinner label="Signing in…" color={BLUE} /> : 'Sign In'}
               </button>
             </form>
 
-            {/* Footer link */}
             <p style={{
-              fontFamily: F, fontSize: '0.8125rem', fontWeight: 400,
-              color: GRAY_500, marginTop: 36, lineHeight: '138%',
-              textAlign: 'center' as const,
+              fontSize: '0.8125rem', fontWeight: 400,
+              color: GRAY_500, marginTop: 32, lineHeight: '138%',
+              textAlign: 'center',
             }}>
               © 2026 PipelineGPT ·{' '}
               <Link href="/" style={{ color: BLUE, textDecoration: 'none' }}>
