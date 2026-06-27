@@ -1,11 +1,11 @@
 import NextAuth from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { login } from './api'
+import Credentials from 'next-auth/providers/credentials'
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    CredentialsProvider({
-      name: 'Credentials',
+    Credentials({
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
@@ -13,14 +13,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
         try {
-          const data = await login(
-            credentials.email as string,
-            credentials.password as string,
-          )
+          // Step 1: exchange credentials for a token
+          const loginRes = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+          })
+          if (!loginRes.ok) return null
+          const { access_token } = await loginRes.json()
+
+          // Step 2: fetch the user profile with that token
+          const meRes = await fetch(`${API_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+          if (!meRes.ok) return null
+          const me = await meRes.json()
+
           return {
-            id: credentials.email as string,
-            email: credentials.email as string,
-            accessToken: data.access_token,
+            id: me.id,
+            email: me.email,
+            name: me.email.split('@')[0],
+            accessToken: access_token,
+            role: me.role,
           }
         } catch {
           return null
@@ -31,26 +48,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = (user as { accessToken?: string }).accessToken
+        token.accessToken = user.accessToken
+        token.role = user.role
       }
       return token
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string
+      session.accessToken = token.accessToken
+      session.user.role = token.role
       return session
     },
   },
-  pages: {
-    signIn: '/login',
-  },
-  session: {
-    strategy: 'jwt',
-    maxAge: 3600,
-  },
+  pages: { signIn: '/login' },
+  session: { strategy: 'jwt', maxAge: 3600 },
 })
-
-declare module 'next-auth' {
-  interface Session {
-    accessToken?: string
-  }
-}

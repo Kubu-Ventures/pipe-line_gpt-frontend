@@ -1,123 +1,87 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
-import type { Citation, QueryRequest } from '@/lib/api'
-import { API_BASE } from '@/lib/api'
+import { buildQueryRequest, type Citation, type QueryFilters } from '@/lib/api'
 
-export interface SSEState {
+interface SSEState {
   fullText: string
   citations: Citation[]
   hitlRequired: boolean
-  isStreaming: boolean
   queryId: string | null
+  isStreaming: boolean
   error: string | null
 }
 
-export interface UseSSEReturn extends SSEState {
-  submit: (body: QueryRequest, token: string) => Promise<void>
-  reset: () => void
-}
-
-export function useSSE(): UseSSEReturn {
-  const [fullText, setFullText] = useState('')
-  const [citations, setCitations] = useState<Citation[]>([])
-  const [hitlRequired, setHitlRequired] = useState(false)
-  const [isStreaming, setIsStreaming] = useState(false)
-  const [queryId, setQueryId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+export function useSSE() {
+  const [state, setState] = useState<SSEState>({
+    fullText: '',
+    citations: [],
+    hitlRequired: false,
+    queryId: null,
+    isStreaming: false,
+    error: null,
+  })
   const abortRef = useRef<AbortController | null>(null)
 
   const reset = useCallback(() => {
-    setFullText('')
-    setCitations([])
-    setHitlRequired(false)
-    setIsStreaming(false)
-    setQueryId(null)
-    setError(null)
     abortRef.current?.abort()
+    setState({ fullText: '', citations: [], hitlRequired: false, queryId: null, isStreaming: false, error: null })
   }, [])
 
-  const submit = useCallback(async (body: QueryRequest, token: string) => {
-    abortRef.current?.abort()
-    const controller = new AbortController()
-    abortRef.current = controller
+  const submit = useCallback(
+    async (question: string, sessionId: string, language: string, filters: QueryFilters, token: string) => {
+      abortRef.current?.abort()
+      const controller = new AbortController()
+      abortRef.current = controller
 
-    setFullText('')
-    setCitations([])
-    setHitlRequired(false)
-    setQueryId(null)
-    setError(null)
-    setIsStreaming(true)
+      setState(s => ({ ...s, fullText: '', citations: [], hitlRequired: false, isStreaming: true, error: null }))
 
-    try {
-      const res = await fetch(`${API_BASE}/query`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          Accept: 'text/event-stream',
-        },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      })
+      const { url, init } = buildQueryRequest(question, sessionId, language, filters, token)
 
-      if (!res.ok) {
-        throw new Error(`Query failed: ${res.status}`)
-      }
+      try {
+        const res = await fetch(url, { ...init, signal: controller.signal })
+        if (!res.ok) throw new Error(`Server returned ${res.status}`)
+        if (!res.body) throw new Error('No response body')
 
-      const reader = res.body?.getReader()
-      if (!reader) throw new Error('No response body')
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
 
-      const decoder = new TextDecoder()
-      let buffer = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buffer += decoder.decode(value, { stream: true })
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
 
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed.startsWith('data: ')) continue
-          const jsonStr = trimmed.slice(6)
-          if (jsonStr === '[DONE]') continue
-
-          try {
-            const chunk = JSON.parse(jsonStr) as {
-              delta?: string
-              citations?: Citation[]
-              hitl_required?: boolean
-              query_id?: string
-              done?: boolean
-              cached?: boolean
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue
+            try {
+              const json = JSON.parse(line.slice(6))
+              setState(s => ({
+                ...s,
+                fullText: json.done ? s.fullText : s.fullText + (json.delta ?? ''),
+                citations: json.citations?.length ? json.citations : s.citations,
+                hitlRequired: json.hitl_required ?? s.hitlRequired,
+                queryId: json.query_id ?? s.queryId,
+                isStreaming: !json.done,
+              }))
+            } catch {
+              // malformed line — skip
             }
-
-            if (chunk.query_id) setQueryId(chunk.query_id)
-            if (chunk.hitl_required) setHitlRequired(true)
-
-            if (chunk.done) {
-              if (chunk.citations?.length) setCitations(chunk.citations)
-            } else if (chunk.delta) {
-              setFullText(prev => prev + chunk.delta)
-            } else if (chunk.cached && chunk.delta !== undefined) {
-              setFullText(chunk.delta ?? '')
-              if (chunk.citations?.length) setCitations(chunk.citations)
-            }
-          } catch {
-            // Malformed chunk — skip
           }
         }
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          setState(s => ({ ...s, error: err.message, isStreaming: false }))
+        }
+      } finally {
+        setState(s => ({ ...s, isStreaming: false }))
       }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') return
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setIsStreaming(false)
-    }
-  }, [])
+    },
+    []
+  )
 
-  return { fullText, citations, hitlRequired, isStreaming, queryId, error, submit, reset }
+  return { ...state, submit, reset }
 }
