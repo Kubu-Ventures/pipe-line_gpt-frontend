@@ -56,10 +56,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token
     },
     async session({ session, token }) {
-      session.accessToken            = token.accessToken
-      session.user.role              = token.role
-      session.user.mfaEnabled        = token.mfaEnabled
-      session.user.mfaSetupRequired  = token.mfaSetupRequired
+      session.accessToken            = token.accessToken as string
+      session.user.role              = token.role as string
+      session.user.mfaEnabled        = token.mfaEnabled as boolean
+      session.user.mfaSetupRequired  = token.mfaSetupRequired as boolean
       return session
     },
   },
