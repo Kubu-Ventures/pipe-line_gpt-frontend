@@ -7,14 +7,14 @@ import { SourcePanel } from './SourcePanel'
 import { useSubmitDecision } from '@/hooks/useReviewQueue'
 import type { ReviewItem } from '@/lib/api'
 
-const F = 'Inter, system-ui, sans-serif'
+const F    = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
+const BLUE = '#006eb5'
+const DARK = '#232e3e'
 
-/* Deep crimson (#991B1B) instead of alarm red (#991B1B) —
-   communicates severity without the visual aggression of a pure red */
 const RISK_CONFIG = {
   HIGH:   { label: 'HIGH RISK',   bg: '#FDF4F4', border: '#E8BCBC', bar: '#991B1B', text: '#991B1B', badge: '#991B1B', badgeBg: '#FAE0E0' },
   MEDIUM: { label: 'MEDIUM RISK', bg: '#FFFBEB', border: '#FDE68A', bar: '#D97706', text: '#B45309', badge: '#B45309', badgeBg: '#FEF3C7' },
-  LOW:    { label: 'LOW RISK',    bg: '#FFFFFF', border: '#E4E8EF', bar: '#1A7A4A', text: '#1A7A4A', badge: '#1A7A4A', badgeBg: '#D1FAE5' },
+  LOW:    { label: 'LOW RISK',    bg: '#FFFFFF', border: '#d4d6d8', bar: '#1A7A4A', text: '#1A7A4A', badge: '#1A7A4A', badgeBg: '#D1FAE5' },
 }
 
 const STATUS_CONFIG = {
@@ -35,17 +35,18 @@ function ConfidenceBar({ value }: { value: number }) {
   const color = value < 70 ? '#991B1B' : value < 85 ? '#D97706' : '#1A7A4A'
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-        <span style={{ fontFamily: F, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8896A8' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontFamily: F, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', color: '#a9b1b7' }}>
           AI Confidence
         </span>
         <span style={{ fontFamily: F, fontSize: 13, fontWeight: 700, color }}>{value}%</span>
       </div>
-      <div style={{ height: 6, background: '#E4E8EF', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${value}%`, background: color, borderRadius: 3, transition: 'width 0.4s ease' }} />
+      {/* UNDP rectangular progress bar */}
+      <div style={{ height: 4, background: '#d4d6d8', overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${value}%`, background: color, transition: 'width 0.4s ease' }} />
       </div>
       {value < 70 && (
-        <p style={{ fontFamily: F, fontSize: 11, color: '#991B1B', marginTop: 4, fontWeight: 500 }}>
+        <p style={{ fontFamily: F, fontSize: 11, color: '#991B1B', marginTop: 5, fontWeight: 500 }}>
           Low confidence — review carefully before approving
         </p>
       )}
@@ -54,17 +55,17 @@ function ConfidenceBar({ value }: { value: number }) {
 }
 
 export function ReviewCard({ item }: { item: ReviewItem }) {
-  const [expanded,     setExpanded]     = useState(item.risk_level === 'HIGH')
-  const [modalOpen,    setModalOpen]    = useState(false)
-  const [modalMode,    setModalMode]    = useState<'EDIT' | 'REJECT' | null>(null)
-  const [sourcesOpen,  setSourcesOpen]  = useState(false)
+  const [expanded,    setExpanded]    = useState(item.risk_level === 'HIGH')
+  const [modalOpen,   setModalOpen]   = useState(false)
+  const [modalMode,   setModalMode]   = useState<'EDIT' | 'REJECT' | null>(null)
+  const [sourcesOpen, setSourcesOpen] = useState(false)
   const { mutate, isPending } = useSubmitDecision()
 
-  const risk    = RISK_CONFIG[item.risk_level as keyof typeof RISK_CONFIG] ?? RISK_CONFIG.LOW
-  const status  = STATUS_CONFIG[item.status as keyof typeof STATUS_CONFIG]
-  const conf    = Math.round(item.confidence_score * 100)
-  const isPend  = item.status === 'PENDING'
-  const isHigh  = item.risk_level === 'HIGH'
+  const risk   = RISK_CONFIG[item.risk_level as keyof typeof RISK_CONFIG] ?? RISK_CONFIG.LOW
+  const status = STATUS_CONFIG[item.status as keyof typeof STATUS_CONFIG]
+  const conf   = Math.round(item.confidence_score * 100)
+  const isPend = item.status === 'PENDING'
+  const isHigh = item.risk_level === 'HIGH'
 
   const PREVIEW_LEN = 280
   const shortText   = item.answer_text.slice(0, PREVIEW_LEN)
@@ -75,64 +76,65 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
 
   return (
     <>
-      <div className="rosen-card" style={{
+      {/* UNDP-style card: thick left border as risk indicator, no border-radius */}
+      <div style={{
         background: risk.bg,
-        border: `1px solid ${risk.border}`,
+        borderTop: `1px solid ${risk.border}`,
+        borderRight: `1px solid ${risk.border}`,
+        borderBottom: `1px solid ${risk.border}`,
         borderLeft: `5px solid ${risk.bar}`,
-        borderRadius: 6,
-        marginBottom: 16,
+        marginBottom: 12,
         overflow: 'hidden',
-        boxShadow: isHigh ? '0 2px 12px rgba(153,27,27,0.10)' : '0 1px 4px rgba(0,0,0,0.05)',
-        opacity: !isPend ? 0.75 : 1,
+        opacity: !isPend ? 0.78 : 1,
       }}>
 
-        {/* ── HIGH RISK warning banner ── */}
+        {/* HIGH RISK banner */}
         {isHigh && isPend && (
           <div style={{
-            background: '#991B1B', padding: '8px 20px',
+            background: '#991B1B', padding: '9px 20px',
             display: 'flex', alignItems: 'center', gap: 8,
+            borderBottom: '1px solid #7f1d1d',
           }}>
-            <AlertTriangle size={14} color="#fff" />
-            <span style={{ fontFamily: F, fontSize: 12, fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              High-risk recommendation — operational action required · engineer sign-off mandatory
+            <AlertTriangle size={13} color="#fff" />
+            <span style={{ fontFamily: F, fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              High-risk recommendation · Engineer sign-off mandatory before operational use
             </span>
           </div>
         )}
 
-        {/* ── Card body ── */}
         <div style={{ padding: '20px 24px' }}>
 
-          {/* Row 1: badges + meta */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
-            {/* Risk badge */}
+          {/* Row 1: risk badge + status + meta */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+            {/* Risk badge — rectangular, UNDP */}
             <span style={{
-              fontFamily: F, fontSize: 11, fontWeight: 700,
-              letterSpacing: '0.08em', textTransform: 'uppercase',
+              fontFamily: F, fontSize: 10, fontWeight: 700,
+              letterSpacing: '0.10em', textTransform: 'uppercase',
               background: risk.badgeBg, color: risk.badge,
-              padding: '3px 10px', borderRadius: 3,
+              padding: '3px 10px',
               border: `1px solid ${risk.border}`,
             }}>
               {risk.label}
             </span>
 
-            {/* Status badge */}
             {status && (
               <span style={{
-                fontFamily: F, fontSize: 11, fontWeight: 600,
+                fontFamily: F, fontSize: 10, fontWeight: 600,
                 background: status.bg, color: status.color,
-                padding: '3px 10px', borderRadius: 3,
+                padding: '3px 10px',
+                border: `1px solid ${status.bg}`,
               }}>
                 {status.label}
               </span>
             )}
 
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: F, fontSize: 12, color: '#8896A8' }}>
-              <Clock size={12} /> {timeAgo(item.created_at)}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: F, fontSize: 12, color: '#a9b1b7' }}>
+              <Clock size={11} /> {timeAgo(item.created_at)}
             </span>
 
             {item.user_email && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: F, fontSize: 12, color: '#8896A8' }}>
-                <User size={12} /> {item.user_email}
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: F, fontSize: 12, color: '#a9b1b7' }}>
+                <User size={11} /> {item.user_email}
               </span>
             )}
 
@@ -141,43 +143,42 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
                 onClick={() => setSourcesOpen(true)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4,
-                  fontFamily: F, fontSize: 12, fontWeight: 600, color: '#005DAA',
-                  background: '#E8F0F9', padding: '3px 10px', borderRadius: 3,
-                  border: '1px solid #C5D8EF', cursor: 'pointer',
+                  fontFamily: F, fontSize: 11, fontWeight: 600, color: BLUE,
+                  background: '#dff0ff', padding: '3px 10px',
+                  border: `1px solid #b8d4f0`, cursor: 'pointer',
                   transition: 'background 0.12s',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#D1E6F7')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#E8F0F9')}
+                onMouseEnter={e => (e.currentTarget.style.background = '#c8e4f8')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#dff0ff')}
               >
                 <FileText size={11} />
                 {item.citations_json?.length ?? item.chunk_count} source{(item.citations_json?.length ?? item.chunk_count ?? 0) !== 1 ? 's' : ''} cited
-                <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 2 }}>↗</span>
               </button>
             )}
           </div>
 
-          {/* Row 2: question */}
+          {/* Row 2: query */}
           <p style={{
-            fontFamily: F, fontSize: 15, fontWeight: 600,
-            color: '#1A1A2A', lineHeight: 1.5,
+            fontFamily: F, fontSize: 14, fontWeight: 600,
+            color: DARK, lineHeight: 1.55,
             marginBottom: 12,
             fontStyle: 'italic',
           }}>
             "{item.question_raw}"
           </p>
 
-          {/* Row 3: AI response */}
+          {/* Row 3: AI response box */}
           <div style={{
-            background: 'rgba(255,255,255,0.7)',
-            border: '1px solid #E4E8EF',
-            borderRadius: 4,
+            background: 'rgba(255,255,255,0.75)',
+            border: `1px solid ${risk.border}`,
+            borderLeft: `3px solid #a9b1b7`,
             padding: '14px 16px',
             marginBottom: 16,
           }}>
-            <p style={{ fontFamily: F, fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8896A8', marginBottom: 8 }}>
+            <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a9b1b7', marginBottom: 8 }}>
               AI Response
             </p>
-            <p style={{ fontFamily: F, fontSize: 14, color: '#374151', lineHeight: 1.75 }}>
+            <p style={{ fontFamily: F, fontSize: 14, color: '#55606e', lineHeight: 1.75 }}>
               {expanded ? item.answer_text : shortText}
               {!expanded && hasMore && '…'}
             </p>
@@ -186,24 +187,23 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
                 onClick={() => setExpanded(e => !e)}
                 style={{
                   fontFamily: F, background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: 12, fontWeight: 600, color: '#005DAA',
+                  fontSize: 12, fontWeight: 600, color: BLUE,
                   display: 'flex', alignItems: 'center', gap: 4, marginTop: 8, padding: 0,
                 }}
               >
-                {expanded ? <><ChevronUp size={13} /> Show less</> : <><ChevronDown size={13} /> Read full response</>}
+                {expanded ? <><ChevronUp size={12} /> Show less</> : <><ChevronDown size={12} /> Read full response</>}
               </button>
             )}
           </div>
 
-          {/* Row 4: confidence + actions */}
+          {/* Row 4: confidence bar + action buttons */}
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' }}>
 
-            {/* Confidence bar */}
             <div style={{ flex: '1 1 200px', minWidth: 160 }}>
               <ConfidenceBar value={conf} />
             </div>
 
-            {/* Action buttons — only show for PENDING */}
+            {/* PENDING: action buttons — UNDP rectangular, 2px border */}
             {isPend && (
               <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
                 <button
@@ -211,17 +211,20 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
                   disabled={isPending}
                   style={{
                     fontFamily: F,
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '10px 18px',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '9px 16px',
                     background: '#1A7A4A', color: '#fff',
-                    border: 'none', borderRadius: 4,
-                    fontSize: 13, fontWeight: 700,
+                    border: '2px solid #1A7A4A',
+                    fontSize: 12, fontWeight: 700,
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
                     cursor: isPending ? 'not-allowed' : 'pointer',
                     opacity: isPending ? 0.7 : 1,
-                    letterSpacing: '0.02em',
+                    transition: 'background 0.12s',
                   }}
+                  onMouseEnter={e => { if (!isPending) e.currentTarget.style.background = '#15653D' }}
+                  onMouseLeave={e => { if (!isPending) e.currentTarget.style.background = '#1A7A4A' }}
                 >
-                  <CheckCircle size={15} /> Approve
+                  <CheckCircle size={13} /> Approve
                 </button>
 
                 <button
@@ -229,15 +232,19 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
                   disabled={isPending}
                   style={{
                     fontFamily: F,
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '10px 18px',
-                    background: '#FFFFFF', color: '#005DAA',
-                    border: '1.5px solid #005DAA', borderRadius: 4,
-                    fontSize: 13, fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '9px 16px',
+                    background: '#fff', color: BLUE,
+                    border: `2px solid ${BLUE}`,
+                    fontSize: 12, fontWeight: 600,
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
                     cursor: isPending ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.12s',
                   }}
+                  onMouseEnter={e => { if (!isPending) e.currentTarget.style.background = '#dff0ff' }}
+                  onMouseLeave={e => { if (!isPending) e.currentTarget.style.background = '#fff' }}
                 >
-                  <Edit3 size={14} /> Edit & Approve
+                  <Edit3 size={13} /> Edit & Approve
                 </button>
 
                 <button
@@ -245,15 +252,19 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
                   disabled={isPending}
                   style={{
                     fontFamily: F,
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '10px 18px',
-                    background: '#FFFFFF', color: '#991B1B',
-                    border: '1.5px solid #FCA5A5', borderRadius: 4,
-                    fontSize: 13, fontWeight: 600,
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '9px 16px',
+                    background: '#fff', color: '#991B1B',
+                    border: '2px solid #FCA5A5',
+                    fontSize: 12, fontWeight: 600,
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
                     cursor: isPending ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.12s',
                   }}
+                  onMouseEnter={e => { if (!isPending) e.currentTarget.style.background = '#FEF2F2' }}
+                  onMouseLeave={e => { if (!isPending) e.currentTarget.style.background = '#fff' }}
                 >
-                  <XCircle size={14} /> Reject
+                  <XCircle size={13} /> Reject
                 </button>
               </div>
             )}
@@ -263,15 +274,14 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '8px 16px',
-                background: status.bg, borderRadius: 4,
-                border: `1px solid`,
-                borderColor: item.status === 'APPROVED' ? '#A7F3D0' : '#FCA5A5',
+                background: status.bg,
+                border: `1px solid ${item.status === 'APPROVED' ? '#A7F3D0' : '#FCA5A5'}`,
               }}>
                 {item.status === 'APPROVED'
-                  ? <CheckCircle size={15} color="#1A7A4A" />
-                  : <XCircle size={15} color="#991B1B" />
+                  ? <CheckCircle size={14} color="#1A7A4A" />
+                  : <XCircle size={14} color="#991B1B" />
                 }
-                <span style={{ fontFamily: F, fontSize: 13, fontWeight: 600, color: status.color }}>
+                <span style={{ fontFamily: F, fontSize: 12, fontWeight: 600, color: status.color }}>
                   {status.label}
                 </span>
               </div>

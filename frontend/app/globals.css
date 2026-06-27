@@ -6,23 +6,25 @@
 
 :root {
   --white: #FFFFFF;
-  --off-white: #F8F9FB;
-  --light-gray: #F2F4F7;
-  --border-light: #E4E8EF;
-  --border-medium: #C8D0DC;
-  --text-primary: #1A1A2A;
-  --text-secondary: #4A5568;
-  --text-muted: #8896A8;
-  --rosen-blue: #005DAA;
-  --rosen-blue-hover: #004A8F;
-  --rosen-blue-dark: #003B6F;
-  --rosen-blue-light: #E8F0F9;
+  --off-white: #fafafa;
+  --light-gray: #edeff0;
+  --border-light: #d4d6d8;
+  --border-medium: #a9b1b7;
+  --text-primary: #232e3e;
+  --text-secondary: #55606e;
+  --text-muted: #a9b1b7;
+  --rosen-blue: #006eb5;
+  --rosen-blue-hover: #1f5a95;
+  --rosen-blue-dark: #232e3e;
+  --rosen-blue-light: #dff0ff;
+  --undp-yellow: #ffeb00;
+  --undp-azure: #60d4f2;
   --accent-teal: #00A3A3;
   --success: #1A7A4A;
   --warning: #B45309;
   --danger: #B91C1C;
-  --hero-overlay: rgba(0, 27, 58, 0.72);
-  --section-dark: #001B3A;
+  --hero-overlay: rgba(35, 46, 62, 0.72);
+  --section-dark: #232e3e;
 }
 
 * {
@@ -51,25 +53,25 @@ body {
 
 /* Selection */
 ::selection {
-  background-color: rgba(0, 93, 170, 0.15);
+  background-color: rgba(0, 110, 181, 0.15);
   color: var(--text-primary);
 }
 
-/* Hero pipeline pattern */
+/* Hero — UNDP dark ebony clay with subtle diagonal texture */
 .hero-pattern {
   background-color: var(--section-dark);
   background-image:
     repeating-linear-gradient(
       45deg,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.03) 1px,
+      rgba(255,255,255,0.025) 0px,
+      rgba(255,255,255,0.025) 1px,
       transparent 1px,
       transparent 20px
     ),
     repeating-linear-gradient(
       -45deg,
-      rgba(255,255,255,0.03) 0px,
-      rgba(255,255,255,0.03) 1px,
+      rgba(255,255,255,0.025) 0px,
+      rgba(255,255,255,0.025) 1px,
       transparent 1px,
       transparent 20px
     );
@@ -112,14 +114,14 @@ body {
   font-size: 0.8125rem;
   background: var(--light-gray);
   border: 1px solid var(--border-light);
-  border-radius: 4px;
+  border-radius: 0;
   padding: 0.125em 0.375em;
   color: var(--rosen-blue);
 }
 .prose-rosen pre {
   background: var(--light-gray);
   border: 1px solid var(--border-light);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 1em;
   overflow-x: auto;
   margin-bottom: 0.75em;
@@ -152,8 +154,7 @@ body {
 /* ─────────────────────────────────────────────
    RESPONSIVE LAYOUT
    All layout-only classes. Colour / brand stays
-   in inline styles so the ROSEN palette is never
-   overridden here.
+   in inline styles.
    ───────────────────────────────────────────── */
 
 /* Page-level content wrappers */
@@ -162,7 +163,7 @@ body {
 
 /* Metric strip — 4 cells side by side */
 .metric-strip      { display: flex !important; }
-.metric-strip-cell { flex: 1; padding: 20px 28px; border-right: 1px solid #E4E8EF; }
+.metric-strip-cell { flex: 1; padding: 20px 28px; border-right: 1px solid #d4d6d8; }
 .metric-strip-cell:last-child { border-right: none; }
 
 /* Two-column chart / section grids */
@@ -180,17 +181,17 @@ body {
 
 /* TopNav — desktop links visible, hamburger hidden */
 .nav-desktop       { display: flex; align-items: center; gap: 28px; }
-.nav-hamburger     { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: #4A5568; }
+.nav-hamburger     { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: #55606e; }
 .nav-award         { display: flex; }
 
-/* Mobile nav overlay */
+/* Mobile nav overlay — top matches 75px nav height */
 .mobile-nav {
   display: none;
   position: absolute;
-  top: 64px;
+  top: 75px;
   left: 0; right: 0;
   background: #FFFFFF;
-  border-bottom: 1px solid #E4E8EF;
+  border-bottom: 1px solid #d4d6d8;
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   z-index: 99;
   flex-direction: column;
@@ -199,13 +200,13 @@ body {
 .mobile-nav a {
   padding: 14px 24px;
   font-size: 15px;
-  color: #1A1A2A;
+  color: #232e3e;
   text-decoration: none;
-  border-bottom: 1px solid #F2F4F7;
+  border-bottom: 1px solid #edeff0;
   font-family: Inter, system-ui, sans-serif;
 }
 .mobile-nav a:last-child { border-bottom: none; }
-.mobile-nav a.active { color: #005DAA; font-weight: 600; background: #F0F6FF; }
+.mobile-nav a.active { color: #006eb5; font-weight: 600; background: #dff0ff; }
 
 /* Audit event rows — 5-col grid */
 .audit-row-grid   { display: grid !important; grid-template-columns: 28px 1fr 180px 140px 160px !important; }
@@ -214,17 +215,14 @@ body {
 
 /* ─────────────────────────────────────────────
    MOBILE CARD FLATTENING
-   On mobile, cards become full-bleed white sections
-   separated by the gray page background as a gutter.
-   No borders, no radius, no shadow — native app feel.
+   On mobile, cards become full-bleed white sections.
    ───────────────────────────────────────────── */
 
-/* Mark any element that should flatten on mobile */
 .rosen-card {
   /* desktop styles live in inline style — this class is a mobile hook only */
 }
 
-/* Filter / control bars — stack vertically on mobile */
+/* Filter / control bars */
 .filter-bar {
   display: flex;
   align-items: flex-end;
@@ -232,7 +230,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* Table columns to hide on mobile */
 .col-hide-mobile { display: table-cell; }
 
 /* ── Tablet ≤ 1024px ── */
@@ -249,7 +246,6 @@ body {
   .page-content-md { padding: 12px 0 !important; }
   .hero-inner      { padding: 24px 16px !important; }
 
-  /* Cards → full-bleed sections */
   .rosen-card {
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -259,7 +255,6 @@ body {
     margin-bottom: 8px !important;
   }
 
-  /* Metric strip → also full-bleed */
   .metric-strip {
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -269,10 +264,8 @@ body {
     margin-bottom: 8px !important;
   }
 
-  /* Metric cells — remove internal side padding, use full width */
   .metric-strip-cell { padding: 16px !important; }
 
-  /* Filter bars → vertical stack */
   .filter-bar {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -282,33 +275,26 @@ body {
   .filter-bar select { width: 100% !important; }
   .filter-bar button  { width: 100% !important; justify-content: center !important; }
 
-  /* Dashboard chart panels — no padding on sides */
   .chart-panel { padding: 16px !important; }
-
-  /* Segment risk table — hide less important columns */
   .col-hide-mobile { display: none !important; }
 
-  /* Nav */
   .nav-desktop   { display: none !important; }
   .nav-hamburger { display: flex !important; align-items: center; justify-content: center; }
 
-  /* Metric strip → vertical stack */
   .metric-strip      { flex-direction: column !important; }
-  .metric-strip-cell { border-right: none !important; border-bottom: 1px solid #E4E8EF !important; padding: 16px 20px !important; }
+  .metric-strip-cell { border-right: none !important; border-bottom: 1px solid #d4d6d8 !important; padding: 16px 20px !important; }
   .metric-strip-cell:last-child { border-bottom: none !important; }
 
-  /* Audit — drop context + time columns on small screens */
   .audit-row-grid   { grid-template-columns: 28px 1fr 150px !important; }
   .audit-col-context { display: none !important; }
   .audit-col-time    { display: none !important; }
 
-  /* Footer */
   .footer-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
 }
 
 /* ── Chat page ── */
 .chat-hero         { /* visible on desktop */ }
-.chat-main         { flex: 1; display: flex; flex-direction: column; height: calc(100vh - 72px - 160px); }
+.chat-main         { flex: 1; display: flex; flex-direction: column; height: calc(100vh - 75px - 160px); }
 .chat-example-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 640px; width: 100%; }
 .chat-notice       { display: flex; align-items: flex-start; gap: 12px; }
 .chat-bubble-pad   { padding: 0 24px; margin-bottom: 20px; }
@@ -324,8 +310,6 @@ body {
   text-align: center;
 }
 @media (max-width: 768px) {
-  /* justifyContent: center clips overflow from the top on mobile;
-     switch to flex-start so all cards are reachable by scrolling */
   .chat-empty-state {
     justify-content: flex-start !important;
     height: auto !important;
@@ -337,71 +321,55 @@ body {
 /* ── ChatInput ── */
 .chat-input-inner  { padding: 0 24px; }
 .chat-filter-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.chat-filter-label { display: none; }          /* label text shown only on mobile */
-.chat-hint         { font-size: 0.75rem; color: #C8D0DC; text-align: center; margin-top: 8px; }
+.chat-filter-label { display: none; }
+.chat-hint         { font-size: 0.75rem; color: #a9b1b7; text-align: center; margin-top: 8px; }
 
 @media (max-width: 768px) {
-  /* Hide hero — full screen for chat on mobile */
   .chat-hero { display: none !important; }
-
-  /* Main fills screen below nav */
-  .chat-main { height: calc(100svh - 64px) !important; }
-
-  /* Example queries — single column */
+  .chat-main { height: calc(100svh - 75px) !important; }
   .chat-example-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
 
-  /* Upload notice — stack vertically */
   .chat-notice {
     flex-direction: column !important;
     gap: 10px !important;
   }
   .chat-notice-btn { width: 100% !important; justify-content: center !important; }
 
-  /* Input container — 12px side padding to match bubbles */
   .chat-input-inner { padding: 0 12px !important; }
 
-  /* Filter grid — single column with touch-friendly inputs */
   .chat-filter-grid { grid-template-columns: 1fr !important; }
   .chat-filter-grid input {
     min-height: 44px !important;
-    font-size: 16px !important;   /* prevents iOS auto-zoom on focus */
+    font-size: 16px !important;
     padding: 10px 12px !important;
   }
 
-  /* Filter toggle button — show label text on mobile */
   .chat-filter-btn {
     display: flex !important;
     align-items: center !important;
     gap: 5px !important;
     padding: 8px 10px !important;
-    border: 1px solid #E4E8EF !important;
-    border-radius: 4px !important;
+    border: 1px solid #d4d6d8 !important;
+    border-radius: 0 !important;
   }
   .chat-filter-label { display: inline !important; font-size: 12px; font-weight: 600; }
 
-  /* Textarea — 16px prevents iOS zoom */
   .chat-textarea { font-size: 16px !important; }
 
-  /* Language select — larger touch area */
   .chat-lang-select {
     min-height: 40px !important;
     padding: 6px 8px !important;
     font-size: 14px !important;
   }
 
-  /* Send button — 44×44 minimum tap target (Apple HIG) */
   .chat-send-btn {
     width: 44px !important;
     height: 44px !important;
   }
 
-  /* Hide keyboard hint on touch devices */
   .chat-hint { display: none !important; }
-
-  /* Tighter bubble padding */
   .chat-bubble-pad { padding: 0 12px !important; }
 
-  /* HITL notice — stack on very small screens */
   .chat-hitl-notice {
     flex-wrap: wrap;
     gap: 8px !important;
@@ -413,8 +381,6 @@ body {
 /* ── Small mobile ≤ 480px ── */
 @media (max-width: 480px) {
   .grid-4col { grid-template-columns: repeat(2,1fr) !important; }
-
-  /* Audit — only event description on very small screens */
   .audit-row-grid { grid-template-columns: 28px 1fr !important; }
 }
 
@@ -428,10 +394,10 @@ body {
   font-weight: 600;
   font-family: 'Fira Code', monospace;
   padding: 0.1em 0.5em;
-  border-radius: 3px;
+  border-radius: 0;
   margin: 0 2px;
   cursor: pointer;
-  border: 1px solid rgba(0,93,170,0.2);
+  border: 1px solid rgba(0, 110, 181, 0.2);
   transition: background 0.15s;
 }
-.citation-chip:hover { background: rgba(0,93,170,0.15); }
+.citation-chip:hover { background: rgba(0, 110, 181, 0.15); }

@@ -44,7 +44,7 @@ const EVENT_CONFIG: Record<string, {
   },
   QUERY_COMPLETED: {
     icon: FileText, label: 'Query Answered',
-    color: '#005DAA', bg: '#E8F0F9', border: '#C5D8EF',
+    color: '#006eb5', bg: '#E8F0F9', border: '#C5D8EF',
     description: e => `AI answered query (${Math.round((e.payload.confidence ?? 0) * 100)}% confidence, ${e.payload.risk_level ?? 'LOW'} risk)${e.payload.question_summary ? ` — "${e.payload.question_summary}"` : ''}`,
   },
   INGEST_COMPLETED: {
@@ -54,7 +54,7 @@ const EVENT_CONFIG: Record<string, {
   },
   LOGIN: {
     icon: LogIn, label: 'User Login',
-    color: '#4A5568', bg: '#F2F4F7', border: '#CBD5E0',
+    color: '#4A5568', bg: '#edeff0', border: '#CBD5E0',
     description: e => `Session started${e.payload.mfa ? ' (MFA verified)' : ' (password only)'}`,
   },
   CONFIG_CHANGE: {
@@ -168,7 +168,7 @@ function DetailCard({ event }: { event: AuditEvent }) {
   const cfg = EVENT_CONFIG[event.event_type]
   const p = event.payload
   return (
-    <div style={{ padding: '16px 24px 20px', borderLeft: `3px solid ${cfg?.color ?? '#005DAA'}`, background: '#F8F9FB' }}>
+    <div style={{ padding: '16px 24px 20px', borderLeft: `3px solid ${cfg?.color ?? '#006eb5'}`, background: '#fafafa' }}>
       <div style={{ fontFamily: F, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8896A8', marginBottom: 12 }}>
         Event Detail
       </div>
@@ -193,26 +193,26 @@ function DetailCard({ event }: { event: AuditEvent }) {
         ].filter(Boolean).map((f: any, i) => (
           <div key={i}>
             <div style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>{f.label}</div>
-            <div style={{ fontSize: 13, color: f.highlight ? (cfg?.color ?? '#1A1A2A') : '#1A1A2A', fontWeight: f.highlight ? 600 : 400 }}>{f.value}</div>
+            <div style={{ fontSize: 13, color: f.highlight ? (cfg?.color ?? '#232e3e') : '#232e3e', fontWeight: f.highlight ? 600 : 400 }}>{f.value}</div>
           </div>
         ))}
       </div>
 
       {(p.engineer_note || p.reason || p.final_action) && (
-        <div style={{ marginTop: 12, padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 4 }}>
+        <div style={{ marginTop: 12, padding: '10px 14px', background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 4 }}>
           {p.engineer_note && (
             <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0 }}>
-              <strong style={{ color: '#1A1A2A' }}>Engineer note: </strong>{p.engineer_note}
+              <strong style={{ color: '#232e3e' }}>Engineer note: </strong>{p.engineer_note}
             </p>
           )}
           {p.reason && (
             <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0 }}>
-              <strong style={{ color: '#1A1A2A' }}>Rejection reason: </strong>{p.reason}
+              <strong style={{ color: '#232e3e' }}>Rejection reason: </strong>{p.reason}
             </p>
           )}
           {p.final_action && (
             <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, margin: p.engineer_note ? '8px 0 0' : 0 }}>
-              <strong style={{ color: '#1A1A2A' }}>Action taken: </strong>{p.final_action}
+              <strong style={{ color: '#232e3e' }}>Action taken: </strong>{p.final_action}
             </p>
           )}
         </div>
@@ -236,7 +236,7 @@ export default function AuditPage() {
   const criticalCount = MOCK_AUDIT.filter(e => ['ANOMALY_ESCALATED', 'COMPLIANCE_FLAG'].includes(e.event_type)).length
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F2F4F7', fontFamily: F }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0', fontFamily: F }}>
       <TopNav activeTab="audit" />
       <PageHero
         step="Step 5 of 5 · Audit Trail"
@@ -249,14 +249,14 @@ export default function AuditPage() {
         <div className="page-content" style={{ maxWidth: 1280, margin: '0 auto' }}>
 
           {/* ── Metric strip ── */}
-          <div style={{ display: 'flex', background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 4, marginBottom: 24, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 4, marginBottom: 24, overflow: 'hidden' }}>
             {[
-              { value: MOCK_AUDIT.length, label: 'Events Today',         sub: 'Full session recorded',          color: '#1A1A2A' },
-              { value: hitlCount,         label: 'Engineer Decisions',    sub: 'HITL approvals, edits, rejects', color: '#005DAA' },
+              { value: MOCK_AUDIT.length, label: 'Events Today',         sub: 'Full session recorded',          color: '#232e3e' },
+              { value: hitlCount,         label: 'Engineer Decisions',    sub: 'HITL approvals, edits, rejects', color: '#006eb5' },
               { value: rejectedCount,     label: 'Responses Rejected',    sub: 'Returned to AI for correction',  color: rejectedCount > 0 ? '#991B1B' : '#1A7A4A' },
               { value: criticalCount,     label: 'Critical Flags',        sub: 'Anomalies + compliance alerts',  color: criticalCount > 0 ? '#92400E' : '#1A7A4A' },
             ].map((m, i, arr) => (
-              <div key={m.label} style={{ flex: 1, padding: '18px 28px', borderRight: i < arr.length - 1 ? '1px solid #E4E8EF' : 'none' }}>
+              <div key={m.label} style={{ flex: 1, padding: '18px 28px', borderRight: i < arr.length - 1 ? '1px solid #d4d6d8' : 'none' }}>
                 <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.03em', color: m.color, lineHeight: 1, marginBottom: 5 }}>{m.value}</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 2 }}>{m.label}</div>
                 <div style={{ fontSize: 12, color: '#9CA3AF' }}>{m.sub}</div>
@@ -265,7 +265,7 @@ export default function AuditPage() {
           </div>
 
           {/* ── Filter bar ── */}
-          <div className="rosen-card filter-bar" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, padding: '16px 20px', marginBottom: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div className="rosen-card filter-bar" style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, padding: '16px 20px', marginBottom: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
 
             {/* Event type chips */}
             <div>
@@ -280,8 +280,8 @@ export default function AuditPage() {
                       onClick={() => setFilterType(t)}
                       style={{
                         fontSize: 12, fontWeight: 600, padding: '4px 10px', borderRadius: 3, cursor: 'pointer', border: 'none',
-                        background: active ? (cfg?.bg ?? '#E8F0F9') : '#F2F4F7',
-                        color: active ? (cfg?.color ?? '#005DAA') : '#6B7280',
+                        background: active ? (cfg?.bg ?? '#E8F0F9') : '#edeff0',
+                        color: active ? (cfg?.color ?? '#006eb5') : '#6B7280',
                         outline: active ? `1px solid ${cfg?.border ?? '#C5D8EF'}` : 'none',
                         transition: 'all 0.1s',
                       }}
@@ -300,15 +300,15 @@ export default function AuditPage() {
                 <input
                   type="text" placeholder="Search by email…"
                   value={actorSearch} onChange={e => setActorSearch(e.target.value)}
-                  style={{ padding: '7px 10px', border: '1px solid #C8D0DC', borderRadius: 4, fontSize: 13, color: '#1A1A2A', background: '#FFF', outline: 'none', minWidth: 200 }}
-                  onFocus={e => (e.currentTarget.style.borderColor = '#005DAA')}
+                  style={{ padding: '7px 10px', border: '1px solid #C8D0DC', borderRadius: 4, fontSize: 13, color: '#232e3e', background: '#FFF', outline: 'none', minWidth: 200 }}
+                  onFocus={e => (e.currentTarget.style.borderColor = '#006eb5')}
                   onBlur={e => (e.currentTarget.style.borderColor = '#C8D0DC')}
                 />
               </div>
               <button
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', background: '#005DAA', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600, color: '#FFF', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', background: '#006eb5', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600, color: '#FFF', cursor: 'pointer' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#004A8F')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#005DAA')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#006eb5')}
               >
                 <Download size={14} /> Export for PHMSA Report
               </button>
@@ -316,7 +316,7 @@ export default function AuditPage() {
           </div>
 
           {/* ── Immutability notice ── */}
-          <div className="rosen-card" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: '#E8F0F9', border: '1px solid rgba(0,93,170,0.2)', borderRadius: 4, marginBottom: 8, fontSize: 12, color: '#005DAA' }}>
+          <div className="rosen-card" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: '#E8F0F9', border: '1px solid rgba(0,93,170,0.2)', borderRadius: 4, marginBottom: 8, fontSize: 12, color: '#006eb5' }}>
             <Shield size={13} style={{ flexShrink: 0 }} />
             <span>
               <strong>Read-only · Immutable.</strong> Records are protected by PostgreSQL Row Level Security. This log satisfies PHMSA integrity management program documentation requirements under 49 CFR §192.911 and §192.945.
@@ -324,10 +324,10 @@ export default function AuditPage() {
           </div>
 
           {/* ── Event list ── */}
-          <div className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div className="rosen-card" style={{ background: '#FFFFFF', border: '1px solid #d4d6d8', borderRadius: 6, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
 
             {/* Table header */}
-            <div className="audit-row-grid" style={{ padding: '10px 20px', background: '#F8F9FB', borderBottom: '1px solid #E4E8EF' }}>
+            <div className="audit-row-grid" style={{ padding: '10px 20px', background: '#fafafa', borderBottom: '1px solid #d4d6d8' }}>
               {['', 'Event', 'Actor', 'Context', 'Timestamp (UTC)'].map((h, i) => (
                 <div key={i} className={i === 3 ? 'audit-col-context' : i === 4 ? 'audit-col-time' : ''} style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>{h}</div>
               ))}
@@ -346,14 +346,14 @@ export default function AuditPage() {
                 const riskLevel = event.payload.risk_level as string | undefined
 
                 return (
-                  <div key={event.id} style={{ borderBottom: idx < filtered.length - 1 ? '1px solid #F2F4F7' : 'none' }}>
+                  <div key={event.id} style={{ borderBottom: idx < filtered.length - 1 ? '1px solid #edeff0' : 'none' }}>
 
                     {/* Row */}
                     <div
                       onClick={() => setExpanded(isExpanded ? null : event.id)}
                       className="audit-row-grid"
                       style={{ padding: '13px 20px', cursor: 'pointer', transition: 'background 0.1s' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#F8F9FB')}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                     >
                       {/* Expand toggle */}
@@ -370,7 +370,7 @@ export default function AuditPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                             <span style={{ fontSize: 13, fontWeight: 600, color: cfg.color }}>{cfg.label}</span>
                             {riskLevel && (
-                              <span style={{ fontSize: 10, fontWeight: 700, color: RISK_STYLE[riskLevel]?.color ?? '#374151', background: RISK_STYLE[riskLevel]?.bg ?? '#F2F4F7', padding: '1px 6px', borderRadius: 2 }}>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: RISK_STYLE[riskLevel]?.color ?? '#374151', background: RISK_STYLE[riskLevel]?.bg ?? '#edeff0', padding: '1px 6px', borderRadius: 2 }}>
                                 {riskLevel}
                               </span>
                             )}
@@ -385,7 +385,7 @@ export default function AuditPage() {
                       </div>
 
                       {/* Context */}
-                      <div className="audit-col-context" style={{ fontSize: 12, color: '#005DAA', fontWeight: 500, display: 'flex', alignItems: 'center' }}>
+                      <div className="audit-col-context" style={{ fontSize: 12, color: '#006eb5', fontWeight: 500, display: 'flex', alignItems: 'center' }}>
                         {event.context}
                       </div>
 

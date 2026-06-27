@@ -1,88 +1,40 @@
-import { Linkedin, Youtube, Facebook } from 'lucide-react'
+const F    = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
+const DARK = '#232e3e'
 
 export function Footer() {
   return (
-    <footer style={{ background: '#001B3A', color: '#8896A8' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 40px 0' }}>
-        <div className="footer-grid">
-          {/* Col 1 */}
-          <div>
-            <div style={{ marginBottom: '20px' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 400, color: '#FFF' }}>Pipeline</span>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#7FB4E0' }}>GPT</span>
-            </div>
-            <p style={{ fontSize: '0.875rem', lineHeight: 1.7, marginBottom: '20px' }}>
-              AI-powered natural language interface for pipeline integrity data. Built in the spirit of ROSEN Group's data-enabled future.
-            </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {[Linkedin, Youtube, Facebook].map((Icon, i) => (
-                <a key={i} href="#" style={{ color: '#8896A8', transition: 'color 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#FFF')}
-                  onMouseLeave={e => (e.currentTarget.style.color = '#8896A8')}>
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
+    <footer style={{ background: DARK, fontFamily: F }}>
+      <div style={{
+        maxWidth: 1280, margin: '0 auto',
+        padding: '32px 40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        {/* Left: wordmark + copyright */}
+        <div>
+          <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+              <rect width="20" height="20" fill="#006eb5" />
+              <path d="M4 4h5.5c1.93 0 3.5 1.57 3.5 3.5S11.43 11 9.5 11H4V4Z" fill="#fff" />
+              <path d="M9.5 11l4.5 5h-3.5l-2.5-5h1.5Z" fill="#fff" fillOpacity="0.55" />
+            </svg>
+            <span style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>
+              PipelineGPT
+            </span>
           </div>
-
-          {/* Col 2 */}
-          <div>
-            <h4 style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#FFF', marginBottom: '16px' }}>
-              Quick Links
-            </h4>
-            {['Chat Interface', 'Review Queue', 'Analytics Dashboard', 'Data Ingestion', 'Audit Log'].map(link => (
-              <a key={link} href="#" style={{ display: 'block', fontSize: '0.875rem', color: '#8896A8', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#FFF')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#8896A8')}>
-                {link}
-              </a>
-            ))}
-          </div>
-
-          {/* Col 3 */}
-          <div>
-            <h4 style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#FFF', marginBottom: '16px' }}>
-              Data Sources
-            </h4>
-            {['PHMSA Incident Database', 'ILI Report Integration', 'SCADA Data Import', 'GIS Shapefiles', 'Custom Datasets'].map(link => (
-              <a key={link} href="#" style={{ display: 'block', fontSize: '0.875rem', color: '#8896A8', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#FFF')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#8896A8')}>
-                {link}
-              </a>
-            ))}
-          </div>
-
-          {/* Col 4 */}
-          <div>
-            <h4 style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#FFF', marginBottom: '16px' }}>
-              About This Project
-            </h4>
-            <p style={{ fontSize: '0.875rem', lineHeight: 1.7, marginBottom: '16px' }}>
-              Submitted for the 2026 Hermann Rosen Award for Pipeline Innovation, presented by the ASME Foundation and ROSEN Group.
-            </p>
-            <div style={{ fontSize: '0.8125rem', color: '#4A5568', lineHeight: 1.6 }}>
-              <div>FastAPI · Next.js 14</div>
-              <div>PostgreSQL + pgvector</div>
-              <div>Anthropic Claude API</div>
-            </div>
-          </div>
+          <p style={{ fontSize: '0.75rem', color: '#a9b1b7', lineHeight: 1.6 }}>
+            © 2026 PipelineGPT · ASME Foundation Hermann Rosen Award for Pipeline Innovation
+          </p>
         </div>
-      </div>
 
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.8125rem' }}>
-            © 2026 PipelineGPT · A ROSEN Group Technology Initiative · 2026 Hermann Rosen Award Submission
-          </span>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            {['Privacy Policy', 'Terms of Use', 'Cookie Settings'].map(l => (
-              <a key={l} href="#" style={{ fontSize: '0.8125rem', color: '#8896A8', textDecoration: 'none' }}>
-                {l}
-              </a>
-            ))}
-          </div>
-        </div>
+        {/* Right: disclaimer */}
+        <p style={{ fontSize: '0.75rem', color: '#a9b1b7', lineHeight: 1.6, maxWidth: 420, textAlign: 'right' }}>
+          All AI outputs require human review before operational action. No unreviewed recommendation triggers a pipeline decision.
+        </p>
       </div>
     </footer>
   )

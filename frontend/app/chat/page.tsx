@@ -102,7 +102,7 @@ export default function ChatPage() {
   const isEmpty = messages.length === 0
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F8F9FB' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fafafa' }}>
       <TopNav activeTab="chat" />
 
       <div className="chat-hero">
@@ -122,8 +122,8 @@ export default function ChatPage() {
             <div className="chat-empty-state">
               {/* Logo mark */}
               <div style={{ marginBottom: '20px' }}>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1A1A2A', letterSpacing: '-0.02em' }}>
-                  <span style={{ fontWeight: 300 }}>Pipeline</span><span style={{ color: '#005DAA' }}>GPT</span>
+                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#232e3e', letterSpacing: '-0.02em' }}>
+                  <span style={{ fontWeight: 300 }}>Pipeline</span><span style={{ color: '#006eb5' }}>GPT</span>
                 </div>
                 <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: 4 }}>AI-powered pipeline integrity intelligence</p>
               </div>
@@ -189,7 +189,7 @@ export default function ChatPage() {
                       padding: '16px',
                       background: '#FFFFFF',
                       border: '1px solid #E4E8EF',
-                      borderLeft: '3px solid #005DAA',
+                      borderLeft: '3px solid #006eb5',
                       borderRadius: '6px',
                       cursor: 'pointer',
                       textAlign: 'left',
@@ -200,8 +200,8 @@ export default function ChatPage() {
                     onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)')}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Icon size={13} color="#005DAA" />
-                      <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#005DAA', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                      <Icon size={13} color="#006eb5" />
+                      <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#006eb5', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                         {tag}
                       </span>
                     </div>
