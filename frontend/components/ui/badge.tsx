@@ -1,32 +1,36 @@
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
-const badgeVariants = cva(
-  'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors',
-  {
-    variants: {
-      variant: {
-        default: 'border-[#1C2E4A] bg-[#0F1E38] text-[#8B9BB4]',
-        primary: 'border-[#1D6FD9]/30 bg-[rgba(29,111,217,0.15)] text-[#4AA8FF]',
-        high: 'border-[#DC2626]/30 bg-[rgba(220,38,38,0.10)] text-[#DC2626]',
-        medium: 'border-[#D97706]/30 bg-[rgba(217,119,6,0.10)] text-[#D97706]',
-        low: 'border-[#16A34A]/30 bg-[rgba(22,163,74,0.10)] text-[#16A34A]',
-        success: 'border-[#16A34A]/30 bg-[rgba(22,163,74,0.10)] text-[#16A34A]',
-        warning: 'border-[#D97706]/30 bg-[rgba(217,119,6,0.10)] text-[#D97706]',
-        danger: 'border-[#DC2626]/30 bg-[rgba(220,38,38,0.10)] text-[#DC2626]',
-      },
-    },
-    defaultVariants: { variant: 'default' },
-  },
-)
+type BadgeVariant = 'high' | 'medium' | 'low' | 'blue' | 'teal' | 'gray' | 'success' | 'danger'
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />
+const variants: Record<BadgeVariant, string> = {
+  high: 'bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA]',
+  medium: 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]',
+  low: 'bg-[#D1FAE5] text-[#065F46] border border-[#A7F3D0]',
+  blue: 'bg-[#E8F0F9] text-[#005DAA] border border-[#C7DCF5]',
+  teal: 'bg-[#CCFBF1] text-[#0F766E] border border-[#99F6E4]',
+  gray: 'bg-[#F2F4F7] text-[#4A5568] border border-[#E4E8EF]',
+  success: 'bg-[#D1FAE5] text-[#065F46] border border-[#A7F3D0]',
+  danger: 'bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA]',
 }
 
-export { Badge, badgeVariants }
+export function Badge({
+  variant = 'gray',
+  children,
+  className,
+}: {
+  variant?: BadgeVariant
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold tracking-wide uppercase',
+        variants[variant],
+        className
+      )}
+    >
+      {children}
+    </span>
+  )
+}
