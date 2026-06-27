@@ -5,12 +5,16 @@ declare module 'next-auth' {
     accessToken: string
     user: DefaultSession['user'] & {
       role: string
+      mfaEnabled: boolean
+      mfaSetupRequired: boolean
     }
   }
 
   interface User {
     accessToken: string
     role: string
+    mfaEnabled: boolean
+    mfaSetupRequired: boolean
   }
 }
 
@@ -18,5 +22,7 @@ declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     accessToken: string
     role: string
+    mfaEnabled: boolean
+    mfaSetupRequired: boolean
   }
 }

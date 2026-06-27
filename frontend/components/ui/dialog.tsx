@@ -12,7 +12,7 @@ export const DialogClose = DialogPrimitive.Close
 export function DialogOverlay({ className, ...props }: DialogPrimitive.DialogOverlayProps) {
   return (
     <DialogPrimitive.Overlay
-      className={cn('fixed inset-0 z-50 bg-[rgba(0,27,58,0.6)] backdrop-blur-sm', className)}
+      className={cn('fixed inset-0 z-50 bg-[rgba(35,46,62,0.6)] backdrop-blur-sm', className)}
       {...props}
     />
   )
@@ -29,7 +29,7 @@ export function DialogContent({
       <DialogPrimitive.Content
         className={cn(
           'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-          'bg-white rounded-[6px] shadow-2xl border border-[#E4E8EF]',
+          'bg-white shadow-2xl border border-[#d4d6d8]',
           'w-full max-w-[800px] max-h-[90vh] overflow-y-auto',
           'focus:outline-none',
           className
@@ -37,7 +37,7 @@ export function DialogContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 p-1 rounded text-[#8896A8] hover:text-[#1A1A2A] hover:bg-[#F2F4F7] transition-colors">
+        <DialogPrimitive.Close className="absolute right-4 top-4 p-1 text-[#a9b1b7] hover:text-[#232e3e] hover:bg-[#edeff0] transition-colors">
           <X size={18} />
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
@@ -47,7 +47,7 @@ export function DialogContent({
 
 export function DialogHeader({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('px-6 py-5 border-b border-[#E4E8EF]', className)}>
+    <div className={cn('px-6 py-5 border-b border-[#d4d6d8]', className)}>
       {children}
     </div>
   )
@@ -55,7 +55,7 @@ export function DialogHeader({ children, className }: { children: React.ReactNod
 
 export function DialogTitle({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <DialogPrimitive.Title className={cn('text-lg font-700 text-[#1A1A2A]', className)}>
+    <DialogPrimitive.Title className={cn('text-lg font-700 text-[#232e3e]', className)}>
       {children}
     </DialogPrimitive.Title>
   )
@@ -63,7 +63,7 @@ export function DialogTitle({ children, className }: { children: React.ReactNode
 
 export function DialogDescription({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <DialogPrimitive.Description className={cn('text-sm text-[#8896A8] mt-1', className)}>
+    <DialogPrimitive.Description className={cn('text-sm text-[#a9b1b7] mt-1', className)}>
       {children}
     </DialogPrimitive.Description>
   )

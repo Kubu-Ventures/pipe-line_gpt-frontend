@@ -91,7 +91,7 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
             transition: 'border-color 0.15s, box-shadow 0.15s',
           }}
           onFocusCapture={e => {
-            ;(e.currentTarget as HTMLElement).style.borderColor = '#005DAA'
+            ;(e.currentTarget as HTMLElement).style.borderColor = '#006eb5'
             ;(e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(0,93,170,0.08)'
           }}
           onBlurCapture={e => {
@@ -157,10 +157,10 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
                 gap: 0,
                 padding: '6px',
                 border: 'none',
-                background: showFilters ? '#E8F0F9' : 'transparent',
+                background: showFilters ? '#dff0ff' : 'transparent',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                color: showFilters ? '#005DAA' : '#8896A8',
+                color: showFilters ? '#006eb5' : '#8896A8',
                 transition: 'color 0.15s, background 0.15s',
               }}
             >
@@ -177,7 +177,7 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
                 justifyContent: 'center',
                 width: '36px',
                 height: '36px',
-                background: !value.trim() || disabled ? '#E4E8EF' : '#005DAA',
+                background: !value.trim() || disabled ? '#E4E8EF' : '#006eb5',
                 color: !value.trim() || disabled ? '#8896A8' : 'white',
                 border: 'none',
                 borderRadius: '6px',
@@ -185,7 +185,7 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
                 transition: 'background 0.15s',
               }}
               onMouseEnter={e => { if (value.trim() && !disabled) e.currentTarget.style.background = '#004A8F' }}
-              onMouseLeave={e => { if (value.trim() && !disabled) e.currentTarget.style.background = '#005DAA' }}
+              onMouseLeave={e => { if (value.trim() && !disabled) e.currentTarget.style.background = '#006eb5' }}
             >
               <Send size={15} />
             </button>
