@@ -45,7 +45,14 @@ export default function AcceptInvitePage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.detail ?? 'This invitation link is invalid or has expired.')
+        const detail = data.detail
+        if (typeof detail === 'string') {
+          setError(detail)
+        } else if (Array.isArray(detail)) {
+          setError(detail.map((e: { msg: string }) => e.msg).join('. '))
+        } else {
+          setError('This invitation link is invalid or has expired.')
+        }
       } else {
         setSuccess(true)
       }
