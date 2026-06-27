@@ -11,7 +11,7 @@ import { AlertTriangle, Clock, CheckCircle, FileText, Upload, TrendingUp } from 
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
-import { NextStep } from '@/app/home/page'
+import { NextStep } from '@/components/NextStep'
 
 const F      = 'Inter, system-ui, sans-serif'
 const BLUE   = '#006eb5'

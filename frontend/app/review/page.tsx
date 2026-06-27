@@ -5,7 +5,7 @@ import { ClipboardCheck, CheckCircle, AlertCircle } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
-import { NextStep } from '@/app/home/page'
+import { NextStep } from '@/components/NextStep'
 import { ReviewCard } from './components/ReviewCard'
 import { useReviewQueue } from '@/hooks/useReviewQueue'
 

@@ -249,7 +249,7 @@ export function DecisionModal({ item, open, initialMode, onClose, onDecision, is
                 />
                 {editForm.formState.errors.final_text && (
                   <p style={{ fontFamily: F, fontSize: '0.8125rem', color: '#B91C1C', marginTop: 4 }}>
-                    {editForm.formState.errors.final_text.message}
+                    {editForm.formState.errors.final_text.message as string}
                   </p>
                 )}
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -281,7 +281,7 @@ export function DecisionModal({ item, open, initialMode, onClose, onDecision, is
                 />
                 {rejectForm.formState.errors.reason && (
                   <p style={{ fontFamily: F, fontSize: '0.8125rem', color: '#B91C1C', marginTop: 4 }}>
-                    {rejectForm.formState.errors.reason.message}
+                    {rejectForm.formState.errors.reason.message as string}
                   </p>
                 )}
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>

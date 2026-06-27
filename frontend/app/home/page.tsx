@@ -1,56 +1,15 @@
 'use client'
 
-import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { ArrowRight } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// UNDP Design System tokens
-// ─────────────────────────────────────────────────────────────────────────────
 const F      = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
 const BLUE   = '#006eb5'
 const DARK   = '#232e3e'
 const YELLOW = '#ffeb00'
 const AZURE  = '#60d4f2'
-
-/* ── Reusable "Next Step" footer ─────────────────────────────── */
-export function NextStep({ href, label, description }: {
-  href: string; label: string; description: string
-}) {
-  return (
-    <div style={{ background: '#edeff0', borderTop: `4px solid ${YELLOW}` }}>
-      <div style={{
-        maxWidth: 1280, margin: '0 auto',
-        padding: '20px 40px',
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', gap: 24, flexWrap: 'wrap',
-      }}>
-        <div>
-          <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 4 }}>
-            Next Step
-          </p>
-          <p style={{ fontFamily: F, fontSize: 15, fontWeight: 600, color: DARK }}>{label}</p>
-          <p style={{ fontFamily: F, fontSize: 13, color: '#55606e', marginTop: 3 }}>{description}</p>
-        </div>
-        <Link href={href} style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '10px 22px',
-          border: `2px solid ${DARK}`,
-          background: DARK, color: '#fff',
-          textDecoration: 'none',
-          fontFamily: F, fontSize: 12, fontWeight: 700,
-          letterSpacing: '0.08em', textTransform: 'uppercase' as const,
-          whiteSpace: 'nowrap' as const,
-        }}>
-          {label} <ArrowRight size={13} />
-        </Link>
-      </div>
-    </div>
-  )
-}
 
 /* ── Constants ────────────────────────────────────────────────── */
 const PIPE_TYPES = [
@@ -248,9 +207,8 @@ export default function HomePage() {
           fontFamily: F, fontSize: 12, color: '#a9b1b7',
           lineHeight: 1.6, marginTop: 28,
         }}>
-          PipelineGPT is a prototype submitted for the ASME Foundation Hermann Rosen Award
-          for Pipeline Innovation 2026. All AI outputs require human review before any pipeline
-          action is taken. No unreviewed recommendation ever triggers an operational change.
+          All AI outputs require human review before any pipeline action is taken.
+          No unreviewed recommendation ever triggers an operational change.
         </p>
       </main>
     </div>
