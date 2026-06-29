@@ -104,6 +104,12 @@ body {
   100% { opacity: 0.6; }
 }
 
+/* Streaming progress bar gradient sweep */
+@keyframes slide-gradient {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* AI response markdown */
 .prose-rosen {
   color: var(--text-secondary);
