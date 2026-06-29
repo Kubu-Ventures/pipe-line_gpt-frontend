@@ -107,10 +107,10 @@ function StatusLegend({ compact = false }: { compact?: boolean }) {
 }
 
 const EXAMPLE_QUERIES = [
-  { icon: TrendingUp, text: 'How many hazardous liquid incidents in Texas 2015–2023, and top 3 causes?',   tag: 'Trend Analysis' },
-  { icon: Activity,   text: 'Compare corrosion rates: natural gas transmission vs hazardous liquid, last 10 years.', tag: 'Comparative' },
-  { icon: Shield,     text: 'What are the key integrity risks for offshore hydrocarbon pipelines near HCAs?', tag: 'Risk Assessment' },
-  { icon: Globe,      text: 'Quais são os principais riscos de integridade para dutos costeiros?',            tag: 'Multilingual' },
+  { icon: Activity,   text: 'What caused the PRESSURE_DROP alarm on Segment TX-4B on 2 June 2024, and was it resolved?',  tag: 'SCADA Analysis' },
+  { icon: Shield,     text: 'Which ILI features on Segment TX-4B require immediate action, and what are the wall loss percentages?', tag: 'ILI Review' },
+  { icon: TrendingUp, text: 'Compare corrosion rates: natural gas transmission vs hazardous liquid pipelines, last 10 years.', tag: 'Comparative' },
+  { icon: Globe,      text: 'Quais são os principais riscos de integridade para dutos costeiros?',                         tag: 'Multilingual' },
 ]
 
 export default function ChatPage() {
