@@ -7,11 +7,12 @@ import type { QueryFilters } from '@/lib/api'
 interface ChatInputProps {
   onSubmit: (question: string, language: string, filters: QueryFilters) => void
   disabled?: boolean
+  isStreaming?: boolean
 }
 
 const LANGUAGES = ['EN', 'FR', 'ES', 'AR', 'ZH', 'RU', 'PT', 'DE', 'JA', 'HI']
 
-export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
+export function ChatInput({ onSubmit, disabled, isStreaming }: ChatInputProps) {
   const [value, setValue] = useState('')
   const [lang, setLang] = useState('EN')
   const [showFilters, setShowFilters] = useState(false)
@@ -43,6 +44,25 @@ export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
   return (
     <div style={{ background: '#FFFFFF', borderTop: '1px solid #E4E8EF', padding: '16px 0 20px' }}>
       <div className="chat-input-inner" style={{ maxWidth: '860px', margin: '0 auto', padding: '0 24px' }}>
+
+        {/* Streaming status bar */}
+        {isStreaming && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            marginBottom: 10, padding: '8px 14px',
+            background: '#F0F7FF', border: '1px solid #BFDBFE',
+            borderRadius: 6,
+            animation: 'status-shimmer 2s ease-in-out infinite',
+          }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%', background: '#006eb5', flexShrink: 0,
+              animation: 'dot-pulse 1.2s ease-in-out infinite',
+            }} />
+            <span style={{ fontSize: '0.8125rem', color: '#1D4ED8', fontWeight: 500 }}>
+              PipelineGPT is generating a response — please wait…
+            </span>
+          </div>
+        )}
         {/* Optional filters row */}
         {showFilters && (
           <div

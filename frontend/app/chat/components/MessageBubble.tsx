@@ -1,10 +1,47 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { CheckCircle, Flag, Edit3, XCircle, Clock } from 'lucide-react'
 import { injectCitationLabels } from '@/lib/utils'
 import type { Citation } from '@/lib/api'
+
+const THINKING_STAGES = [
+  'Searching knowledge base…',
+  'Reranking relevant passages…',
+  'Generating response…',
+]
+
+function ThinkingDots() {
+  const [stage, setStage] = useState(0)
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setStage(1), 1800)
+    const t2 = setTimeout(() => setStage(2), 3800)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '6px 2px' }}>
+      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+        {[0, 1, 2].map(i => (
+          <span
+            key={i}
+            style={{
+              width: 8, height: 8, borderRadius: '50%', background: '#006eb5',
+              display: 'inline-block',
+              animation: `dot-pulse 1.4s ease-in-out ${i * 0.22}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+      <span style={{ fontSize: '0.75rem', color: '#8896A8', fontStyle: 'italic', animation: 'status-shimmer 2s ease-in-out infinite' }}>
+        {THINKING_STAGES[stage]}
+      </span>
+    </div>
+  )
+}
 
 export interface MessageBubbleProps {
   role: 'user' | 'assistant'
@@ -130,6 +167,8 @@ export function MessageBubble({
         >
           {isUser ? (
             <p style={{ margin: 0 }}>{content}</p>
+          ) : isStreaming && !content ? (
+            <ThinkingDots />
           ) : (
             <div className={`prose-rosen${isStreaming ? ' stream-cursor' : ''}`}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
