@@ -213,7 +213,7 @@ export default function LoginPage() {
                 color: '#fff',
                 marginBottom: 16,
               }}>
-                Pipeline integrity<br />intelligence, powered<br />by plain English.
+                Pipeline integrity<br />intelligence, powered<br />by natural language.
               </h2>
 
               <p style={{

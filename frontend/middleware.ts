@@ -1,31 +1,48 @@
+import createIntlMiddleware from 'next-intl/middleware'
 import { auth } from '@/lib/auth'
+import { routing, locales } from '@/i18n/routing'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+const handleI18n = createIntlMiddleware(routing)
 
 export default auth((req) => {
-  const path = req.nextUrl.pathname
+  const { pathname } = req.nextUrl
 
-  // Public routes — no auth required
-  if (path === '/') return NextResponse.next()
-  if (path.startsWith('/accept-invite')) return NextResponse.next()
+  // Strip locale prefix to extract the logical path
+  const segments = pathname.split('/')
+  const potentialLocale = segments[1] ?? ''
+  const hasLocale = (locales as readonly string[]).includes(potentialLocale)
+  const logicalPath = hasLocale
+    ? '/' + segments.slice(2).join('/')
+    : pathname
 
-  // Unauthenticated → login
-  if (!req.auth) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  // Public routes — no auth check
+  const isPublic =
+    logicalPath === '/' ||
+    logicalPath === '' ||
+    logicalPath === '/login' ||
+    logicalPath.startsWith('/accept-invite')
+
+  if (!isPublic && !req.auth) {
+    const locale = hasLocale ? potentialLocale : 'en'
+    return NextResponse.redirect(new URL(`/${locale}/login`, req.url))
   }
 
-  const role = (req.auth.user as any)?.role as string | undefined
+  const role = (req.auth?.user as any)?.role as string | undefined
+  const locale = hasLocale ? potentialLocale : 'en'
 
-  // Engineer/Admin-only: review queue
-  if (path.startsWith('/review') && role !== 'ENGINEER' && role !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/home', req.url))
+  if (!isPublic && logicalPath.startsWith('/review') && role !== 'ENGINEER' && role !== 'ADMIN') {
+    return NextResponse.redirect(new URL(`/${locale}/home`, req.url))
   }
 
-  // Admin-only: user management
-  if (path.startsWith('/admin') && role !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/home', req.url))
+  if (!isPublic && logicalPath.startsWith('/admin') && role !== 'ADMIN') {
+    return NextResponse.redirect(new URL(`/${locale}/home`, req.url))
   }
+
+  return handleI18n(req as unknown as NextRequest)
 })
 
 export const config = {
-  matcher: ['/((?!login|accept-invite|_next/static|_next/image|favicon.ico|api/auth).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
