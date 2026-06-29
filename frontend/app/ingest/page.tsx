@@ -397,6 +397,7 @@ export default function IngestPage() {
                       <TableHead>Type</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Chunks</TableHead>
+                      <TableHead>Uploaded by</TableHead>
                       <TableHead>Indexed</TableHead>
                       {canDelete && <TableHead></TableHead>}
                     </TableRow>
@@ -420,6 +421,10 @@ export default function IngestPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>{row.chunk_count > 0 ? row.chunk_count.toLocaleString() : '—'}</TableCell>
+                        <TableCell style={{ color: '#55606e', fontSize: '0.8125rem', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          title={row.uploaded_by ?? undefined}>
+                          {row.uploaded_by ? row.uploaded_by.split('@')[0] : '—'}
+                        </TableCell>
                         <TableCell style={{ color: '#8896A8', fontFamily: 'monospace', fontSize: '0.8125rem' }}>
                           {formatDate(row.ingest_date)}
                         </TableCell>
