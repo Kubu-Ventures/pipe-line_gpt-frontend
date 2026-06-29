@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useSession } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
 import { TrendingUp, Activity, Shield, Globe, Upload, ArrowRight, Flag, History, Info, ChevronDown, ChevronUp, CheckCircle, Clock, Edit3, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { TopNav } from '@/components/TopNav'
@@ -117,7 +116,6 @@ const EXAMPLE_QUERIES = [
 export default function ChatPage() {
   const { data: session } = useSession()
   const token = (session as any)?.accessToken ?? ''
-  const searchParams = useSearchParams()
   const { fullText, citations, hitlRequired, queryId: sseQueryId, isStreaming, error, submit, reset } = useSSE()
 
   const [messages, setMessages] = useState<Message[]>([])
@@ -129,6 +127,7 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const historyLoadedRef = useRef(false)
   const autoQueryFiredRef = useRef(false)
+  const handleSubmitRef = useRef<(q: string, lang: string, filters: QueryFilters) => void>(() => {})
 
   // ── Scroll to bottom ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -155,7 +154,6 @@ export default function ChatPage() {
           msgs.push({
             id: `hist-a-${item.query_id}`,
             role: 'assistant',
-            // show final (approved/edited) text if available, otherwise original
             content: item.final_text ?? item.answer_text,
             citations: item.citations,
             hitlRequired: item.hitl_required,
@@ -170,7 +168,18 @@ export default function ChatPage() {
         setMessages(msgs)
       })
       .catch(() => {})
-      .finally(() => setHistoryLoading(false))
+      .finally(() => {
+        setHistoryLoading(false)
+        // Fire ?q= auto-query only after history is fully settled — avoids
+        // the race condition where setMessages(history) would wipe the query.
+        if (!autoQueryFiredRef.current) {
+          const q = new URLSearchParams(window.location.search).get('q')
+          if (q) {
+            autoQueryFiredRef.current = true
+            handleSubmitRef.current(q, 'EN', {})
+          }
+        }
+      })
   }, [token])
 
   // ── Poll for status updates on UNDER_REVIEW messages ───────────────────
@@ -245,14 +254,8 @@ export default function ChatPage() {
     [reset, submit, sessionId, token]
   )
 
-  // ── Auto-submit ?q= from dashboard suggestion links ─────────────────────
-  useEffect(() => {
-    if (historyLoading || autoQueryFiredRef.current || !token) return
-    const q = searchParams.get('q')
-    if (!q) return
-    autoQueryFiredRef.current = true
-    handleSubmit(q, 'EN', {})
-  }, [historyLoading, token, searchParams, handleSubmit])
+  // Keep ref current so the history .finally() callback always has the latest version
+  handleSubmitRef.current = handleSubmit
 
   // ── Derived state ────────────────────────────────────────────────────────
   const isEmpty = messages.length === 0 && !historyLoading
