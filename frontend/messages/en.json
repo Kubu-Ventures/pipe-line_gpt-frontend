@@ -48,6 +48,7 @@
   "login": {
     "title": "Sign in",
     "subtitle": "Access is by invitation only. Use your credentials or the demo account.",
+    "demoLabel": "Try a demo account",
     "demoBtn": "Continue as demo operator →",
     "demoLoading": "Loading demo…",
     "divider": "or sign in with credentials",
@@ -363,4 +364,5 @@
     "tokenError": "Invalid invitation token."
   }
 }
+
 

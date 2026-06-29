@@ -18,21 +18,26 @@ const GRAY_400 = '#d4d6d8'
 const GRAY_500 = '#a9b1b7'
 const TEXT     = '#232e3e'
 
-const DEMO_EMAIL    = 'demo-operator@pipelinegpt.xyz'
-const DEMO_PASSWORD = 'DemoOp2026!'
+const DEMO_ACCOUNTS = [
+  { role: 'Operator', email: 'demo-operator@pipelinegpt.xyz', password: 'DemoOp2026!' },
+  { role: 'Engineer', email: 'demo-engineer@pipelinegpt.xyz', password: 'DemoEng2026!' },
+  { role: 'Admin',    email: 'demo-admin@pipelinegpt.xyz',    password: 'DemoAdmin2026!' },
+] as const
+
+type DemoRole = typeof DEMO_ACCOUNTS[number]['role']
 
 export default function LoginPage() {
   const t      = useTranslations('login')
   const router = useRouter()
   const locale = useLocale()
 
-  const [email,       setEmail]       = useState('')
-  const [password,    setPassword]    = useState('')
-  const [error,       setError]       = useState<string | null>(null)
-  const [loading,     setLoading]     = useState(false)
-  const [demoLoading, setDemoLoading] = useState(false)
+  const [email,        setEmail]        = useState('')
+  const [password,     setPassword]     = useState('')
+  const [error,        setError]        = useState<string | null>(null)
+  const [loading,      setLoading]      = useState(false)
+  const [demoLoading,  setDemoLoading]  = useState<DemoRole | null>(null)
 
-  const busy = loading || demoLoading
+  const busy = loading || demoLoading !== null
 
   async function doSignIn(e: string, p: string, setL: (b: boolean) => void) {
     setL(true)
@@ -57,8 +62,11 @@ export default function LoginPage() {
     doSignIn(email, password, setLoading)
   }
 
-  async function handleDemo() {
-    doSignIn(DEMO_EMAIL, DEMO_PASSWORD, setDemoLoading)
+  async function handleDemo(role: DemoRole) {
+    const acc = DEMO_ACCOUNTS.find(a => a.role === role)!
+    setDemoLoading(role)
+    await doSignIn(acc.email, acc.password, () => {})
+    setDemoLoading(null)
   }
 
   return (
@@ -165,22 +173,35 @@ export default function LoginPage() {
               {t('subtitle')}
             </p>
 
-            {/* Demo button */}
-            <button
-              type="button"
-              onClick={handleDemo}
-              disabled={busy}
-              style={{
-                display: 'block', width: '100%', padding: '14px 24px',
-                background: demoLoading ? '#1f5a95' : DARK,
-                color: '#fff', border: `2px solid ${demoLoading ? '#1f5a95' : DARK}`,
-                borderRadius: 0, fontSize: '0.9375rem', fontWeight: 600,
-                letterSpacing: '0.02em', cursor: busy ? 'not-allowed' : 'pointer',
-                marginBottom: 24, transition: 'background 0.15s, border-color 0.15s', textAlign: 'center',
-              }}
-            >
-              {demoLoading ? <Spinner label={t('demoLoading')} /> : t('demoBtn')}
-            </button>
+            {/* Demo account buttons */}
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ fontSize: '0.75rem', fontWeight: 600, color: GRAY_500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
+                {t('demoLabel')}
+              </p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {DEMO_ACCOUNTS.map(({ role }) => {
+                  const isLoading = demoLoading === role
+                  return (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => handleDemo(role)}
+                      disabled={busy}
+                      style={{
+                        flex: 1, padding: '11px 8px',
+                        background: isLoading ? '#1f5a95' : DARK,
+                        color: '#fff', border: `2px solid ${isLoading ? '#1f5a95' : DARK}`,
+                        borderRadius: 0, fontSize: '0.8125rem', fontWeight: 600,
+                        letterSpacing: '0.02em', cursor: busy ? 'not-allowed' : 'pointer',
+                        transition: 'background 0.15s, border-color 0.15s', textAlign: 'center',
+                      }}
+                    >
+                      {isLoading ? <Spinner label="…" /> : role}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
 
             {/* Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
