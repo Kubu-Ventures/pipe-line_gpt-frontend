@@ -1,10 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle, Edit3, XCircle, FileText, Clock, ChevronDown, ChevronUp, AlertTriangle, User } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { CheckCircle, Edit3, XCircle, FileText, Clock, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
 import { DecisionModal } from './DecisionModal'
 import { SourcePanel } from './SourcePanel'
 import { useSubmitDecision } from '@/hooks/useReviewQueue'
+import { injectCitationLabels } from '@/lib/utils'
 import type { ReviewItem } from '@/lib/api'
 
 const F    = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
@@ -67,9 +70,10 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
   const isPend = item.status === 'PENDING'
   const isHigh = item.risk_level === 'HIGH'
 
-  const PREVIEW_LEN = 280
-  const shortText   = item.answer_text.slice(0, PREVIEW_LEN)
-  const hasMore     = item.answer_text.length > PREVIEW_LEN
+  const renderedText = injectCitationLabels(item.answer_text ?? '', item.citations_json ?? [])
+  const PREVIEW_LEN  = 280
+  const shortText    = renderedText.slice(0, PREVIEW_LEN)
+  const hasMore      = renderedText.length > PREVIEW_LEN
 
   const handleApprove = () => mutate({ queryId: item.query_id, decision: { decision: 'APPROVE' } })
   const openModal = (mode: 'EDIT' | 'REJECT') => { setModalMode(mode); setModalOpen(true) }
@@ -132,13 +136,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
               <Clock size={11} /> {timeAgo(item.created_at)}
             </span>
 
-            {item.user_email && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: F, fontSize: 12, color: '#a9b1b7' }}>
-                <User size={11} /> {item.user_email}
-              </span>
-            )}
-
-            {(item.citations_json?.length ?? item.chunk_count ?? 0) > 0 && (
+            {(item.citations_json?.length ?? 0) > 0 && (
               <button
                 onClick={() => setSourcesOpen(true)}
                 style={{
@@ -152,7 +150,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
                 onMouseLeave={e => (e.currentTarget.style.background = '#dff0ff')}
               >
                 <FileText size={11} />
-                {item.citations_json?.length ?? item.chunk_count} source{(item.citations_json?.length ?? item.chunk_count ?? 0) !== 1 ? 's' : ''} cited
+                {item.citations_json?.length} source{(item.citations_json?.length ?? 0) !== 1 ? 's' : ''} cited
               </button>
             )}
           </div>
@@ -178,10 +176,9 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
             <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#a9b1b7', marginBottom: 8 }}>
               AI Response
             </p>
-            <p style={{ fontFamily: F, fontSize: 14, color: '#55606e', lineHeight: 1.75 }}>
-              {expanded ? item.answer_text : shortText}
-              {!expanded && hasMore && '…'}
-            </p>
+            <div style={{ fontFamily: F, fontSize: 14, color: '#55606e', lineHeight: 1.75 }} className="review-md">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{expanded ? renderedText : shortText + (!expanded && hasMore ? '…' : '')}</ReactMarkdown>
+            </div>
             {hasMore && (
               <button
                 onClick={() => setExpanded(e => !e)}

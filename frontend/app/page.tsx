@@ -20,7 +20,7 @@ const FEATURES = [
       </svg>
     ),
     title: 'Natural Language Queries',
-    body:  'Ask any question about your pipeline data in plain English — no SQL, no special syntax. The system retrieves answers directly from your uploaded ILI reports, SCADA exports, and PHMSA records.',
+    body:  'Ask any question about your pipeline data — no SQL, no special syntax, any language. The system retrieves answers directly from your uploaded ILI reports, SCADA exports, and PHMSA records.',
   },
   {
     color: AZURE,
@@ -181,7 +181,7 @@ export default function LandingPage() {
             marginBottom: 20,
             maxWidth: 720,
           }}>
-            Query your pipeline data<br />in plain English.
+            Query your pipeline data<br />in any language.
           </h1>
 
           <p style={{

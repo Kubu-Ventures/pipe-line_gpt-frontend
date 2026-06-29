@@ -22,7 +22,7 @@ export interface QueryFilters {
 
 export interface Citation {
   source_id: string
-  text: string          // excerpt from the retrieved chunk (backend field: excerpt)
+  excerpt: string
   document_id: string
   filename: string
   chunk_index?: number
@@ -43,9 +43,7 @@ export interface ReviewItem {
   risk_level: 'HIGH' | 'MEDIUM' | 'LOW'
   status: string
   created_at: string
-  user_email?: string
-  chunk_count?: number
-  decision?: string
+  decision?: string | null
 }
 
 export interface AuditEvent {
@@ -67,6 +65,21 @@ export interface DashboardStats {
   queries_by_day: { date: string; count: number }[]
   incidents_by_year: { year: number; count: number }[]
   recent_events: AuditEvent[]
+}
+
+export interface QueryHistoryItem {
+  query_id: string
+  question: string
+  asked_at: string
+  status: 'PENDING' | 'PROCESSING' | 'UNDER_REVIEW' | 'DELIVERED' | 'REJECTED'
+  hitl_required: boolean
+  answer_text: string
+  final_text: string | null
+  decision: 'APPROVE' | 'EDIT' | 'REJECT' | null
+  reason: string | null
+  reviewed_at: string | null
+  citations: Citation[]
+  confidence_score: number
 }
 
 // Auth
@@ -122,12 +135,32 @@ export async function ingestFile(file: File, token?: string): Promise<{ task_id:
   return res.json()
 }
 
-export async function syncPHMSA(token?: string): Promise<{ task_id: string }> {
+export async function syncPHMSA(token?: string): Promise<{ task_ids: string[]; queued: number }> {
   return apiFetch('/ingest/phmsa-sync', { method: 'POST', token })
 }
 
 export async function getIngestHistory(token?: string) {
   return apiFetch<any[]>('/ingest/history', { token })
+}
+
+export async function deleteDocument(
+  documentId: string,
+  token?: string
+): Promise<{ deleted: boolean; document_id: string; filename: string; chunks_removed: number }> {
+  return apiFetch(`/ingest/${documentId}`, { method: 'DELETE', token })
+}
+
+export async function getChunkText(
+  documentId: string,
+  chunkIndex: number,
+  token?: string
+): Promise<{ text_content: string; section_label: string | null; page_ref: string | null }> {
+  return apiFetch(`/ingest/chunk/${documentId}/${chunkIndex}`, { token })
+}
+
+// Query history
+export async function getQueryHistory(token?: string, limit = 50): Promise<QueryHistoryItem[]> {
+  return apiFetch<QueryHistoryItem[]>(`/query/history?limit=${limit}`, { token })
 }
 
 // Audit

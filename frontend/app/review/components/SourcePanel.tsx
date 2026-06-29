@@ -1,7 +1,31 @@
 'use client'
 
-import { X, ExternalLink, FileText, Database, MapPin, BarChart2, File } from 'lucide-react'
+import { useState } from 'react'
+import { X, ExternalLink, FileText, Database, MapPin, BarChart2, File, Loader } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { getChunkText } from '@/lib/api'
 import type { Citation } from '@/lib/api'
+
+function parseChunkRows(text: string): Array<{ row: number; fields: Record<string, string> }> {
+  const rowRegex = /\[ROW (\d+)\]([\s\S]*?)(?=\[ROW \d+\]|$)/g
+  const rows: Array<{ row: number; fields: Record<string, string> }> = []
+  let m: RegExpExecArray | null
+  while ((m = rowRegex.exec(text)) !== null) {
+    const rowNum = parseInt(m[1], 10)
+    const fields: Record<string, string> = {}
+    m[2].split('|').forEach(pair => {
+      const colonIdx = pair.indexOf(':')
+      if (colonIdx < 0) return
+      const k = pair.slice(0, colonIdx).trim()
+      const v = pair.slice(colonIdx + 1).trim()
+      if (k) fields[k] = v
+    })
+    if (Object.keys(fields).length) rows.push({ row: rowNum, fields })
+  }
+  return rows
+}
+
+function isCsvChunk(text: string) { return /\[ROW \d+\]/.test(text) }
 
 const F      = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
 const BLUE   = '#006eb5'
@@ -55,6 +79,104 @@ interface SourcePanelProps {
   citations: Citation[]
   open: boolean
   onClose: () => void
+}
+
+function CitationEntry({ c, meta }: { c: Citation; meta: ReturnType<typeof getSourceMeta> }) {
+  const { data: session } = useSession()
+  const token = (session as any)?.accessToken
+  const Icon = meta.icon
+  const [fullText, setFullText] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function loadFull() {
+    if (!c.document_id || c.chunk_index === undefined) return
+    setLoading(true)
+    try {
+      const res = await getChunkText(c.document_id, c.chunk_index!, token)
+      setFullText(res.text_content)
+    } catch { setFullText(null) }
+    finally { setLoading(false) }
+  }
+
+  const displayText = fullText ?? c.excerpt ?? ''
+  const rows = isCsvChunk(displayText) ? parseChunkRows(displayText) : []
+
+  return (
+    <div style={{ marginBottom: 12, border: `1px solid ${meta.borderColor}`, borderLeft: `4px solid ${meta.color}`, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '11px 14px', background: meta.bg, borderBottom: `1px solid ${meta.borderColor}`, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.6)', border: `1px solid ${meta.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={14} color={meta.color} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
+            {c.source_id && (
+              <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: meta.color, background: 'rgba(255,255,255,0.7)', padding: '1px 6px', border: `1px solid ${meta.borderColor}`, letterSpacing: '0.04em' }}>
+                {c.source_id}
+              </span>
+            )}
+            <span style={{ fontSize: 10, fontWeight: 700, color: meta.color, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{meta.type}</span>
+          </div>
+          <p style={{ fontFamily: F, fontSize: 12, fontWeight: 600, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.filename}</p>
+        </div>
+      </div>
+
+      {/* Section / page */}
+      {(c.page_ref || c.section_label) && (
+        <div style={{ padding: '7px 14px', background: '#fafafa', borderBottom: '1px solid #d4d6d8', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          {c.page_ref && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>Page:</strong> {c.page_ref}</span>}
+          {c.section_label && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>Rows:</strong> {c.section_label.replace(/Rows?\s*/i, '')}</span>}
+        </div>
+      )}
+
+      {/* Excerpt — parsed rows or plain text */}
+      <div style={{ padding: '12px 14px' }}>
+        <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#a9b1b7', marginBottom: 8 }}>
+          Retrieved passage
+        </p>
+        {rows.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {rows.map(({ row, fields }) => (
+              <div key={row} style={{ border: '1px solid #E4E8EF', borderLeft: `3px solid ${meta.color}`, borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ background: '#F8F9FB', padding: '3px 8px', borderBottom: '1px solid #E4E8EF' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: meta.color }}>ROW {row}</span>
+                </div>
+                <div style={{ padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {Object.entries(fields).map(([k, v]) => (
+                    <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11, lineHeight: 1.5 }}>
+                      <span style={{ fontWeight: 600, color: '#55606e', minWidth: 110, flexShrink: 0 }}>{k.replace(/_/g, ' ')}</span>
+                      <span style={{ color: '#232e3e', wordBreak: 'break-word' }}>{v || '—'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontFamily: F, fontSize: 12, color: '#55606e', lineHeight: 1.7, borderLeft: `3px solid ${meta.color}`, paddingLeft: 12, fontStyle: 'italic' }}>
+            {displayText || 'No excerpt available.'}
+          </p>
+        )}
+
+        {!fullText && c.document_id && c.chunk_index !== undefined && (
+          <button onClick={loadFull} disabled={loading} style={{ marginTop: 10, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '6px 0', fontSize: 11, fontWeight: 600, color: loading ? '#8896A8' : meta.color, background: '#F8F9FB', border: '1px solid #E4E8EF', cursor: loading ? 'not-allowed' : 'pointer' }}>
+            {loading ? <><Loader size={11} style={{ animation: 'spin 1s linear infinite' }} /> Loading…</> : 'Load full retrieved passage'}
+          </button>
+        )}
+      </div>
+
+      {/* External link */}
+      {meta.externalUrl && (
+        <div style={{ padding: '9px 14px', borderTop: '1px solid #d4d6d8', background: '#edeff0' }}>
+          <a href={meta.externalUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: F, fontSize: 12, fontWeight: 600, color: BLUE, textDecoration: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+            onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
+            <ExternalLink size={11} /> {meta.externalLabel ?? 'Open source'}
+          </a>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export function SourcePanel({ citations, open, onClose }: SourcePanelProps) {
@@ -138,131 +260,13 @@ export function SourcePanel({ citations, open, onClose }: SourcePanelProps) {
               <p style={{ fontFamily: F, fontSize: 14 }}>No citation details available.</p>
             </div>
           ) : (
-            citations.map((c, i) => {
-              const meta = getSourceMeta(c.filename)
-              const Icon = meta.icon
-              return (
-                <div key={c.source_id ?? i} style={{
-                  marginBottom: 12,
-                  border: `1px solid ${meta.borderColor}`,
-                  borderLeft: `4px solid ${meta.color}`,
-                  overflow: 'hidden',
-                }}>
-
-                  {/* Citation header */}
-                  <div style={{
-                    padding: '11px 14px',
-                    background: meta.bg,
-                    borderBottom: `1px solid ${meta.borderColor}`,
-                    display: 'flex', alignItems: 'flex-start', gap: 10,
-                  }}>
-                    {/* Source type icon */}
-                    <div style={{
-                      width: 30, height: 30,
-                      background: 'rgba(255,255,255,0.6)',
-                      border: `1px solid ${meta.borderColor}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}>
-                      <Icon size={14} color={meta.color} />
-                    </div>
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
-                        {c.source_id && (
-                          <span style={{
-                            fontFamily: 'monospace', fontSize: 10, fontWeight: 700,
-                            color: meta.color, background: 'rgba(255,255,255,0.7)',
-                            padding: '1px 6px',
-                            border: `1px solid ${meta.borderColor}`,
-                            letterSpacing: '0.04em',
-                          }}>
-                            {c.source_id}
-                          </span>
-                        )}
-                        <span style={{
-                          fontSize: 10, fontWeight: 700,
-                          color: meta.color, letterSpacing: '0.08em', textTransform: 'uppercase',
-                        }}>
-                          {meta.type}
-                        </span>
-                      </div>
-                      <p style={{
-                        fontFamily: F, fontSize: 12, fontWeight: 600, color: DARK,
-                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                      }}>
-                        {c.filename}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Page / section metadata */}
-                  {(c.page_ref || c.section_label) && (
-                    <div style={{
-                      padding: '7px 14px',
-                      background: '#fafafa',
-                      borderBottom: `1px solid #d4d6d8`,
-                      display: 'flex', gap: 16, flexWrap: 'wrap',
-                    }}>
-                      {c.page_ref && (
-                        <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}>
-                          <strong style={{ color: DARK }}>Page:</strong> {c.page_ref}
-                        </span>
-                      )}
-                      {c.section_label && (
-                        <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}>
-                          <strong style={{ color: DARK }}>Section:</strong> {c.section_label}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Excerpt */}
-                  {c.text && (
-                    <div style={{ padding: '12px 14px' }}>
-                      <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#a9b1b7', marginBottom: 7 }}>
-                        Retrieved passage
-                      </p>
-                      <p style={{
-                        fontFamily: F, fontSize: 12, color: '#55606e', lineHeight: 1.7,
-                        borderLeft: `3px solid ${meta.color}`,
-                        paddingLeft: 12,
-                        fontStyle: 'italic',
-                      }}>
-                        {c.text}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* External link for PHMSA */}
-                  {meta.externalUrl && (
-                    <div style={{
-                      padding: '9px 14px',
-                      borderTop: '1px solid #d4d6d8',
-                      background: '#edeff0',
-                    }}>
-                      <a
-                        href={meta.externalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 6,
-                          fontFamily: F, fontSize: 12, fontWeight: 600, color: BLUE,
-                          textDecoration: 'none',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                        onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
-                      >
-                        <ExternalLink size={11} />
-                        {meta.externalLabel ?? 'Open source'}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              )
-            })
+            citations.map((c, i) => (
+              <CitationEntry key={c.source_id ?? i} c={c} meta={getSourceMeta(c.filename)} />
+            ))
           )}
         </div>
+
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
         {/* Footer */}
         <div style={{
