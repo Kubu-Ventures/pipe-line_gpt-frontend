@@ -27,7 +27,7 @@
     "backToHome": "Volver al inicio"
   },
   "footer": {
-    "copyright": "© 2026 PipelineGPT · Fundación ASME Premio Hermann Rosen a la Innovación en Tuberías",
+    "copyright": "© 2026 PipelineGPT · Código abierto",
     "disclaimer": "Todas las salidas de IA requieren revisión humana antes de cualquier acción operativa. Ninguna recomendación no revisada desencadena una decisión sobre tuberías."
   },
   "landing": {
@@ -42,7 +42,7 @@
     "f2Body": "Cada respuesta de IA cita el documento fuente exacto y la página correspondiente. Sin referencias inventadas. Registro de auditoría completo e inmutable exportable para informes de cumplimiento PHMSA.",
     "f3Title": "Revisión de ingenieros, siempre",
     "f3Body": "Las recomendaciones de IA de alto riesgo se enrutan automáticamente a un ingeniero cualificado para su revisión y aprobación. Ninguna salida no revisada influye jamás en una decisión operativa.",
-    "footerCopyright": "© 2026 PipelineGPT · Fundación ASME Premio Hermann Rosen a la Innovación en Tuberías",
+    "footerCopyright": "© 2026 PipelineGPT · Código abierto",
     "footerDisclaimer": "Todas las salidas de IA requieren revisión humana antes de cualquier acción operativa."
   },
   "login": {
@@ -98,7 +98,9 @@
     "analytics": "Análisis",
     "audit": "Auditoría"
   },
-  "nextStep": { "label": "Siguiente paso" },
+  "nextStep": {
+    "label": "Siguiente paso"
+  },
   "ingest": {
     "step": "Paso 1 de 5 · Subir datos",
     "title": "Ingesta de datos",
@@ -362,5 +364,3 @@
     "tokenError": "Token de invitación inválido."
   }
 }
-
-

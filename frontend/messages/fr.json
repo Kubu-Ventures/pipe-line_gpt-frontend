@@ -27,7 +27,7 @@
     "backToHome": "Retour à l'accueil"
   },
   "footer": {
-    "copyright": "© 2026 PipelineGPT · Fondation ASME Prix Hermann Rosen pour l'Innovation dans les Pipelines",
+    "copyright": "© 2026 PipelineGPT · Open source",
     "disclaimer": "Toutes les sorties IA nécessitent une révision humaine avant toute action opérationnelle. Aucune recommandation non examinée ne déclenche une décision relative aux pipelines."
   },
   "landing": {
@@ -42,7 +42,7 @@
     "f2Body": "Chaque réponse IA cite le document source exact et la page correspondante. Aucune référence inventée. Piste d'audit complète et immuable exportable pour les rapports de conformité PHMSA.",
     "f3Title": "Révision ingénieur, toujours",
     "f3Body": "Les recommandations IA à risque élevé sont automatiquement transmises à un ingénieur qualifié pour révision et validation. Aucune sortie non examinée n'influence jamais une décision opérationnelle.",
-    "footerCopyright": "© 2026 PipelineGPT · Fondation ASME Prix Hermann Rosen pour l'Innovation dans les Pipelines",
+    "footerCopyright": "© 2026 PipelineGPT · Open source",
     "footerDisclaimer": "Toutes les sorties IA nécessitent une révision humaine avant toute action opérationnelle."
   },
   "login": {
@@ -98,7 +98,9 @@
     "analytics": "Analytique",
     "audit": "Audit"
   },
-  "nextStep": { "label": "Étape suivante" },
+  "nextStep": {
+    "label": "Étape suivante"
+  },
   "ingest": {
     "step": "Étape 1 sur 5 · Téléversement des données",
     "title": "Ingestion de données",
@@ -362,5 +364,3 @@
     "tokenError": "Jeton d'invitation invalide."
   }
 }
-
-

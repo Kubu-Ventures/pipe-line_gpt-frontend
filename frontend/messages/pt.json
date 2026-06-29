@@ -27,7 +27,7 @@
     "backToHome": "Voltar ao início"
   },
   "footer": {
-    "copyright": "© 2026 PipelineGPT · Fundação ASME Prêmio Hermann Rosen de Inovação em Dutos",
+    "copyright": "© 2026 PipelineGPT · Código aberto",
     "disclaimer": "Todas as saídas de IA requerem revisão humana antes de qualquer ação operacional. Nenhuma recomendação não revisada aciona uma decisão sobre dutos."
   },
   "landing": {
@@ -42,7 +42,7 @@
     "f2Body": "Cada resposta de IA cita o documento fonte exato e a página correspondente. Sem referências inventadas. Trilha de auditoria completa e imutável exportável para relatórios de conformidade PHMSA.",
     "f3Title": "Revisão de engenheiro, sempre",
     "f3Body": "As recomendações de IA de alto risco são automaticamente encaminhadas a um engenheiro qualificado para revisão e aprovação. Nenhuma saída não revisada jamais influencia uma decisão operacional.",
-    "footerCopyright": "© 2026 PipelineGPT · Fundação ASME Prêmio Hermann Rosen de Inovação em Dutos",
+    "footerCopyright": "© 2026 PipelineGPT · Código aberto",
     "footerDisclaimer": "Todas as saídas de IA requerem revisão humana antes de qualquer ação operacional."
   },
   "login": {
@@ -98,7 +98,9 @@
     "analytics": "Análise",
     "audit": "Auditoria"
   },
-  "nextStep": { "label": "Próximo passo" },
+  "nextStep": {
+    "label": "Próximo passo"
+  },
   "ingest": {
     "step": "Passo 1 de 5 · Envio de dados",
     "title": "Ingestão de dados",
@@ -362,5 +364,3 @@
     "tokenError": "Token de convite inválido."
   }
 }
-
-

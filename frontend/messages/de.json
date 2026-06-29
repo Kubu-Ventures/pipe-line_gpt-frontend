@@ -27,7 +27,7 @@
     "backToHome": "Zurück zur Startseite"
   },
   "footer": {
-    "copyright": "© 2026 PipelineGPT · ASME Foundation Hermann-Rosen-Preis für Pipeline-Innovation",
+    "copyright": "© 2026 PipelineGPT · Open Source",
     "disclaimer": "Alle KI-Ausgaben erfordern eine menschliche Überprüfung vor jeder betrieblichen Maßnahme. Keine ungeprüfte Empfehlung löst eine Pipeline-Entscheidung aus."
   },
   "landing": {
@@ -42,7 +42,7 @@
     "f2Body": "Jede KI-Antwort gibt das genaue Quelldokument und die Seitenzahl an. Keine erfundenen Referenzen. Vollständiges, unveränderliches Prüfprotokoll, exportierbar für PHMSA-Compliance-Berichte.",
     "f3Title": "Ingenieurprüfung — immer",
     "f3Body": "KI-Empfehlungen mit hohem Risiko werden automatisch an einen qualifizierten Ingenieur zur Überprüfung und Freigabe weitergeleitet. Keine ungeprüfte Ausgabe beeinflusst jemals eine betriebliche Entscheidung.",
-    "footerCopyright": "© 2026 PipelineGPT · ASME Foundation Hermann-Rosen-Preis für Pipeline-Innovation",
+    "footerCopyright": "© 2026 PipelineGPT · Open Source",
     "footerDisclaimer": "Alle KI-Ausgaben erfordern eine menschliche Überprüfung vor jeder betrieblichen Maßnahme."
   },
   "login": {
@@ -98,7 +98,9 @@
     "analytics": "Analyse",
     "audit": "Audit"
   },
-  "nextStep": { "label": "Nächster Schritt" },
+  "nextStep": {
+    "label": "Nächster Schritt"
+  },
   "ingest": {
     "step": "Schritt 1 von 5 · Daten hochladen",
     "title": "Datenaufnahme",
@@ -362,5 +364,3 @@
     "tokenError": "Ungültiges Einladungstoken."
   }
 }
-
-

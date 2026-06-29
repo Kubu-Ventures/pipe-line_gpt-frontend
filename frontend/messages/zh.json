@@ -27,7 +27,7 @@
     "backToHome": "返回首页"
   },
   "footer": {
-    "copyright": "© 2026 PipelineGPT · ASME基金会Hermann Rosen管道创新奖",
+    "copyright": "© 2026 PipelineGPT · 开源",
     "disclaimer": "所有AI输出在执行任何操作前均需人工审核。未经审核的建议不会触发管道决策。"
   },
   "landing": {
@@ -42,7 +42,7 @@
     "f2Body": "每个AI回答都引用确切的来源文档和页码。无幻觉引用。完整、不可篡改的审计记录可导出用于PHMSA合规报告。",
     "f3Title": "工程师审核，始终如一",
     "f3Body": "高风险AI建议自动转交给合格工程师审核并签字批准。未经审核的输出永远不会影响运营决策。",
-    "footerCopyright": "© 2026 PipelineGPT · ASME基金会Hermann Rosen管道创新奖",
+    "footerCopyright": "© 2026 PipelineGPT · 开源",
     "footerDisclaimer": "所有AI输出在执行任何操作前均需人工审核。"
   },
   "login": {
@@ -98,7 +98,9 @@
     "analytics": "分析",
     "audit": "审计"
   },
-  "nextStep": { "label": "下一步" },
+  "nextStep": {
+    "label": "下一步"
+  },
   "ingest": {
     "step": "第1步（共5步）· 上传数据",
     "title": "数据摄取",
@@ -362,5 +364,3 @@
     "tokenError": "无效的邀请令牌。"
   }
 }
-
-

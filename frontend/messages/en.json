@@ -27,7 +27,7 @@
     "backToHome": "Back to home"
   },
   "footer": {
-    "copyright": "© 2026 PipelineGPT · ASME Foundation Hermann Rosen Award for Pipeline Innovation",
+    "copyright": "© 2026 PipelineGPT · Open source",
     "disclaimer": "All AI outputs require human review before operational action. No unreviewed recommendation triggers a pipeline decision."
   },
   "landing": {
@@ -42,7 +42,7 @@
     "f2Body": "Every AI response cites its exact source document and page. No hallucinated references. Full, immutable audit trail exportable for PHMSA compliance reporting.",
     "f3Title": "Engineer Review, Always",
     "f3Body": "High-risk AI recommendations are automatically routed to a qualified engineer for review and sign-off. No unreviewed output ever influences an operational decision.",
-    "footerCopyright": "© 2026 PipelineGPT · ASME Foundation Hermann Rosen Award for Pipeline Innovation",
+    "footerCopyright": "© 2026 PipelineGPT · Open source",
     "footerDisclaimer": "All AI outputs require human review before operational action."
   },
   "login": {
@@ -364,5 +364,3 @@
     "tokenError": "Invalid invitation token."
   }
 }
-
-
