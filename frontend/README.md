@@ -20,14 +20,14 @@ The Next.js frontend for PipelineGPT -- a natural language interface for pipelin
 ## Prerequisites
 
 - Node.js 20+
-- The [PipelineGPT backend](https://github.com/Kubu-Ventures/Rosen-backend) running (locally or hosted)
+- The [PipelineGPT backend](https://github.com/Kubu-Ventures/pipe-line_gpt-backend) running (locally or hosted)
 
 ## Quick start
 
 ```bash
 # 1. Clone and enter the frontend directory
-git clone https://github.com/Kubu-Ventures/Rosen-frontend.git
-cd Rosen-frontend/frontend
+git clone https://github.com/Kubu-Ventures/pipe-line_gpt-frontend.git
+cd pipe-line_gpt-frontend/frontend
 
 # 2. Install dependencies
 npm install
