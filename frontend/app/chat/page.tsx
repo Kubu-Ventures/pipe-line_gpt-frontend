@@ -379,49 +379,21 @@ export default function ChatPage() {
         </div>
 
         {/* Input area */}
-        <div style={{ flexShrink: 0, background: '#FFFFFF' }}>
+        <div style={{ flexShrink: 0, borderTop: '1px solid #E4E8EF' }}>
 
-          {/* Persistent suggestion chips — visible once conversation has started */}
-          {!isEmpty && (
-            <div style={{ borderTop: '1px solid #E4E8EF', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', background: '#FAFBFC' }}>
-              <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: '0.07em', flexShrink: 0 }}>Try:</span>
-              {EXAMPLE_QUERIES.map(({ icon: Icon, text, tag }) => (
-                <button
-                  key={tag}
-                  onClick={() => handleSubmit(text, 'EN', {})}
-                  disabled={isStreaming}
-                  title={text}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    padding: '4px 11px', borderRadius: 20,
-                    background: '#FFFFFF', border: '1px solid #D1D9E0',
-                    fontSize: '0.75rem', fontWeight: 500, color: '#4A5568',
-                    cursor: isStreaming ? 'not-allowed' : 'pointer',
-                    opacity: isStreaming ? 0.5 : 1,
-                    transition: 'border-color 0.15s, color 0.15s',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={e => { if (!isStreaming) { e.currentTarget.style.borderColor = '#006eb5'; e.currentTarget.style.color = '#006eb5' } }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#D1D9E0'; e.currentTarget.style.color = '#4A5568' }}
-                >
-                  <Icon size={11} />
-                  {tag}
-                </button>
-              ))}
-            </div>
-          )}
-
+          {/* HITL notice — compact single line */}
           {flaggedCount > 0 && (
-            <div className="chat-hitl-notice" style={{ borderTop: '1px solid #FDE68A', background: '#FFFBEB', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Flag size={13} color="#92400E" style={{ flexShrink: 0 }} />
+            <div className="chat-hitl-notice" style={{ background: '#FFFBEB', padding: '6px 24px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Flag size={12} color="#92400E" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: 12, color: '#92400E', flex: 1 }}>
-                <strong>{flaggedCount}</strong> response{flaggedCount !== 1 ? 's' : ''} pending engineer sign-off. Status updates automatically every 30 seconds.
+                <strong>{flaggedCount}</strong> response{flaggedCount !== 1 ? 's' : ''} awaiting engineer sign-off
               </span>
-              <Link href="/review" style={{ fontSize: 12, fontWeight: 600, color: '#92400E', background: '#FDE68A', border: '1px solid #F59E0B', padding: '4px 12px', borderRadius: 3, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
-                Review Queue <ArrowRight size={11} />
+              <Link href="/review" style={{ fontSize: 11, fontWeight: 600, color: '#92400E', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 3, whiteSpace: 'nowrap', opacity: 0.8 }}>
+                Review <ArrowRight size={10} />
               </Link>
             </div>
           )}
+
           <ChatInput onSubmit={handleSubmit} disabled={isStreaming} isStreaming={isStreaming} />
         </div>
       </main>
