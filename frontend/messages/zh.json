@@ -48,6 +48,7 @@
   "login": {
     "title": "登录",
     "subtitle": "访问权限仅限受邀者。请使用您的凭证或演示账户。",
+    "demoLabel": "试用演示账户",
     "demoBtn": "以演示操作员身份继续 →",
     "demoLoading": "正在加载演示…",
     "divider": "或使用凭证登录",
@@ -361,4 +362,5 @@
     "tokenError": "无效的邀请令牌。"
   }
 }
+
 

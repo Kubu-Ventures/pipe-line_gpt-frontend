@@ -48,6 +48,7 @@
   "login": {
     "title": "Iniciar sesión",
     "subtitle": "El acceso es solo por invitación. Use sus credenciales o la cuenta de demostración.",
+    "demoLabel": "Probar una cuenta de demostración",
     "demoBtn": "Continuar como operador de demostración →",
     "demoLoading": "Cargando demo…",
     "divider": "o iniciar sesión con credenciales",
@@ -361,4 +362,5 @@
     "tokenError": "Token de invitación inválido."
   }
 }
+
 

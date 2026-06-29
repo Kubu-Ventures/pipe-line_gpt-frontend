@@ -48,6 +48,7 @@
   "login": {
     "title": "Se connecter",
     "subtitle": "L'accès est sur invitation uniquement. Utilisez vos identifiants ou le compte de démonstration.",
+    "demoLabel": "Essayer un compte de démonstration",
     "demoBtn": "Continuer en tant qu'opérateur démo →",
     "demoLoading": "Chargement de la démo…",
     "divider": "ou se connecter avec vos identifiants",
@@ -361,4 +362,5 @@
     "tokenError": "Jeton d'invitation invalide."
   }
 }
+
 

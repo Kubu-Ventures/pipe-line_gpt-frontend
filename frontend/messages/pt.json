@@ -48,6 +48,7 @@
   "login": {
     "title": "Entrar",
     "subtitle": "O acesso é somente por convite. Use suas credenciais ou a conta de demonstração.",
+    "demoLabel": "Experimentar uma conta de demonstração",
     "demoBtn": "Continuar como operador de demonstração →",
     "demoLoading": "Carregando demonstração…",
     "divider": "ou entrar com credenciais",
@@ -361,4 +362,5 @@
     "tokenError": "Token de convite inválido."
   }
 }
+
 

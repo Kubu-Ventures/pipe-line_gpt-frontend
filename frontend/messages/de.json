@@ -48,6 +48,7 @@
   "login": {
     "title": "Anmelden",
     "subtitle": "Der Zugang erfolgt nur auf Einladung. Verwenden Sie Ihre Anmeldedaten oder das Demo-Konto.",
+    "demoLabel": "Demo-Konto ausprobieren",
     "demoBtn": "Als Demo-Operator fortfahren →",
     "demoLoading": "Demo wird geladen…",
     "divider": "oder mit Anmeldedaten anmelden",
@@ -361,4 +362,5 @@
     "tokenError": "Ungültiges Einladungstoken."
   }
 }
+
 
