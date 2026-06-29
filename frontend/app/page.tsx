@@ -91,14 +91,14 @@ export default function LandingPage() {
           gap: 12px;
         }
         .lp-footer {
-          padding: 14px 80px;
+          padding: 20px 80px;
         }
 
         @media (max-width: 1024px) {
           .lp-nav         { padding: 0 40px; }
           .lp-hero-content { padding: 0 40px 48px; }
           .lp-features    { padding: 0 40px; height: auto; }
-          .lp-footer      { padding: 14px 40px; }
+          .lp-footer      { padding: 20px 40px; }
         }
 
         @media (max-width: 640px) {
@@ -274,7 +274,7 @@ export default function LandingPage() {
             </svg>
             <span style={{ fontSize: '0.75rem', color: GRAY_500 }}>Source:</span>
             {[
-              { label: 'Frontend', href: 'https://github.com/Kubu-Ventures/Rosen-frontend' },
+              { label: 'Frontend', href: 'https://github.com/Kubu-Ventures/pipe-line_gpt-frontend' },
               { label: 'Backend',  href: 'https://github.com/Kubu-Ventures/Rosen-backend'  },
             ].map((r, i, arr) => (
               <span key={r.label} style={{ fontSize: '0.75rem' }}>

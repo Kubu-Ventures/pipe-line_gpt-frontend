@@ -8,7 +8,7 @@ const GRAY = '#a9b1b7'
 const BLUE = '#60d4f2'
 
 const REPOS = [
-  { label: 'Frontend', href: 'https://github.com/Kubu-Ventures/Rosen-frontend' },
+  { label: 'Frontend', href: 'https://github.com/Kubu-Ventures/pipe-line_gpt-frontend' },
   { label: 'Backend',  href: 'https://github.com/Kubu-Ventures/Rosen-backend'  },
 ]
 
