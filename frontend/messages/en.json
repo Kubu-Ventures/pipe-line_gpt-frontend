@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -20,7 +20,7 @@
     "auditTrail": "Audit Trail",
     "admin": "Admin",
     "signOut": "Sign out",
-    "award": "Hermann Rosen Award 2026",
+    "award": "PipelineGPT",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "language": "Language",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Sign in",
     "subtitle": "Access is by invitation only. Use your credentials or the demo account.",
-    "demoBtn": "Continue as demo user →",
+    "demoBtn": "Continue as demo operator →",
     "demoLoading": "Loading demo…",
     "divider": "or sign in with credentials",
     "emailLabel": "Email address",
@@ -61,7 +61,7 @@
     "leftHeadline": "Pipeline integrity intelligence, powered by natural language.",
     "leftSub": "PHMSA incident data · ILI report analysis · SCADA exports · Cited answers · Engineer review",
     "mobileHome": "← Home",
-    "award": "ASME Foundation · Hermann Rosen Award 2026"
+    "award": "PipelineGPT"
   },
   "home": {
     "eyebrow": "AI-Powered Pipeline Integrity Intelligence",
@@ -363,3 +363,4 @@
     "tokenError": "Invalid invitation token."
   }
 }
+

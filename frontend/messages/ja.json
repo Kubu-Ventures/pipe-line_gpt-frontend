@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -20,7 +20,7 @@
     "auditTrail": "監査証跡",
     "admin": "管理",
     "signOut": "ログアウト",
-    "award": "ヘルマン・ローゼン賞 2026",
+    "award": "PipelineGPT",
     "openMenu": "メニューを開く",
     "closeMenu": "メニューを閉じる",
     "language": "言語",
@@ -48,7 +48,7 @@
   "login": {
     "title": "ログイン",
     "subtitle": "アクセスは招待制です。認証情報またはデモアカウントを使用してください。",
-    "demoBtn": "デモユーザーとして続行 →",
+    "demoBtn": "デモオペレーターとして続行 →",
     "demoLoading": "デモを読み込み中…",
     "divider": "または認証情報でログイン",
     "emailLabel": "メールアドレス",
@@ -61,7 +61,7 @@
     "leftHeadline": "自然言語を活用したパイプライン完全性インテリジェンス。",
     "leftSub": "PHMSAインシデントデータ · ILIレポート分析 · SCADAエクスポート · 引用付き回答 · エンジニアレビュー",
     "mobileHome": "← ホーム",
-    "award": "ASME財団 · ヘルマン・ローゼン賞 2026"
+    "award": "PipelineGPT · Pipeline Intelligence"
   },
   "home": {
     "eyebrow": "AIを活用したパイプライン完全性インテリジェンス",
@@ -361,3 +361,4 @@
     "tokenError": "無効な招待トークンです。"
   }
 }
+

@@ -18,7 +18,7 @@ const GRAY_400 = '#d4d6d8'
 const GRAY_500 = '#a9b1b7'
 const TEXT     = '#232e3e'
 
-const DEMO_EMAIL    = 'demo-operator@pipelinegpt.com'
+const DEMO_EMAIL    = 'demo-operator@pipelinegpt.xyz'
 const DEMO_PASSWORD = 'DemoOp2026!'
 
 export default function LoginPage() {

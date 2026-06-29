@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -20,7 +20,7 @@
     "auditTrail": "Piste d'audit",
     "admin": "Administration",
     "signOut": "Se déconnecter",
-    "award": "Prix Hermann Rosen 2026",
+    "award": "PipelineGPT",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
     "language": "Langue",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Se connecter",
     "subtitle": "L'accès est sur invitation uniquement. Utilisez vos identifiants ou le compte de démonstration.",
-    "demoBtn": "Continuer en tant qu'utilisateur démo →",
+    "demoBtn": "Continuer en tant qu'opérateur démo →",
     "demoLoading": "Chargement de la démo…",
     "divider": "ou se connecter avec vos identifiants",
     "emailLabel": "Adresse e-mail",
@@ -61,7 +61,7 @@
     "leftHeadline": "Intelligence d'intégrité des pipelines, propulsée par le langage naturel.",
     "leftSub": "Données d'incidents PHMSA · Analyse de rapports ILI · Exports SCADA · Réponses citées · Révision ingénieur",
     "mobileHome": "← Accueil",
-    "award": "Fondation ASME · Prix Hermann Rosen 2026"
+    "award": "PipelineGPT"
   },
   "home": {
     "eyebrow": "Intelligence d'intégrité des pipelines alimentée par l'IA",
@@ -361,3 +361,4 @@
     "tokenError": "Jeton d'invitation invalide."
   }
 }
+

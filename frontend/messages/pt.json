@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -20,7 +20,7 @@
     "auditTrail": "Trilha de auditoria",
     "admin": "Administração",
     "signOut": "Sair",
-    "award": "Prêmio Hermann Rosen 2026",
+    "award": "PipelineGPT",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
     "language": "Idioma",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Entrar",
     "subtitle": "O acesso é somente por convite. Use suas credenciais ou a conta de demonstração.",
-    "demoBtn": "Continuar como usuário de demonstração →",
+    "demoBtn": "Continuar como operador de demonstração →",
     "demoLoading": "Carregando demonstração…",
     "divider": "ou entrar com credenciais",
     "emailLabel": "Endereço de e-mail",
@@ -61,7 +61,7 @@
     "leftHeadline": "Inteligência de integridade de dutos, alimentada por linguagem natural.",
     "leftSub": "Dados de incidentes PHMSA · Análise de relatórios ILI · Exportações SCADA · Respostas com citações · Revisão de engenheiro",
     "mobileHome": "← Início",
-    "award": "Fundação ASME · Prêmio Hermann Rosen 2026"
+    "award": "PipelineGPT"
   },
   "home": {
     "eyebrow": "Inteligência de Integridade de Dutos com IA",
@@ -361,3 +361,4 @@
     "tokenError": "Token de convite inválido."
   }
 }
+

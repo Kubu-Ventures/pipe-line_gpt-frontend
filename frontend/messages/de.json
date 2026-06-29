@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -20,7 +20,7 @@
     "auditTrail": "Prüfprotokoll",
     "admin": "Administration",
     "signOut": "Abmelden",
-    "award": "Hermann-Rosen-Preis 2026",
+    "award": "PipelineGPT",
     "openMenu": "Menü öffnen",
     "closeMenu": "Menü schließen",
     "language": "Sprache",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Anmelden",
     "subtitle": "Der Zugang erfolgt nur auf Einladung. Verwenden Sie Ihre Anmeldedaten oder das Demo-Konto.",
-    "demoBtn": "Als Demo-Benutzer fortfahren →",
+    "demoBtn": "Als Demo-Operator fortfahren →",
     "demoLoading": "Demo wird geladen…",
     "divider": "oder mit Anmeldedaten anmelden",
     "emailLabel": "E-Mail-Adresse",
@@ -61,7 +61,7 @@
     "leftHeadline": "Pipeline-Integritätsintelligenz, angetrieben durch natürliche Sprache.",
     "leftSub": "PHMSA-Vorfallsdaten · ILI-Berichtsanalyse · SCADA-Exporte · Quellenbasierte Antworten · Ingenieurprüfung",
     "mobileHome": "← Startseite",
-    "award": "ASME Foundation · Hermann-Rosen-Preis 2026"
+    "award": "PipelineGPT"
   },
   "home": {
     "eyebrow": "KI-gestützte Pipeline-Integritätsintelligenz",
@@ -361,3 +361,4 @@
     "tokenError": "Ungültiges Einladungstoken."
   }
 }
+

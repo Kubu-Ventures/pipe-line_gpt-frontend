@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -20,7 +20,7 @@
     "auditTrail": "Registro de auditoría",
     "admin": "Administración",
     "signOut": "Cerrar sesión",
-    "award": "Premio Hermann Rosen 2026",
+    "award": "PipelineGPT",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
     "language": "Idioma",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Iniciar sesión",
     "subtitle": "El acceso es solo por invitación. Use sus credenciales o la cuenta de demostración.",
-    "demoBtn": "Continuar como usuario de demostración →",
+    "demoBtn": "Continuar como operador de demostración →",
     "demoLoading": "Cargando demo…",
     "divider": "o iniciar sesión con credenciales",
     "emailLabel": "Dirección de correo electrónico",
@@ -61,7 +61,7 @@
     "leftHeadline": "Inteligencia de integridad de tuberías, impulsada por lenguaje natural.",
     "leftSub": "Datos de incidentes PHMSA · Análisis de informes ILI · Exportaciones SCADA · Respuestas citadas · Revisión de ingenieros",
     "mobileHome": "← Inicio",
-    "award": "Fundación ASME · Premio Hermann Rosen 2026"
+    "award": "PipelineGPT"
   },
   "home": {
     "eyebrow": "Inteligencia de Integridad de Tuberías Impulsada por IA",
@@ -361,3 +361,4 @@
     "tokenError": "Token de invitación inválido."
   }
 }
+
