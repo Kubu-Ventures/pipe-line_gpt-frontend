@@ -388,7 +388,7 @@ export default function ChatPage() {
               </Link>
             </div>
           )}
-          <ChatInput onSubmit={handleSubmit} disabled={isStreaming} />
+          <ChatInput onSubmit={handleSubmit} disabled={isStreaming} isStreaming={isStreaming} />
         </div>
       </main>
 
