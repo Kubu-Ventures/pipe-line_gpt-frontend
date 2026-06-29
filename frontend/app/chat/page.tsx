@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useSession } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
 import { TrendingUp, Activity, Shield, Globe, Upload, ArrowRight, Flag, History, Info, ChevronDown, ChevronUp, CheckCircle, Clock, Edit3, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { TopNav } from '@/components/TopNav'
@@ -116,6 +117,7 @@ const EXAMPLE_QUERIES = [
 export default function ChatPage() {
   const { data: session } = useSession()
   const token = (session as any)?.accessToken ?? ''
+  const searchParams = useSearchParams()
   const { fullText, citations, hitlRequired, queryId: sseQueryId, isStreaming, error, submit, reset } = useSSE()
 
   const [messages, setMessages] = useState<Message[]>([])
@@ -126,6 +128,7 @@ export default function ChatPage() {
   const streamIdRef = useRef<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const historyLoadedRef = useRef(false)
+  const autoQueryFiredRef = useRef(false)
 
   // ── Scroll to bottom ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -241,6 +244,15 @@ export default function ChatPage() {
     },
     [reset, submit, sessionId, token]
   )
+
+  // ── Auto-submit ?q= from dashboard suggestion links ─────────────────────
+  useEffect(() => {
+    if (historyLoading || autoQueryFiredRef.current || !token) return
+    const q = searchParams.get('q')
+    if (!q) return
+    autoQueryFiredRef.current = true
+    handleSubmit(q, 'EN', {})
+  }, [historyLoading, token, searchParams, handleSubmit])
 
   // ── Derived state ────────────────────────────────────────────────────────
   const isEmpty = messages.length === 0 && !historyLoading
