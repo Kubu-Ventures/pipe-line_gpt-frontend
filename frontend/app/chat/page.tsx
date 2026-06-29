@@ -250,19 +250,10 @@ export default function ChatPage() {
   const firstCurrentIdx = messages.findIndex(m => !m.fromHistory)
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fafafa' }}>
+    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#fafafa' }}>
       <TopNav activeTab="chat" />
 
-      <div className="chat-hero">
-        <PageHero
-          step="Step 2 of 5 · AI Query"
-          title="Pipeline Intelligence Chat"
-          subtitle="Ask anything about your uploaded pipeline data in any language — ILI reports, SCADA, PHMSA incidents, GIS."
-          compact
-        />
-      </div>
-
-      <main className="chat-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 72px - 160px)' }}>
+      <main className="chat-main">
 
         {/* Message area */}
         <div style={{ flex: 1, overflow: 'auto', paddingTop: 24, paddingBottom: 8 }}>
@@ -314,7 +305,7 @@ export default function ChatPage() {
               <StatusLegend />
             </div>
           ) : (
-            <div style={{ paddingBottom: 16 }}>
+            <div className="chat-thread" style={{ paddingBottom: 16 }}>
 
               {/* Status legend toggle */}
               <div style={{ padding: '0 24px 4px' }}>
@@ -377,6 +368,37 @@ export default function ChatPage() {
 
         {/* Input area */}
         <div style={{ flexShrink: 0, background: '#FFFFFF' }}>
+
+          {/* Persistent suggestion chips — visible once conversation has started */}
+          {!isEmpty && (
+            <div style={{ borderTop: '1px solid #E4E8EF', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', background: '#FAFBFC' }}>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 600, color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: '0.07em', flexShrink: 0 }}>Try:</span>
+              {EXAMPLE_QUERIES.map(({ icon: Icon, text, tag }) => (
+                <button
+                  key={tag}
+                  onClick={() => handleSubmit(text, 'EN', {})}
+                  disabled={isStreaming}
+                  title={text}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '4px 11px', borderRadius: 20,
+                    background: '#FFFFFF', border: '1px solid #D1D9E0',
+                    fontSize: '0.75rem', fontWeight: 500, color: '#4A5568',
+                    cursor: isStreaming ? 'not-allowed' : 'pointer',
+                    opacity: isStreaming ? 0.5 : 1,
+                    transition: 'border-color 0.15s, color 0.15s',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => { if (!isStreaming) { e.currentTarget.style.borderColor = '#006eb5'; e.currentTarget.style.color = '#006eb5' } }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#D1D9E0'; e.currentTarget.style.color = '#4A5568' }}
+                >
+                  <Icon size={11} />
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+
           {flaggedCount > 0 && (
             <div className="chat-hitl-notice" style={{ borderTop: '1px solid #FDE68A', background: '#FFFBEB', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <Flag size={13} color="#92400E" style={{ flexShrink: 0 }} />
