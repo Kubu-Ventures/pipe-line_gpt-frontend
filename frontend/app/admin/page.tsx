@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { TopNav } from '@/components/TopNav'
 import { Footer } from '@/components/Footer'
 import { PageHero } from '@/components/PageHero'
@@ -75,7 +76,14 @@ function timeAgo(iso: string | null) {
 }
 
 export default function AdminPage() {
-  const { data: session } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
+  const router = useRouter()
+  const role = (session?.user as any)?.role as string | undefined
+
+  useEffect(() => {
+    if (sessionStatus === 'loading') return
+    if (role !== 'ADMIN') router.replace('/home')
+  }, [role, sessionStatus, router])
 
   const [users,       setUsers]       = useState<UserRow[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])

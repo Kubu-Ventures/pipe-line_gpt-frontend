@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import {
   Download, ChevronDown, ChevronRight, Shield, FileText,
   AlertTriangle, CheckCircle, XCircle, Upload, LogIn,
@@ -254,9 +255,15 @@ function EventRow({ event, expanded, setExpanded, isLast }: {
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
 export default function AuditPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const role = (session?.user as any)?.role as string | undefined
   const isAdmin = role === 'ADMIN'
+
+  useEffect(() => {
+    if (status === 'loading') return
+    if (!role || role === 'OPERATOR') router.replace('/home')
+  }, [role, status, router])
 
   const [filterType,  setFilterType]  = useState('All')
   const [actorSearch, setActorSearch] = useState('')

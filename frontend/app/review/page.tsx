@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { CheckCircle, AlertCircle } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
@@ -20,8 +21,15 @@ const TABS = [
 ]
 
 export default function ReviewPage() {
-  const { status: sessionStatus } = useSession()
+  const { data: session, status: sessionStatus } = useSession()
+  const router = useRouter()
+  const role = (session?.user as any)?.role as string | undefined
   const [activeTab, setActiveTab] = useState('all')
+
+  useEffect(() => {
+    if (sessionStatus === 'loading') return
+    if (!role || role === 'OPERATOR') router.replace('/home')
+  }, [role, sessionStatus, router])
   const { data: items, isLoading } = useReviewQueue(activeTab)
 
   const sessionLoading = sessionStatus === 'loading'
