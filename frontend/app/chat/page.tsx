@@ -125,13 +125,23 @@ export default function ChatPage() {
   const [activeCitation, setActiveCitation] = useState<Citation | null>(null)
   const streamIdRef = useRef<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const messageAreaRef = useRef<HTMLDivElement>(null)
+  const autoScrollRef = useRef(true)   // true = follow bottom; false = user scrolled up
   const historyLoadedRef = useRef(false)
   const autoQueryFiredRef = useRef(false)
   const handleSubmitRef = useRef<(q: string, lang: string, filters: QueryFilters) => void>(() => {})
 
-  // ── Scroll to bottom ─────────────────────────────────────────────────────
+  // ── Smart scroll — only pull to bottom when user is already near it ───────
+  const handleMessageScroll = useCallback(() => {
+    const el = messageAreaRef.current
+    if (!el) return
+    autoScrollRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 150
+  }, [])
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (autoScrollRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages, fullText])
 
   // ── Load history on mount ────────────────────────────────────────────────
@@ -243,6 +253,7 @@ export default function ChatPage() {
   // ── Handle submit ────────────────────────────────────────────────────────
   const handleSubmit = useCallback(
     async (question: string, language: string, filters: QueryFilters) => {
+      autoScrollRef.current = true   // re-engage auto-scroll when user sends
       reset()
       const userMsg: Message = { id: uuidv4(), role: 'user', content: question, timestamp: new Date() }
       const aiId = uuidv4()
@@ -271,7 +282,7 @@ export default function ChatPage() {
       <main className="chat-main">
 
         {/* Message area */}
-        <div style={{ flex: 1, overflow: 'auto', paddingTop: 24, paddingBottom: 8 }}>
+        <div ref={messageAreaRef} onScroll={handleMessageScroll} style={{ flex: 1, overflow: 'auto', paddingTop: 24, paddingBottom: 8 }}>
 
           {historyLoading ? (
             <div style={{ textAlign: 'center', padding: '60px 24px', color: '#8896A8' }}>
