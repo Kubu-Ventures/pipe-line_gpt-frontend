@@ -1,4 +1,18 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'PipelineGPT — AI-Powered Pipeline Integrity Intelligence',
+  description:
+    'PipelineGPT turns your ILI reports, SCADA exports, and PHMSA incident records into an instantly queryable knowledge base. Ask anything in any language — get cited answers with mandatory engineer review.',
+  openGraph: {
+    title: 'PipelineGPT — AI-Powered Pipeline Integrity Intelligence',
+    description:
+      'Ask questions about your pipeline data in plain English. AI-powered answers grounded in your ILI, SCADA, and PHMSA documents — with citations, multilingual support, and human oversight.',
+    url: 'https://pipelinegpt.xyz',
+  },
+  alternates: { canonical: 'https://pipelinegpt.xyz' },
+}
 
 const F      = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
 const BLUE   = '#006eb5'
@@ -250,7 +264,7 @@ export default function LandingPage() {
         }}
       >
         <p style={{ fontSize: '0.75rem', color: GRAY_500, letterSpacing: '0.02em' }}>
-          © 2026 PipelineGPT · ASME Foundation Hermann Rosen Award for Pipeline Innovation
+          © 2026 PipelineGPT · AI-powered pipeline integrity intelligence
         </p>
         <p style={{ fontSize: '0.75rem', color: GRAY_500 }}>
           All AI outputs require human review before operational action.
