@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Sign in",
     "subtitle": "Access is by invitation only. Use your credentials or the demo account.",
-    "demoBtn": "Continue as demo user →",
+    "demoBtn": "Continue as demo operator →",
     "demoLoading": "Loading demo…",
     "divider": "or sign in with credentials",
     "emailLabel": "Email address",
@@ -363,3 +363,4 @@
     "tokenError": "Invalid invitation token."
   }
 }
+

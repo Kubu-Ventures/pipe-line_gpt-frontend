@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Se connecter",
     "subtitle": "L'accès est sur invitation uniquement. Utilisez vos identifiants ou le compte de démonstration.",
-    "demoBtn": "Continuer en tant qu'utilisateur démo →",
+    "demoBtn": "Continuer en tant qu'opérateur démo →",
     "demoLoading": "Chargement de la démo…",
     "divider": "ou se connecter avec vos identifiants",
     "emailLabel": "Adresse e-mail",
@@ -361,3 +361,4 @@
     "tokenError": "Jeton d'invitation invalide."
   }
 }
+

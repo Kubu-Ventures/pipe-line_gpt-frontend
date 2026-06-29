@@ -1,4 +1,4 @@
-{
+﻿{
   "locale": {
     "en": "English",
     "fr": "Français",
@@ -48,7 +48,7 @@
   "login": {
     "title": "Anmelden",
     "subtitle": "Der Zugang erfolgt nur auf Einladung. Verwenden Sie Ihre Anmeldedaten oder das Demo-Konto.",
-    "demoBtn": "Als Demo-Benutzer fortfahren →",
+    "demoBtn": "Als Demo-Operator fortfahren →",
     "demoLoading": "Demo wird geladen…",
     "divider": "oder mit Anmeldedaten anmelden",
     "emailLabel": "E-Mail-Adresse",
@@ -361,3 +361,4 @@
     "tokenError": "Ungültiges Einladungstoken."
   }
 }
+
