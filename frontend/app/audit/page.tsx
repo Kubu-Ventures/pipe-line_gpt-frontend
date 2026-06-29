@@ -112,7 +112,6 @@ interface AuditEvent {
   ip_address: string
   created_at: string
   payload: Record<string, any>
-  isDemo?: boolean
 }
 
 const RISK_STYLE: Record<string, { color: string; bg: string }> = {
@@ -120,79 +119,6 @@ const RISK_STYLE: Record<string, { color: string; bg: string }> = {
   MEDIUM: { color: '#92400E', bg: '#FEF3C7' },
   LOW:    { color: '#1A7A4A', bg: '#D1FAE5' },
 }
-
-/* ── Demo events ────────────────────────────────────────────────────────── */
-const DEMO_OPERATIONAL: AuditEvent[] = [
-  {
-    id: 'demo-1', event_type: 'ANOMALY_ESCALATED',
-    actor_id: 'system', actor_display: 'system', context: 'Segment 4B', ip_address: '—',
-    created_at: '2026-06-27T08:55:00Z', isDemo: true,
-    payload: { segment: 'Segment 4B', wall_loss: 42, threshold: 40, anomaly: 'External corrosion cluster B2', action_required: 'Immediate FFS assessment before next operation window' },
-  },
-  {
-    id: 'demo-2', event_type: 'HITL_APPROVED',
-    actor_id: 'eng.sarah@demo.com', actor_display: 'eng.sarah@demo.com', context: 'Segment 4B', ip_address: '10.0.1.45',
-    created_at: '2026-06-27T08:42:00Z', isDemo: true,
-    payload: { risk_level: 'HIGH', confidence: 0.61, segment: 'Segment 4B', question_summary: 'Should we reduce MOP given ILI data for Segment 4B?', final_action: 'Approved — pressure reduction to 72% SMYS ordered', engineer_note: 'Corrosion confirmed in field walkdown last week. Recommendation consistent with ASME B31.8S criteria.' },
-  },
-  {
-    id: 'demo-3', event_type: 'QUERY_COMPLETED',
-    actor_id: 'op.james@demo.com', actor_display: 'op.james@demo.com', context: 'PHMSA Dataset', ip_address: '10.0.1.22',
-    created_at: '2026-06-27T08:40:12Z', isDemo: true,
-    payload: { risk_level: 'LOW', confidence: 0.94, hitl_required: false, question_summary: 'PHMSA hazardous liquid incident statistics TX 2015–2023', sources_cited: 2 },
-  },
-  {
-    id: 'demo-4', event_type: 'COMPLIANCE_FLAG',
-    actor_id: 'system', actor_display: 'system', context: 'Mill Creek HCA', ip_address: '—',
-    created_at: '2026-06-27T08:00:00Z', isDemo: true,
-    payload: { regulation: '49 CFR §192.947', obligation: 'Close interval survey (CIS)', segment: 'Mill Creek Crossing (CP-HCA-07)', due_date: '2026-06-30', days_remaining: 2, consequence: 'Non-compliance with IMP schedule — reportable to PHMSA' },
-  },
-  {
-    id: 'demo-5', event_type: 'HITL_REJECTED',
-    actor_id: 'eng.sarah@demo.com', actor_display: 'eng.sarah@demo.com', context: 'Mill Creek HCA', ip_address: '10.0.1.45',
-    created_at: '2026-06-27T06:30:00Z', isDemo: true,
-    payload: { risk_level: 'MEDIUM', confidence: 0.72, segment: 'Mill Creek HCA', question_summary: 'What maintenance actions for HCA crossings before Q3?', reason: 'Recommendation references 2021 survey data — superseded by 2024 CP findings.' },
-  },
-  {
-    id: 'demo-6', event_type: 'INGEST_COMPLETED',
-    actor_id: 'admin@demo.com', actor_display: 'admin@demo.com', context: 'PHMSA_2024.zip', ip_address: '10.0.1.10',
-    created_at: '2026-06-27T07:15:33Z', isDemo: true,
-    payload: { filename: 'PHMSA_Hazardous_Liquid_2024.zip', chunks: 1842, dedup_skipped: 0, processing_ms: 44200 },
-  },
-  {
-    id: 'demo-7', event_type: 'HITL_EDITED',
-    actor_id: 'eng.marcus@demo.com', actor_display: 'eng.marcus@demo.com', context: 'Platform Delta-18', ip_address: '10.0.1.67',
-    created_at: '2026-06-26T17:55:00Z', isDemo: true,
-    payload: { risk_level: 'HIGH', confidence: 0.89, segment: 'Platform Delta-18', question_summary: 'Safe to operate offshore section near Platform Delta?', engineer_note: 'Edited to add explicit derating pressure: 6.8 MPa until FFS complete.' },
-  },
-]
-
-const DEMO_ADMIN_ONLY: AuditEvent[] = [
-  {
-    id: 'demo-adm-1', event_type: 'USER_LOGIN',
-    actor_id: 'eng.sarah@demo.com', actor_display: 'eng.sarah@demo.com', context: 'eng.sarah@demo.com', ip_address: '10.0.1.45',
-    created_at: '2026-06-27T08:30:00Z', isDemo: true,
-    payload: { email: 'eng.sarah@demo.com', mfa_setup_required: false },
-  },
-  {
-    id: 'demo-adm-2', event_type: 'USER_LOGIN',
-    actor_id: 'op.james@demo.com', actor_display: 'op.james@demo.com', context: 'op.james@demo.com', ip_address: '10.0.1.22',
-    created_at: '2026-06-27T08:35:00Z', isDemo: true,
-    payload: { email: 'op.james@demo.com', mfa_setup_required: false },
-  },
-  {
-    id: 'demo-adm-3', event_type: 'USER_INVITED',
-    actor_id: 'admin@demo.com', actor_display: 'admin@demo.com', context: 'eng.marcus@demo.com', ip_address: '10.0.1.10',
-    created_at: '2026-06-26T17:00:00Z', isDemo: true,
-    payload: { email: 'eng.marcus@demo.com', role: 'ENGINEER' },
-  },
-  {
-    id: 'demo-adm-4', event_type: 'CONFIG_CHANGE',
-    actor_id: 'admin@demo.com', actor_display: 'admin@demo.com', context: 'System', ip_address: '10.0.1.10',
-    created_at: '2026-06-26T18:00:00Z', isDemo: true,
-    payload: { field: 'system_prompt', previous_version: 'v2', version: 'v3', change_summary: 'Added ASME B31.8S section references to corrosion assessment prompts' },
-  },
-]
 
 function normaliseBackendEvent(e: any): AuditEvent {
   const payload = e.payload_json ?? {}
@@ -207,7 +133,6 @@ function normaliseBackendEvent(e: any): AuditEvent {
     ip_address: e.ip_address ?? '—',
     created_at: e.created_at,
     payload,
-    isDemo: false,
   }
 }
 
@@ -296,11 +221,6 @@ function EventRow({ event, expanded, setExpanded, isLast }: {
                   {riskLevel}
                 </span>
               )}
-              {event.isDemo && (
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#edeff0', padding: '1px 6px', borderRadius: 2, letterSpacing: '0.06em' }}>
-                  DEMO
-                </span>
-              )}
             </div>
             <p style={{ fontSize: 12, color: '#6B7280', margin: 0, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {cfg.description(event)}
@@ -353,10 +273,6 @@ export default function AuditPage() {
     ...(isAdmin ? ADMIN_ONLY_EVENT_TYPES : []),
   ]
 
-  const allDemoEvents = isAdmin
-    ? [...DEMO_OPERATIONAL, ...DEMO_ADMIN_ONLY]
-    : DEMO_OPERATIONAL
-
   const fetchEvents = useCallback(async () => {
     if (!session?.accessToken) return
     setLoading(true)
@@ -388,15 +304,9 @@ export default function AuditPage() {
 
   useEffect(() => { fetchEvents() }, [fetchEvents])
 
-  const filteredDemo = filterType === 'All'
-    ? allDemoEvents
-    : allDemoEvents.filter(e => e.event_type === filterType)
-
-  const allEvents = [...liveEvents, ...filteredDemo]
-
-  const hitlCount     = allEvents.filter(e => e.event_type.startsWith('HITL_')).length
-  const rejectedCount = allEvents.filter(e => e.event_type === 'HITL_REJECTED').length
-  const criticalCount = allEvents.filter(e => ['ANOMALY_ESCALATED', 'COMPLIANCE_FLAG'].includes(e.event_type)).length
+  const hitlCount     = liveEvents.filter(e => e.event_type.startsWith('HITL_')).length
+  const rejectedCount = liveEvents.filter(e => e.event_type === 'HITL_REJECTED').length
+  const criticalCount = liveEvents.filter(e => ['ANOMALY_ESCALATED', 'COMPLIANCE_FLAG'].includes(e.event_type)).length
   const totalLive     = liveTotal ?? liveEvents.length
 
   async function handleExport() {
@@ -499,6 +409,7 @@ export default function AuditPage() {
     @media (max-width: 480px) {
       .a-metric { padding: 12px 12px; }
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
   `
 
   return (
@@ -688,46 +599,36 @@ export default function AuditPage() {
               <div className="a-col-ts" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8896A8' }}>Timestamp (UTC)</div>
             </div>
 
-            {loading && liveEvents.length === 0 ? (
+            {loading ? (
               <div style={{ textAlign: 'center', padding: '48px 0', color: '#9CA3AF' }}>
+                <div style={{ display: 'inline-block', width: 20, height: 20, border: '3px solid #d4d6d8', borderTopColor: BLUE, borderRadius: '50%', animation: 'spin 0.7s linear infinite', marginBottom: 10 }} />
                 <p style={{ fontSize: 14 }}>Loading audit log…</p>
               </div>
-            ) : allEvents.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#9CA3AF' }}>
+            ) : liveEvents.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 24px', color: '#9CA3AF' }}>
                 <Shield size={36} style={{ marginBottom: 12, opacity: 0.3 }} />
-                <p style={{ fontSize: 14 }}>No events match your filters.</p>
+                <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
+                  {filterType !== 'All' ? 'No events match your filters.' : 'No audit events recorded yet.'}
+                </p>
+                <p style={{ fontSize: 12, maxWidth: 380, margin: '0 auto', lineHeight: 1.6 }}>
+                  {filterType !== 'All'
+                    ? 'Try clearing the event-type filter or searching by a different actor.'
+                    : 'Events will appear here as users upload documents, submit queries, and engineers make review decisions.'}
+                </p>
               </div>
             ) : (
               <>
-                {liveEvents.length > 0 && (
-                  <div style={{ padding: '6px 20px', background: '#F0FDF4', borderBottom: '1px solid #d4d6d8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A7A4A', display: 'inline-block' }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#1A7A4A', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                      Live — {totalLive} event{totalLive !== 1 ? 's' : ''} from database
-                    </span>
-                  </div>
-                )}
+                <div style={{ padding: '6px 20px', background: '#F0FDF4', borderBottom: '1px solid #d4d6d8', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1A7A4A', display: 'inline-block' }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#1A7A4A', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                    {totalLive} event{totalLive !== 1 ? 's' : ''} from database
+                  </span>
+                </div>
                 {liveEvents.map((event, idx) => (
                   <EventRow
                     key={event.id} event={event}
                     expanded={expanded} setExpanded={setExpanded}
-                    isLast={idx === liveEvents.length - 1 && filteredDemo.length === 0}
-                  />
-                ))}
-
-                {filteredDemo.length > 0 && (
-                  <div style={{ padding: '6px 20px', background: '#F8F9FB', borderTop: liveEvents.length > 0 ? '1px solid #d4d6d8' : undefined, borderBottom: '1px solid #d4d6d8', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#9CA3AF', display: 'inline-block' }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                      Sample pipeline events — shown until AI query data is available
-                    </span>
-                  </div>
-                )}
-                {filteredDemo.map((event, idx) => (
-                  <EventRow
-                    key={event.id} event={event}
-                    expanded={expanded} setExpanded={setExpanded}
-                    isLast={idx === filteredDemo.length - 1}
+                    isLast={idx === liveEvents.length - 1}
                   />
                 ))}
               </>

@@ -1,44 +1,81 @@
 'use client'
 
 import ReactMarkdown from 'react-markdown'
-import { CheckCircle, Flag } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import remarkGfm from 'remark-gfm'
+import { CheckCircle, Flag, Edit3, XCircle, Clock } from 'lucide-react'
+import { injectCitationLabels } from '@/lib/utils'
 import type { Citation } from '@/lib/api'
 
-interface MessageBubbleProps {
+export interface MessageBubbleProps {
   role: 'user' | 'assistant'
   content: string
   citations?: Citation[]
   isStreaming?: boolean
   hitlRequired?: boolean
+  queryStatus?: 'PENDING' | 'PROCESSING' | 'UNDER_REVIEW' | 'DELIVERED' | 'REJECTED'
+  reviewDecision?: 'APPROVE' | 'EDIT' | 'REJECT' | null
+  reviewReason?: string | null
   timestamp?: Date
+  fromHistory?: boolean
   onCitationClick?: (c: Citation) => void
 }
 
-function renderWithCitations(
-  text: string,
-  citations: Citation[],
-  onCitationClick: (c: Citation) => void
-) {
-  const parts = text.split(/(\[SOURCE_\d+\])/g)
-  return parts.map((part, i) => {
-    const match = part.match(/\[SOURCE_(\d+)\]/)
-    if (match) {
-      const idx = parseInt(match[1], 10) - 1
-      const citation = citations[idx]
-      return (
-        <button
-          key={i}
-          className="citation-chip"
-          onClick={() => citation && onCitationClick(citation)}
-          title={citation?.filename ?? part}
-        >
-          {part}
-        </button>
-      )
-    }
-    return <span key={i}>{part}</span>
-  })
+function ReviewBadge({ hitlRequired, queryStatus, reviewDecision, reviewReason }: {
+  hitlRequired?: boolean
+  queryStatus?: string
+  reviewDecision?: string | null
+  reviewReason?: string | null
+}) {
+  // Not flagged — low risk, cleared automatically
+  if (!hitlRequired) {
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.6875rem', fontWeight: 600, color: '#1A7A4A', background: '#D1FAE5', border: '1px solid #6EE7B7', padding: '3px 9px', borderRadius: 3 }}>
+        <CheckCircle size={10} /> Cleared — no engineer review required
+      </span>
+    )
+  }
+
+  // Flagged — check review outcome
+  if (!reviewDecision) {
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.6875rem', fontWeight: 600, color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '3px 9px', borderRadius: 3 }}>
+        <Clock size={10} /> Pending engineer sign-off · not cleared for operational use
+      </span>
+    )
+  }
+
+  if (reviewDecision === 'APPROVE') {
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.6875rem', fontWeight: 600, color: '#1A7A4A', background: '#D1FAE5', border: '1px solid #6EE7B7', padding: '3px 9px', borderRadius: 3 }}>
+        <CheckCircle size={10} /> Engineer approved · cleared for operational use
+      </span>
+    )
+  }
+
+  if (reviewDecision === 'EDIT') {
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.6875rem', fontWeight: 600, color: '#1D4ED8', background: '#DBEAFE', border: '1px solid #BFDBFE', padding: '3px 9px', borderRadius: 3 }}>
+        <Edit3 size={10} /> Engineer reviewed and edited this response
+      </span>
+    )
+  }
+
+  if (reviewDecision === 'REJECT') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.6875rem', fontWeight: 600, color: '#991B1B', background: '#FEE2E2', border: '1px solid #FECACA', padding: '3px 9px', borderRadius: 3 }}>
+          <XCircle size={10} /> Rejected by engineer — do not use for operational decisions
+        </span>
+        {reviewReason && (
+          <span style={{ fontSize: '0.6875rem', color: '#991B1B', paddingLeft: 4 }}>
+            Reason: {reviewReason}
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  return null
 }
 
 export function MessageBubble({
@@ -47,10 +84,15 @@ export function MessageBubble({
   citations = [],
   isStreaming,
   hitlRequired,
+  queryStatus,
+  reviewDecision,
+  reviewReason,
   timestamp,
+  fromHistory,
   onCitationClick,
 }: MessageBubbleProps) {
   const isUser = role === 'user'
+  const showBadge = !isUser && !isStreaming && hitlRequired !== undefined
 
   return (
     <div
@@ -59,34 +101,20 @@ export function MessageBubble({
         display: 'flex',
         flexDirection: isUser ? 'row-reverse' : 'row',
         alignItems: 'flex-end',
-        gap: '10px',
-        marginBottom: '20px',
+        gap: 10,
+        marginBottom: 20,
         padding: '0 24px',
+        opacity: fromHistory ? 0.88 : 1,
       }}
     >
       {/* Avatar */}
       {!isUser && (
-        <div
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            background: '#232e3e',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            fontSize: '0.6875rem',
-            fontWeight: 700,
-            color: '#4AA8FF',
-            letterSpacing: '0',
-          }}
-        >
+        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#232e3e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '0.6875rem', fontWeight: 700, color: '#4AA8FF' }}>
           AI
         </div>
       )}
 
-      <div style={{ maxWidth: '680px', display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
+      <div style={{ maxWidth: 680, display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
         {/* Bubble */}
         <div
           style={{
@@ -98,38 +126,28 @@ export function MessageBubble({
             color: isUser ? '#FFFFFF' : '#232e3e',
             fontSize: '0.9375rem',
             lineHeight: 1.6,
-            position: 'relative',
           }}
         >
           {isUser ? (
             <p style={{ margin: 0 }}>{content}</p>
           ) : (
             <div className={`prose-rosen${isStreaming ? ' stream-cursor' : ''}`}>
-              {citations.length > 0 && onCitationClick ? (
-                <div>{renderWithCitations(content, citations, onCitationClick)}</div>
-              ) : (
-                <ReactMarkdown>{content}</ReactMarkdown>
-              )}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {injectCitationLabels(content, citations)}
+              </ReactMarkdown>
             </div>
           )}
         </div>
 
-        {/* Citation count + timestamp */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+        {/* Meta row: citations count + timestamp */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
           {!isUser && citations.length > 0 && (
-            <span
-              style={{
-                fontSize: '0.75rem',
-                color: '#006eb5',
-                fontWeight: 500,
-                background: '#dff0ff',
-                padding: '2px 8px',
-                borderRadius: '3px',
-                border: '1px solid rgba(0,93,170,0.15)',
-              }}
+            <button
+              onClick={() => citations[0] && onCitationClick?.(citations[0])}
+              style={{ fontSize: '0.75rem', color: '#006eb5', fontWeight: 500, background: '#dff0ff', padding: '2px 8px', borderRadius: 3, border: '1px solid rgba(0,93,170,0.15)', cursor: onCitationClick ? 'pointer' : 'default' }}
             >
               {citations.length} source{citations.length !== 1 ? 's' : ''}
-            </span>
+            </button>
           )}
           {timestamp && (
             <span style={{ fontSize: '0.75rem', color: '#8896A8' }}>
@@ -138,32 +156,15 @@ export function MessageBubble({
           )}
         </div>
 
-        {/* Inline approval status — only on completed AI messages with an explicit flag */}
-        {!isUser && !isStreaming && hitlRequired !== undefined && (
-          <div style={{ marginTop: '6px' }}>
-            {hitlRequired ? (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                fontSize: '0.6875rem', fontWeight: 600,
-                color: '#92400E', background: '#FEF3C7',
-                border: '1px solid #FDE68A',
-                padding: '3px 9px', borderRadius: '3px',
-              }}>
-                <Flag size={10} />
-                Flagged · Pending engineer sign-off before operational use
-              </span>
-            ) : (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                fontSize: '0.6875rem', fontWeight: 600,
-                color: '#1A7A4A', background: '#D1FAE5',
-                border: '1px solid #6EE7B7',
-                padding: '3px 9px', borderRadius: '3px',
-              }}>
-                <CheckCircle size={10} />
-                Cleared — no review required
-              </span>
-            )}
+        {/* Review status badge */}
+        {showBadge && (
+          <div style={{ marginTop: 6 }}>
+            <ReviewBadge
+              hitlRequired={hitlRequired}
+              queryStatus={queryStatus}
+              reviewDecision={reviewDecision}
+              reviewReason={reviewReason}
+            />
           </div>
         )}
       </div>
