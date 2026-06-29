@@ -9,7 +9,7 @@ interface ChatInputProps {
   disabled?: boolean
 }
 
-const LANGUAGES = ['EN', 'ES', 'PT', 'DE', 'FR', 'AR']
+const LANGUAGES = ['EN', 'FR', 'ES', 'AR', 'ZH', 'RU', 'PT', 'DE', 'JA', 'HI']
 
 export function ChatInput({ onSubmit, disabled }: ChatInputProps) {
   const [value, setValue] = useState('')

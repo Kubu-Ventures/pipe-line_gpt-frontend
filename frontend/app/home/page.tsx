@@ -165,7 +165,7 @@ export default function HomePage() {
             </p>
             {[
               'Step 1 — Upload your pipeline documents (PDF, CSV, GeoJSON, ZIP)',
-              'Step 2 — Ask questions in plain English; the AI retrieves cited answers from your data',
+              'Step 2 — Ask questions in any language; the AI retrieves cited answers from your data',
               'Step 3 — High-risk recommendations are routed to a qualified engineer for sign-off',
               'Step 4 — View trends, confidence scores, and query analytics on the dashboard',
               'Step 5 — Export your immutable audit trail for PHMSA compliance reporting',

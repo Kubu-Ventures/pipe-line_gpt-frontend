@@ -208,6 +208,41 @@ body {
 .mobile-nav a:last-child { border-bottom: none; }
 .mobile-nav a.active { color: #006eb5; font-weight: 600; background: #dff0ff; }
 
+/* Markdown rendered inside Review cards and Chat bubbles */
+.review-md h1, .review-md h2, .review-md h3, .review-md h4 {
+  font-family: Inter, system-ui, sans-serif;
+  color: #232e3e;
+  font-weight: 700;
+  margin: 14px 0 6px;
+  line-height: 1.35;
+}
+.review-md h1 { font-size: 16px; }
+.review-md h2 { font-size: 14px; border-bottom: 1px solid #e4e8ef; padding-bottom: 4px; }
+.review-md h3 { font-size: 13px; color: #3a4a5c; }
+.review-md h4 { font-size: 12px; color: #55606e; }
+.review-md p  { margin: 6px 0; }
+.review-md ul, .review-md ol { padding-left: 20px; margin: 6px 0; }
+.review-md li { margin: 3px 0; }
+.review-md strong { color: #232e3e; font-weight: 700; }
+.review-md em    { color: #55606e; }
+.review-md code  { background: #f1f3f5; padding: 1px 5px; border-radius: 3px; font-size: 12px; font-family: monospace; }
+.review-md pre   { background: #f1f3f5; padding: 10px 14px; border-radius: 4px; overflow-x: auto; margin: 8px 0; }
+.review-md pre code { background: none; padding: 0; }
+.review-md blockquote {
+  border-left: 3px solid #006eb5;
+  margin: 8px 0;
+  padding: 6px 12px;
+  background: #f4f9ff;
+  color: #3a4a5c;
+  font-style: italic;
+}
+.review-md table  { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 13px; }
+.review-md th     { background: #f1f3f5; font-weight: 700; color: #232e3e; padding: 6px 10px; border: 1px solid #d4d6d8; text-align: left; }
+.review-md td     { padding: 5px 10px; border: 1px solid #e4e8ef; color: #55606e; vertical-align: top; }
+.review-md tr:nth-child(even) td { background: #fafbfc; }
+.review-md hr     { border: none; border-top: 1px solid #e4e8ef; margin: 12px 0; }
+.review-md a      { color: #006eb5; text-decoration: underline; }
+
 /* Audit event rows — 5-col grid */
 .audit-row-grid   { display: grid !important; grid-template-columns: 28px 1fr 180px 140px 160px !important; }
 .audit-col-context { display: block; }
