@@ -8,10 +8,11 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import {
-  AlertTriangle, Clock, CheckCircle, Upload, TrendingUp,
-  MessageSquare, RefreshCw, Calendar, Activity, Zap, FileText,
-  ChevronRight, ArrowRight,
-} from 'lucide-react'
+  IconQueries, IconDocuments, IconReview, IconGauge,
+  IconWarning, IconCalendar, IconAnomaly, IconAlarm,
+  IconRefresh, IconCheckCircle, IconFileText, IconUpload,
+  IconChevronRight, IconArrowRight, IconActivity,
+} from './DashboardIcons'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
@@ -82,9 +83,9 @@ const SEVERITY_COLOR: Record<string, { bg: string; border: string; text: string;
 }
 
 const TYPE_ICON = {
-  deadline: Calendar,
-  anomaly:  AlertTriangle,
-  alarm:    Zap,
+  deadline: IconCalendar,
+  anomaly:  IconAnomaly,
+  alarm:    IconAlarm,
 }
 
 function severityLabel(item: AttentionItem): string {
@@ -193,25 +194,25 @@ export default function DashboardPage() {
     {
       value: stats ? stats.total_queries.toString() : '—',
       label: 'Queries Answered',
-      icon: MessageSquare,
+      icon: IconQueries,
       color: BLUE,
     },
     {
       value: stats ? stats.total_documents.toString() : '—',
       label: 'Documents Indexed',
-      icon: Upload,
+      icon: IconDocuments,
       color: '#1A7A4A',
     },
     {
       value: stats ? stats.pending_reviews.toString() : '—',
       label: 'Pending Reviews',
-      icon: Clock,
+      icon: IconReview,
       color: stats && stats.pending_reviews > 0 ? '#92400E' : '#1A7A4A',
     },
     {
       value: stats ? `${stats.avg_confidence_pct}%` : '—',
       label: 'Avg AI Confidence',
-      icon: TrendingUp,
+      icon: IconGauge,
       color: !stats ? DARK : stats.avg_confidence_pct >= 75 ? '#1A7A4A' : stats.avg_confidence_pct >= 50 ? '#92400E' : '#991B1B',
     },
   ]
@@ -240,7 +241,7 @@ export default function DashboardPage() {
           {/* Backend error */}
           {statsError && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FEF3C7', border: '1px solid #FDE68A', borderLeft: '3px solid #D97706', borderRadius: 4, padding: '10px 16px', marginBottom: 12, fontSize: 13, color: '#92400E' }}>
-              <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+              <IconWarning size={14} style={{ flexShrink: 0 }} />
               <span><strong>Live metrics unavailable:</strong> {statsError}</span>
             </div>
           )}
@@ -280,7 +281,7 @@ export default function DashboardPage() {
                     title="Re-analyse all documents"
                     style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: BLUE, background: '#dff0ff', border: '1px solid rgba(0,93,170,0.2)', borderRadius: 4, padding: '5px 10px', cursor: refreshing ? 'not-allowed' : 'pointer', opacity: refreshing ? 0.6 : 1 }}
                   >
-                    <RefreshCw size={12} style={{ animation: refreshing ? 'spin 0.8s linear infinite' : 'none' }} />
+                    <IconRefresh size={12} style={{ animation: refreshing ? 'spin 0.8s linear infinite' : 'none' }} />
                     {refreshing ? 'Analysing…' : 'Re-analyse'}
                   </button>
                 )}
@@ -296,7 +297,7 @@ export default function DashboardPage() {
                   <div style={{ padding: 24, color: '#92400E', fontSize: 13 }}>{insightsError}</div>
                 ) : attentionItems.length === 0 ? (
                   <div style={{ padding: '32px 24px', textAlign: 'center', color: '#8896A8' }}>
-                    <CheckCircle size={32} style={{ marginBottom: 10, opacity: 0.4, color: '#1A7A4A' }} />
+                    <IconCheckCircle size={32} style={{ marginBottom: 10, opacity: 0.4 }} color="#1A7A4A" />
                     <p style={{ fontSize: 13, fontWeight: 600, color: DARK, marginBottom: 6 }}>
                       {docs.filter(d => d.status === 'DONE').length > 0
                         ? 'No issues flagged in your documents'
@@ -337,7 +338,7 @@ export default function DashboardPage() {
                           style={{ flexShrink: 0, color: BLUE, opacity: 0.6 }}
                           title="Ask the AI about this"
                         >
-                          <ChevronRight size={16} />
+                          <IconChevronRight size={16} />
                         </Link>
                       </div>
                     )
@@ -381,7 +382,7 @@ export default function DashboardPage() {
                   </div>
                 ) : docs.length === 0 ? (
                   <div style={{ padding: '24px', textAlign: 'center', color: '#8896A8' }}>
-                    <Upload size={28} style={{ marginBottom: 8, opacity: 0.4 }} />
+                    <IconUpload size={28} style={{ marginBottom: 8, opacity: 0.4 }} />
                     <p style={{ fontSize: 13, marginBottom: 10 }}>No documents yet</p>
                     <Link href="/ingest" style={{ fontSize: 12, fontWeight: 600, color: BLUE }}>Upload documents →</Link>
                   </div>
@@ -391,7 +392,7 @@ export default function DashboardPage() {
                     const isFail = doc.status === 'FAILED'
                     return (
                       <div key={doc.id} style={{ padding: '10px 20px', borderBottom: i < docs.length - 1 ? '1px solid #edeff0' : 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <FileText size={14} color={isOk ? BLUE : isFail ? '#991B1B' : '#92400E'} style={{ flexShrink: 0 }} />
+                        <IconFileText size={14} color={isOk ? BLUE : isFail ? '#991B1B' : '#92400E'} style={{ flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: 12, fontWeight: 600, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>{doc.filename}</p>
                           <div style={{ display: 'flex', gap: 8, fontSize: 11, color: '#9CA3AF' }}>
@@ -428,7 +429,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <Link href="/chat" style={{ fontSize: 12, fontWeight: 600, color: '#ffeb00', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  Open chat <ArrowRight size={12} />
+                  Open chat <IconArrowRight size={12} />
                 </Link>
               </div>
               {insightsLoading ? (
@@ -450,7 +451,7 @@ export default function DashboardPage() {
                       onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.07)')}
                     >
-                      <Activity size={13} color="#60d4f2" style={{ flexShrink: 0, marginTop: 2 }} />
+                      <IconActivity size={13} color="#60d4f2" style={{ flexShrink: 0, marginTop: 2 }} />
                       <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>{q}</span>
                     </Link>
                   ))}
