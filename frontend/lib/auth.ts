@@ -1,7 +1,12 @@
-import NextAuth from 'next-auth'
+import NextAuth, { CredentialsSignin } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+
+// Surfaced to the login page as `res.code` from signIn().
+class MfaRequired extends CredentialsSignin { code = 'mfa_required' }
+class MfaInvalid extends CredentialsSignin { code = 'mfa_invalid' }
+class LockedOut extends CredentialsSignin { code = 'locked_out' }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -9,16 +14,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email:    { label: 'Email',    type: 'email'    },
         password: { label: 'Password', type: 'password' },
+        totp:     { label: 'Authentication code', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
+        const totp = typeof credentials.totp === 'string' ? credentials.totp.trim() : ''
         try {
-          // Step 1: exchange credentials for a token
+          // Step 1: exchange credentials (+ TOTP code for enrolled engineers/admins) for a token
           const loginRes = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+              ...(totp ? { totp_code: totp } : {}),
+            }),
           })
+          if (loginRes.status === 429) throw new LockedOut()
+          if (loginRes.status === 401) {
+            const body = await loginRes.json().catch(() => null)
+            if (body?.detail?.code === 'mfa_required') throw new MfaRequired()
+            if (body?.detail?.code === 'mfa_invalid') throw new MfaInvalid()
+          }
           if (!loginRes.ok) return null
           const loginData = await loginRes.json()
           const { access_token, mfa_setup_required = false } = loginData
@@ -39,7 +56,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             mfaEnabled:       me.mfa_enabled ?? false,
             mfaSetupRequired: mfa_setup_required,
           }
-        } catch {
+        } catch (err) {
+          if (err instanceof CredentialsSignin) throw err
           return null
         }
       },

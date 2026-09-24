@@ -26,6 +26,9 @@ const DEMO_ACCOUNTS = [
 
 type DemoRole = typeof DEMO_ACCOUNTS[number]['role']
 
+// Demo buttons only on demo deployments; the backend must also run with DEMO_MODE=true.
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
 export default function LoginPage() {
   const t      = useTranslations('login')
   const router = useRouter()
@@ -36,16 +39,29 @@ export default function LoginPage() {
   const [error,        setError]        = useState<string | null>(null)
   const [loading,      setLoading]      = useState(false)
   const [demoLoading,  setDemoLoading]  = useState<DemoRole | null>(null)
+  const [totp,         setTotp]         = useState('')
+  const [needTotp,     setNeedTotp]     = useState(false)
 
   const busy = loading || demoLoading !== null
 
-  async function doSignIn(e: string, p: string, setL: (b: boolean) => void) {
+  async function doSignIn(e: string, p: string, setL: (b: boolean) => void, code?: string) {
     setL(true)
     setError(null)
-    const res = await signIn('credentials', { email: e, password: p, redirect: false })
+    const res = await signIn('credentials', { email: e, password: p, totp: code ?? '', redirect: false })
     if (res?.error) {
       setL(false)
-      setError(t('error'))
+      if (res.code === 'mfa_required') {
+        setNeedTotp(true)
+        setError(null)
+      } else if (res.code === 'mfa_invalid') {
+        setNeedTotp(true)
+        setTotp('')
+        setError(t('totpInvalid'))
+      } else if (res.code === 'locked_out') {
+        setError(t('lockedOut'))
+      } else {
+        setError(t('error'))
+      }
       return
     }
     const session = await fetch('/api/auth/session').then(r => r.json()).catch(() => null)
@@ -59,7 +75,7 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    doSignIn(email, password, setLoading)
+    doSignIn(email, password, setLoading, needTotp ? totp : undefined)
   }
 
   async function handleDemo(role: DemoRole) {
@@ -170,9 +186,10 @@ export default function LoginPage() {
               {t('title')}
             </h1>
             <p style={{ fontSize: '1rem', fontWeight: 400, lineHeight: '138%', color: GRAY_500, marginBottom: 32 }}>
-              {t('subtitle')}
+              {DEMO_MODE ? t('subtitle') : t('subtitleNoDemo')}
             </p>
 
+            {DEMO_MODE && (<>
             {/* Demo account buttons */}
             <div style={{ marginBottom: 24 }}>
               <p style={{ fontSize: '0.75rem', fontWeight: 600, color: GRAY_500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -211,6 +228,7 @@ export default function LoginPage() {
               </span>
               <div style={{ flex: 1, height: 1, background: GRAY_300 }} />
             </div>
+            </>)}
 
             {/* Credentials form */}
             <form onSubmit={handleSubmit}>
@@ -242,6 +260,30 @@ export default function LoginPage() {
                   required
                 />
               </div>
+
+              {needTotp && (
+                <div style={{ marginBottom: 28, marginTop: -8 }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: TEXT, marginBottom: 8, letterSpacing: '0.01em' }}>
+                    {t('totpLabel')}
+                  </label>
+                  <input
+                    className={`undp-input${error ? ' error' : ''}`}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{6}"
+                    maxLength={6}
+                    value={totp}
+                    onChange={e => setTotp(e.target.value.replace(/\D/g, ''))}
+                    autoComplete="one-time-code"
+                    placeholder="123456"
+                    autoFocus
+                    required
+                  />
+                  <p style={{ fontSize: '0.8125rem', color: GRAY_500, marginTop: 6, lineHeight: '138%' }}>
+                    {t('totpHelp')}
+                  </p>
+                </div>
+              )}
 
               {error && (
                 <div style={{ padding: '12px 16px', background: '#fff5f5', border: '2px solid #ffbcb7', fontSize: '0.875rem', color: '#d12800', marginBottom: 20, lineHeight: '138%' }}>

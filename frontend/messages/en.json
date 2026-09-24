@@ -62,7 +62,12 @@
     "leftHeadline": "Pipeline integrity intelligence, powered by natural language.",
     "leftSub": "PHMSA incident data · ILI report analysis · SCADA exports · Cited answers · Engineer review",
     "mobileHome": "← Home",
-    "award": "PipelineGPT"
+    "award": "PipelineGPT",
+    "totpLabel": "Authentication code",
+    "totpHelp": "Enter the 6-digit code from your authenticator app.",
+    "totpInvalid": "That code is invalid or was already used. Enter the current code.",
+    "lockedOut": "Too many failed sign-in attempts. Wait a few minutes and try again.",
+    "subtitleNoDemo": "Access is by invitation only. Sign in with your credentials."
   },
   "home": {
     "eyebrow": "AI-Powered Pipeline Integrity Intelligence",
@@ -356,7 +361,7 @@
     "title": "Accept Invitation",
     "subtitle": "Create your password to activate your PipelineGPT account.",
     "passwordLabel": "Password",
-    "passwordHint": "Minimum 8 characters",
+    "passwordHint": "Minimum 12 characters",
     "submitBtn": "Activate Account",
     "submitting": "Activating…",
     "success": "Account activated! Redirecting to login…",

@@ -62,7 +62,12 @@
     "leftHeadline": "Pipeline-Integritätsintelligenz, angetrieben durch natürliche Sprache.",
     "leftSub": "PHMSA-Vorfallsdaten · ILI-Berichtsanalyse · SCADA-Exporte · Quellenbasierte Antworten · Ingenieurprüfung",
     "mobileHome": "← Startseite",
-    "award": "PipelineGPT"
+    "award": "PipelineGPT",
+    "totpLabel": "Authentifizierungscode",
+    "totpHelp": "Geben Sie den 6-stelligen Code aus Ihrer Authentifizierungs-App ein.",
+    "totpInvalid": "Der Code ist ungültig oder wurde bereits verwendet. Geben Sie den aktuellen Code ein.",
+    "lockedOut": "Zu viele fehlgeschlagene Anmeldeversuche. Warten Sie einige Minuten und versuchen Sie es erneut.",
+    "subtitleNoDemo": "Zugang nur auf Einladung. Melden Sie sich mit Ihren Zugangsdaten an."
   },
   "home": {
     "eyebrow": "KI-gestützte Pipeline-Integritätsintelligenz",
@@ -356,7 +361,7 @@
     "title": "Einladung annehmen",
     "subtitle": "Erstellen Sie Ihr Passwort, um Ihr PipelineGPT-Konto zu aktivieren.",
     "passwordLabel": "Passwort",
-    "passwordHint": "Mindestens 8 Zeichen",
+    "passwordHint": "Mindestens 12 Zeichen",
     "submitBtn": "Konto aktivieren",
     "submitting": "Wird aktiviert…",
     "success": "Konto aktiviert! Weiterleitung zur Anmeldung…",
