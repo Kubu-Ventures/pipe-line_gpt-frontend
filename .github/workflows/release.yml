@@ -1,0 +1,50 @@
+name: Release
+
+# Push a tag like v0.2.0 (same version as the backend release) to publish
+# ghcr.io/kubu-ventures/pipelinegpt-frontend:{0.2.0, 0.2, latest}.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/kubu-ventures/pipelinegpt-frontend
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ steps.meta.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: true
+          sbom: true
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=""
+          [[ "$GITHUB_REF_NAME" == *-* ]] && flags="--prerelease"
+          gh release create "$GITHUB_REF_NAME" $flags --title "PipelineGPT frontend ${GITHUB_REF_NAME#v}" --generate-notes \
+            --notes "Install and upgrade with the deploy bundle from https://github.com/Kubu-Ventures/pipe-line_gpt-backend/releases/tag/${GITHUB_REF_NAME}"

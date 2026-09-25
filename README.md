@@ -1,5 +1,10 @@
 # PipelineGPT Frontend
 
+[![CI](https://github.com/Kubu-Ventures/pipe-line_gpt-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/Kubu-Ventures/pipe-line_gpt-frontend/actions/workflows/ci.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+
+> **Running PipelineGPT for your organization?** Use the self-hosted deploy bundle from the [backend releases](https://github.com/Kubu-Ventures/pipe-line_gpt-backend/releases/latest). It includes this frontend as a container image. This README is for development.
+
 The Next.js frontend for PipelineGPT -- a natural language interface for pipeline integrity data. Operators chat with their document corpus, engineers review AI-generated responses before delivery, and admins manage users and invitations, all from a single role-aware application.
 
 ## Tech stack
@@ -52,10 +57,14 @@ NEXTAUTH_SECRET=your-secret-here          # Required: long random string
 NEXTAUTH_URL=http://localhost:3000        # Required: full URL of this app
 
 # Backend API
-NEXT_PUBLIC_API_URL=http://localhost:8000 # Required: PipelineGPT backend base URL
+NEXT_PUBLIC_API_URL=http://localhost:8000 # Required: backend URL as seen from the browser
+# API_INTERNAL_URL=http://api:8000        # Optional: backend URL for server-side calls (sign-in)
+
+# Demo deployments only: one-click demo account buttons on the login page
+NEXT_PUBLIC_DEMO_MODE=false
 ```
 
-For production, set `NEXTAUTH_URL` to your deployed frontend URL and `NEXT_PUBLIC_API_URL` to your deployed backend URL.
+`NEXT_PUBLIC_*` values are baked in at build time. The Docker image is built with `NEXT_PUBLIC_API_URL=/backend` (same origin, routed by the reverse proxy), so one image works on any domain.
 
 ## Pages and features
 
@@ -126,7 +135,19 @@ npm run build
 npm start
 ```
 
-The build will type-check the project and fail on TypeScript errors. Ensure all environment variables are set before running `npm run build` in CI.
+The build will type-check the project and fail on TypeScript errors.
+
+### Container image
+
+```bash
+docker build -t pipelinegpt-frontend frontend
+docker run -p 3000:3000 \
+  -e API_INTERNAL_URL=http://host.docker.internal:8000 \
+  -e AUTH_SECRET=change-me -e AUTH_URL=http://localhost:3000 -e AUTH_TRUST_HOST=true \
+  pipelinegpt-frontend
+```
+
+Tagged releases (`vX.Y.Z`) publish `ghcr.io/kubu-ventures/pipelinegpt-frontend` through `.github/workflows/release.yml`.
 
 ## Project structure
 
@@ -171,3 +192,13 @@ frontend/
 ├── tailwind.config.js
 └── package.json
 ```
+
+## Contributing
+
+Bug reports and feature requests are welcome as issues; code contributions aren't being accepted yet (see [CONTRIBUTING.md](CONTRIBUTING.md)). Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security issues privately ([SECURITY.md](SECURITY.md)).
+
+## License
+
+Copyright (C) 2026 Collins Kubu
+
+Licensed under the [GNU Affero General Public License v3.0](LICENSE). Commercial licenses (for use outside the AGPL's terms) and support are available from the author.

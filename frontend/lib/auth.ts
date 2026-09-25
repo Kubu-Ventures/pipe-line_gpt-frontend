@@ -1,7 +1,9 @@
 import NextAuth, { CredentialsSignin } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+// This file runs on the server: prefer the in-cluster API address (e.g. http://api:8000 in
+// the self-hosted stack), because NEXT_PUBLIC_API_URL may be a browser-relative path.
+const API_URL = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
 // Surfaced to the login page as `res.code` from signIn().
 class MfaRequired extends CredentialsSignin { code = 'mfa_required' }
