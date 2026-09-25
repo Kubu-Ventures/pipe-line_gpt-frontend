@@ -2,17 +2,16 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Upload, RefreshCw, File, CheckCircle, XCircle, Clock, Database, AlertCircle, Info, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { RefreshCw, CheckCircle, Clock, Database, AlertCircle, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
 import { NextStep } from '@/components/NextStep'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { ingestFile, syncPHMSA, listDocuments, deleteDocument, type DocumentPage, type DocumentStatus } from '@/lib/api'
+import { syncPHMSA, listDocuments, deleteDocument, type DocumentPage, type DocumentStatus } from '@/lib/api'
+import { UploadPanel } from './UploadPanel'
 
-const ACCEPTED = '.pdf,.csv,.zip,.geojson,.tsv,.xlsx'
-const MAX_MB = 50
 const PAGE_SIZE = 50
 
 const STATUS_BADGE: Record<string, 'success' | 'blue' | 'danger' | 'gray'> = {
@@ -56,10 +55,6 @@ export default function IngestPage() {
   const userRole = ((session as any)?.user?.role as string | undefined) ?? ''
   const canDelete = userRole === 'ENGINEER' || userRole === 'ADMIN'
 
-  const [files, setFiles] = useState<File[]>([])
-  const [dragging, setDragging] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [uploadResults, setUploadResults] = useState<{ name: string; ok: boolean; dedup?: boolean }[]>([])
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
 
@@ -118,37 +113,6 @@ export default function IngestPage() {
     return () => clearTimeout(id)
   }, [docs, inQueue, loadHistory])
 
-  const addFiles = (incoming: FileList | null) => {
-    if (!incoming) return
-    const valid = Array.from(incoming).filter(f => f.size <= MAX_MB * 1024 * 1024)
-    setFiles(prev => [...prev, ...valid])
-  }
-
-  const onDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setDragging(false)
-    addFiles(e.dataTransfer.files)
-  }, [])
-
-  const handleUpload = async () => {
-    if (!files.length) return
-    setUploading(true)
-    const results = await Promise.all(
-      files.map(async f => {
-        try {
-          const res = await ingestFile(f, token)
-          return { name: f.name, ok: true, dedup: res.task_id === 'dedup-skip' }
-        } catch {
-          return { name: f.name, ok: false }
-        }
-      })
-    )
-    setUploadResults(results)
-    setFiles([])
-    setUploading(false)
-    setTimeout(() => loadHistory(), 1500)
-  }
-
   const handleSync = async () => {
     setSyncing(true)
     setSyncState('downloading')
@@ -187,94 +151,14 @@ export default function IngestPage() {
       <PageHero
         step="Step 1 of 5 · Upload Data"
         title="Data Ingestion"
-        subtitle="Upload ILI reports, SCADA exports, PHMSA datasets, and GIS shapefiles"
+        subtitle="Upload ILI reports, SCADA exports and PHMSA datasets, one file or whole folders at a time"
         compact
       />
 
       <main style={{ flex: 1 }}>
         <div className="page-content-md" style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px 20px' }}>
 
-          {/* Upload section */}
-          <div className="brand-card" style={{ background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: '6px', padding: '32px', marginBottom: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#232e3e', marginBottom: '6px' }}>Upload Documents</h2>
-            <p style={{ fontSize: '0.875rem', color: '#8896A8', marginBottom: '20px' }}>
-              Supported formats: PDF, CSV, TSV, ZIP (PHMSA), GeoJSON · Max {MAX_MB} MB per file
-            </p>
-
-            {/* Drop zone */}
-            <label
-              style={{
-                display: 'block',
-                border: dragging ? '2px dashed #006eb5' : '2px dashed #C8D0DC',
-                borderRadius: '8px',
-                padding: '48px 24px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                background: dragging ? '#dff0ff' : '#F8F9FB',
-                transition: 'all 0.15s',
-              }}
-              onDragOver={e => { e.preventDefault(); setDragging(true) }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={onDrop}
-            >
-              <input type="file" multiple accept={ACCEPTED} style={{ display: 'none' }} onChange={e => addFiles(e.target.files)} />
-              <Upload size={32} color={dragging ? '#006eb5' : '#C8D0DC'} style={{ margin: '0 auto 12px' }} />
-              <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: dragging ? '#006eb5' : '#232e3e', marginBottom: '4px' }}>
-                {dragging ? 'Drop files here' : 'Drag & drop files here'}
-              </p>
-              <p style={{ fontSize: '0.875rem', color: '#8896A8' }}>or <span style={{ color: '#006eb5', fontWeight: 500 }}>browse to select</span></p>
-            </label>
-
-            {/* File list */}
-            {files.length > 0 && (
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {files.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: '#F8F9FB', border: '1px solid #E4E8EF', borderRadius: '4px' }}>
-                    <File size={16} color="#006eb5" />
-                    <span style={{ flex: 1, fontSize: '0.875rem', color: '#232e3e' }}>{f.name}</span>
-                    <span style={{ fontSize: '0.8125rem', color: '#8896A8' }}>{(f.size / 1024 / 1024).toFixed(2)} MB</span>
-                    <button onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#8896A8', padding: '2px' }}>×</button>
-                  </div>
-                ))}
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  style={{
-                    marginTop: '8px', padding: '10px 24px',
-                    background: uploading ? '#8896A8' : '#006eb5',
-                    color: '#FFF', border: 'none', borderRadius: '4px',
-                    fontSize: '0.9375rem', fontWeight: 600,
-                    cursor: uploading ? 'not-allowed' : 'pointer',
-                    display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'fit-content',
-                  }}
-                >
-                  <Upload size={15} />
-                  {uploading ? 'Uploading…' : `Upload ${files.length} file${files.length !== 1 ? 's' : ''}`}
-                </button>
-              </div>
-            )}
-
-            {/* Upload results */}
-            {uploadResults.length > 0 && (
-              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {uploadResults.map((r, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem' }}>
-                    {r.ok
-                      ? <CheckCircle size={15} color="#1A7A4A" />
-                      : <XCircle size={15} color="#B91C1C" />
-                    }
-                    <span style={{ color: r.ok ? '#1A7A4A' : '#B91C1C', fontWeight: 500 }}>{r.name}</span>
-                    <span style={{ color: '#8896A8' }}>
-                      {!r.ok ? '— Upload failed' : r.dedup ? '— Already indexed (duplicate skipped)' : '— Queued for processing'}
-                    </span>
-                  </div>
-                ))}
-                <p style={{ fontSize: '0.8125rem', color: '#8896A8', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Info size={12} /> Processing takes 10–60 seconds depending on file size; scanned PDFs are read with OCR and take a few seconds per page. The list below updates automatically.
-                </p>
-              </div>
-            )}
-          </div>
+          <UploadPanel token={token} onQueued={loadHistory} />
 
           {/* PHMSA Sync */}
           <div
