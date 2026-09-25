@@ -153,6 +153,26 @@ export default function LandingPage() {
               {t('ctaSignIn')} <span style={{ color: AZURE }}>→</span>
             </Link>
           </div>
+          {/* Official award name stays in English; only "Finalist" is translated. */}
+          <a
+            href="https://www.asmefoundation.org/rosen-award/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'flex-start', gap: 8, marginTop: 28,
+              fontSize: '0.8125rem', lineHeight: '140%', color: 'rgba(255,255,255,0.78)', textDecoration: 'none', letterSpacing: '0.01em',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden style={{ flexShrink: 0, marginTop: 1 }}>
+              <path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" stroke={YELLOW} strokeWidth="2" strokeLinejoin="round"/>
+              <path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6" stroke={YELLOW} strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span>
+              <strong style={{ fontWeight: 600, color: '#fff' }}>{t('awardFinalist')}</strong>
+              {' · '}Hermann Rosen Award for Pipeline Innovation, ASME Foundation
+              <span style={{ color: AZURE, marginInlineStart: 6 }} aria-hidden>↗</span>
+            </span>
+          </a>
         </div>
       </section>
 

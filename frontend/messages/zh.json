@@ -36,6 +36,7 @@
     "heroSubtext": "PipelineGPT将您的ILI报告、SCADA导出数据和PHMSA事故记录转化为可即时查询的知识库——内置引用来源和人工监督。",
     "ctaDemo": "试用演示",
     "ctaSignIn": "使用凭证登录",
+    "awardFinalist": "2026 年度决赛入围",
     "f1Title": "自然语言查询",
     "f1Body": "用自然语言提问关于管道数据的任何问题——无需SQL，无需特殊语法。系统直接从您上传的ILI报告、SCADA导出数据和PHMSA记录中检索答案。",
     "f2Title": "引用来源、可追溯的答案",
