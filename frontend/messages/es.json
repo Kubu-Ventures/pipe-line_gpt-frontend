@@ -377,5 +377,18 @@
     "success": "¡Cuenta activada! Redirigiendo al inicio de sesión…",
     "error": "Este enlace de invitación es inválido o ha expirado.",
     "tokenError": "Token de invitación inválido."
+  },
+  "meta": {
+    "signIn": "Iniciar sesión",
+    "signInDescription": "Inicie sesión en PipelineGPT: IA para la integridad de tuberías aplicada a informes ILI, exportaciones SCADA y datos de PHMSA.",
+    "home": "Primeros pasos",
+    "chat": "Chat de tuberías",
+    "review": "Revisión de ingeniería",
+    "dashboard": "Panel",
+    "ingest": "Cargar documentos",
+    "audit": "Registro de auditoría",
+    "admin": "Administración",
+    "mfaSetup": "Configurar la autenticación de dos factores",
+    "acceptInvite": "Aceptar invitación"
   }
 }

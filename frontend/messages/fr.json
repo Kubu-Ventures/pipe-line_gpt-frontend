@@ -377,5 +377,18 @@
     "success": "Compte activé ! Redirection vers la connexion…",
     "error": "Ce lien d'invitation est invalide ou a expiré.",
     "tokenError": "Jeton d'invitation invalide."
+  },
+  "meta": {
+    "signIn": "Connexion",
+    "signInDescription": "Connectez-vous à PipelineGPT : l'IA pour l'intégrité des pipelines, appliquée aux rapports ILI, aux exports SCADA et aux données PHMSA.",
+    "home": "Bien démarrer",
+    "chat": "Discussion pipeline",
+    "review": "Revue par un ingénieur",
+    "dashboard": "Tableau de bord",
+    "ingest": "Importer des documents",
+    "audit": "Piste d'audit",
+    "admin": "Administration",
+    "mfaSetup": "Configurer l'authentification à deux facteurs",
+    "acceptInvite": "Accepter l'invitation"
   }
 }
