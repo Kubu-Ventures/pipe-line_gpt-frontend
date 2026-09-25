@@ -123,15 +123,44 @@ export async function submitDecision(
 }
 
 // Ingest
-export async function ingestFile(file: File, token?: string): Promise<{ task_id: string }> {
+export interface UploadConfig {
+  max_upload_bytes: number
+  /** e.g. [".csv", ".pdf", ".tsv", ".txt", ".zip"] */
+  extensions: string[]
+}
+
+export async function getUploadConfig(token?: string): Promise<UploadConfig> {
+  return apiFetch('/ingest/config', { token })
+}
+
+/**
+ * Upload one document. relativePath is the file's path inside an uploaded folder
+ * ("records/2009/ILI/report.pdf"); the backend keeps it as the document's name.
+ * Errors carry the backend's reason (e.g. "File exceeds 50 MB limit.").
+ */
+export async function ingestFile(
+  file: File,
+  token?: string,
+  relativePath?: string,
+): Promise<{ task_id: string; document_id: string; filename: string; message: string }> {
   const form = new FormData()
   form.append('file', file)
+  if (relativePath) form.append('relative_path', relativePath)
   const res = await fetch(`${API_BASE}/ingest`, {
     method: 'POST',
     headers: { Authorization: token ? `Bearer ${token}` : '' },
     body: form,
   })
-  if (!res.ok) throw new Error(`Ingest error ${res.status}`)
+  if (!res.ok) {
+    let reason = `Upload failed (${res.status})`
+    try {
+      const body = await res.json()
+      if (typeof body?.detail === 'string') reason = body.detail
+    } catch {
+      // not JSON: keep the status
+    }
+    throw new Error(reason)
+  }
   return res.json()
 }
 
