@@ -62,6 +62,14 @@ interface Insights {
   has_insights: boolean
 }
 
+/** Progress of a background re-analysis (GET /dashboard/insights/refresh). */
+interface RefreshProgress {
+  state: 'idle' | 'running' | 'done' | 'interrupted'
+  total: number
+  done: number
+  failed: number
+}
+
 /* ── Helpers ────────────────────────────────────────────────────── */
 const SEVERITY_COLOR: Record<string, { bg: string; border: string; text: string; dot: string }> = {
   CRITICAL:  { bg: '#FEF2F2', border: '#FECACA', text: '#991B1B', dot: '#DC2626' },
@@ -120,7 +128,8 @@ export default function DashboardPage() {
   const [insights,      setInsights]      = useState<Insights | null>(null)
   const [insightsError, setInsightsError] = useState<string | null>(null)
   const [insightsLoading, setInsightsLoading] = useState(true)
-  const [refreshing,    setRefreshing]    = useState(false)
+  const [refresh,       setRefresh]       = useState<RefreshProgress | null>(null)
+  const [starting,      setStarting]      = useState(false)
   const [docPage,       setDocPage]       = useState<DocumentPage | null>(null)
   const [docsLoading,   setDocsLoading]   = useState(true)
 
@@ -167,17 +176,47 @@ export default function DashboardPage() {
       .finally(() => setDocsLoading(false))
   }, [token])
 
+  const refreshing = starting || refresh?.state === 'running'
+
+  const loadRefreshStatus = useCallback(async (): Promise<RefreshProgress | null> => {
+    if (!token) return null
+    try {
+      const r = await fetch(`${API_URL}/dashboard/insights/refresh`, { headers: { Authorization: `Bearer ${token}` } })
+      if (!r.ok) return null
+      const progress: RefreshProgress = await r.json()
+      setRefresh(progress)
+      return progress
+    } catch {
+      return null
+    }
+  }, [token])
+
+  // Show a re-analysis already running (started by someone else, or before a reload)
+  useEffect(() => { loadRefreshStatus() }, [loadRefreshStatus])
+
+  // While it runs in the background, follow its progress and reload the insights when it ends
+  useEffect(() => {
+    if (refresh?.state !== 'running') return
+    const id = setTimeout(async () => {
+      const progress = await loadRefreshStatus()
+      if (progress && progress.state !== 'running') loadInsights()
+    }, 3000)
+    return () => clearTimeout(id)
+  }, [refresh, loadRefreshStatus, loadInsights])
+
   async function handleRefresh() {
     if (!token || refreshing) return
-    setRefreshing(true)
+    setStarting(true)
     try {
-      await fetch(`${API_URL}/dashboard/insights/refresh`, {
+      const r = await fetch(`${API_URL}/dashboard/insights/refresh`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       })
-      await loadInsights()
+      const body = r.ok ? await r.json() : null
+      if (body?.state) setRefresh(body)
+      else await loadInsights()  // backends before the background refresh finish within the request
     } finally {
-      setRefreshing(false)
+      setStarting(false)
     }
   }
 
@@ -271,11 +310,13 @@ export default function DashboardPage() {
                   <button
                     onClick={handleRefresh}
                     disabled={refreshing}
-                    title="Re-analyse all documents"
+                    title={refresh?.state === 'running' ? 'Re-analysis running in the background; you can leave this page' : 'Re-analyse all documents'}
                     style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: BLUE, background: '#dff0ff', border: '1px solid rgba(0,93,170,0.2)', borderRadius: 4, padding: '5px 10px', cursor: refreshing ? 'not-allowed' : 'pointer', opacity: refreshing ? 0.6 : 1 }}
                   >
                     <IconRefresh size={12} style={{ animation: refreshing ? 'spin 0.8s linear infinite' : 'none' }} />
-                    {refreshing ? 'Analysing…' : 'Re-analyse'}
+                    {refresh?.state === 'running'
+                      ? `Analysing ${refresh.done.toLocaleString()} / ${refresh.total.toLocaleString()}…`
+                      : starting ? 'Starting…' : 'Re-analyse'}
                   </button>
                 )}
               </div>
