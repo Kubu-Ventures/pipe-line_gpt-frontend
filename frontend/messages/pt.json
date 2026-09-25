@@ -367,5 +367,18 @@
     "success": "Conta ativada! Redirecionando para o login…",
     "error": "Este link de convite é inválido ou expirou.",
     "tokenError": "Token de convite inválido."
+  },
+  "meta": {
+    "signIn": "Entrar",
+    "signInDescription": "Entre no PipelineGPT: IA para integridade de dutos aplicada a relatórios ILI, exportações SCADA e dados da PHMSA.",
+    "home": "Primeiros passos",
+    "chat": "Chat de dutos",
+    "review": "Revisão de engenharia",
+    "dashboard": "Painel",
+    "ingest": "Enviar documentos",
+    "audit": "Trilha de auditoria",
+    "admin": "Administração",
+    "mfaSetup": "Configurar a autenticação de dois fatores",
+    "acceptInvite": "Aceitar convite"
   }
 }

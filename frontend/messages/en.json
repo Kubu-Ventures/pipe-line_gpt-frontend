@@ -367,5 +367,18 @@
     "success": "Account activated! Redirecting to login…",
     "error": "This invitation link is invalid or has expired.",
     "tokenError": "Invalid invitation token."
+  },
+  "meta": {
+    "signIn": "Sign In",
+    "signInDescription": "Sign in to PipelineGPT: AI-powered pipeline integrity intelligence for ILI reports, SCADA exports and PHMSA data.",
+    "home": "Get Started",
+    "chat": "Pipeline Chat",
+    "review": "Engineer Review",
+    "dashboard": "Dashboard",
+    "ingest": "Ingest Documents",
+    "audit": "Audit Trail",
+    "admin": "Admin",
+    "mfaSetup": "Set Up Two-Factor Authentication",
+    "acceptInvite": "Accept Invitation"
   }
 }

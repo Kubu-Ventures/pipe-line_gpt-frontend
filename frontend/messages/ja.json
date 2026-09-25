@@ -367,5 +367,18 @@
     "success": "アカウントが有効化されました！ログインページにリダイレクト中…",
     "error": "この招待リンクは無効か期限切れです。",
     "tokenError": "無効な招待トークンです。"
+  },
+  "meta": {
+    "signIn": "サインイン",
+    "signInDescription": "PipelineGPT にサインイン：ILI レポート、SCADA エクスポート、PHMSA データに対応したパイプライン健全性 AI。",
+    "home": "はじめに",
+    "chat": "パイプラインチャット",
+    "review": "エンジニアレビュー",
+    "dashboard": "ダッシュボード",
+    "ingest": "文書の取り込み",
+    "audit": "監査証跡",
+    "admin": "管理",
+    "mfaSetup": "二要素認証の設定",
+    "acceptInvite": "招待を承諾"
   }
 }

@@ -367,5 +367,18 @@
     "success": "账户已激活！正在重定向到登录页面…",
     "error": "此邀请链接无效或已过期。",
     "tokenError": "无效的邀请令牌。"
+  },
+  "meta": {
+    "signIn": "登录",
+    "signInDescription": "登录 PipelineGPT：基于 ILI 报告、SCADA 导出数据和 PHMSA 数据的管道完整性 AI。",
+    "home": "快速开始",
+    "chat": "管道问答",
+    "review": "工程师审核",
+    "dashboard": "仪表板",
+    "ingest": "导入文档",
+    "audit": "审计记录",
+    "admin": "管理",
+    "mfaSetup": "设置双因素认证",
+    "acceptInvite": "接受邀请"
   }
 }

@@ -367,5 +367,18 @@
     "success": "Konto aktiviert! Weiterleitung zur Anmeldung…",
     "error": "Dieser Einladungslink ist ungültig oder abgelaufen.",
     "tokenError": "Ungültiges Einladungstoken."
+  },
+  "meta": {
+    "signIn": "Anmelden",
+    "signInDescription": "Melden Sie sich bei PipelineGPT an: KI für Pipeline-Integrität mit ILI-Berichten, SCADA-Exporten und PHMSA-Daten.",
+    "home": "Erste Schritte",
+    "chat": "Pipeline-Chat",
+    "review": "Ingenieursprüfung",
+    "dashboard": "Dashboard",
+    "ingest": "Dokumente hochladen",
+    "audit": "Audit-Trail",
+    "admin": "Administration",
+    "mfaSetup": "Zwei-Faktor-Authentifizierung einrichten",
+    "acceptInvite": "Einladung annehmen"
   }
 }
