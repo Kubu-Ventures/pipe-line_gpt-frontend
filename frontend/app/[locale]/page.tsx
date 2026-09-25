@@ -67,6 +67,50 @@ export default function LandingPage() {
     },
   ]
 
+  const WHY = [
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="3" y="4" width="18" height="6" rx="1" stroke={BLUE} strokeWidth="2"/>
+          <rect x="3" y="14" width="18" height="6" rx="1" stroke={BLUE} strokeWidth="2"/>
+          <circle cx="7" cy="7" r="1" fill={BLUE}/><circle cx="7" cy="17" r="1" fill={BLUE}/>
+        </svg>
+      ),
+      title: t('w1Title'),
+      body: t('w1Body'),
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="5" y="3" width="14" height="18" rx="1" stroke={BLUE} strokeWidth="2"/>
+          <path d="M9 8h6M9 12h6M9 16h3" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      ),
+      title: t('w2Title'),
+      body: t('w2Body'),
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <rect x="5" y="10" width="14" height="11" rx="1" stroke={BLUE} strokeWidth="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke={BLUE} strokeWidth="2"/>
+          <circle cx="12" cy="15.5" r="1.5" fill={BLUE}/>
+        </svg>
+      ),
+      title: t('w3Title'),
+      body: t('w3Body'),
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      title: t('w4Title'),
+      body: t('w4Body'),
+    },
+  ]
+
   return (
     <div style={{ fontFamily: F, background: '#fff', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <style>{`
@@ -75,7 +119,11 @@ export default function LandingPage() {
         .lp-features { display: flex; align-items: stretch; padding: 0 80px; height: 260px; flex-shrink: 0; }
         .lp-feature-cell { flex: 1; padding: 28px 32px; display: flex; flex-direction: column; gap: 12px; }
         .lp-footer { padding: 20px 80px; }
+        .lp-why { padding: 56px 80px; }
+        .lp-why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
         @media (max-width: 1024px) {
+          .lp-why { padding: 48px 40px; }
+          .lp-why-grid { grid-template-columns: repeat(2, 1fr); }
           .lp-nav { padding: 0 40px; }
           .lp-hero-content { padding: 0 40px 48px; }
           .lp-features { padding: 0 40px; height: auto; }
@@ -90,6 +138,8 @@ export default function LandingPage() {
           .lp-footer { padding: 20px 20px; flex-direction: column; gap: 8px; }
           .lp-footer p { text-align: center; }
           .lp-cta-group { flex-direction: column; gap: 16px !important; align-items: flex-start !important; }
+          .lp-why { padding: 36px 20px; }
+          .lp-why-grid { grid-template-columns: 1fr; gap: 24px; }
         }
       `}</style>
 
@@ -166,6 +216,26 @@ export default function LandingPage() {
             <p style={{ fontSize: '0.875rem', fontWeight: 400, color: '#55606e', lineHeight: '138%', margin: 0 }}>{f.body}</p>
           </div>
         ))}
+      </section>
+
+      {/* WHY PIPELINEGPT */}
+      <section className="lp-why" aria-labelledby="lp-why-title" style={{ background: GRAY_300, flexShrink: 0 }}>
+        <div style={{ width: 56, height: 4, background: YELLOW, marginBottom: 20 }} />
+        <p style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: BLUE, marginBottom: 12 }}>
+          {t('whyEyebrow')}
+        </p>
+        <h2 id="lp-why-title" style={{ fontWeight: 700, fontSize: 'clamp(1.375rem, 3vw, 2rem)', lineHeight: '115%', letterSpacing: '-0.02em', color: DARK, marginBottom: 36, maxWidth: 720 }}>
+          {t('whyTitle')}
+        </h2>
+        <div className="lp-why-grid">
+          {WHY.map((w) => (
+            <div key={w.title} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div>{w.icon}</div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: TEXT, lineHeight: '120%', letterSpacing: '-0.01em', margin: 0 }}>{w.title}</h3>
+              <p style={{ fontSize: '0.875rem', fontWeight: 400, color: '#55606e', lineHeight: '145%', margin: 0 }}>{w.body}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* FOOTER */}
