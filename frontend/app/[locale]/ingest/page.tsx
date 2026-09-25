@@ -2,17 +2,18 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Upload, RefreshCw, File, CheckCircle, XCircle, Clock, Database, AlertCircle, Info, Trash2 } from 'lucide-react'
+import { Upload, RefreshCw, File, CheckCircle, XCircle, Clock, Database, AlertCircle, Info, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
 import { NextStep } from '@/components/NextStep'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { ingestFile, syncPHMSA, getIngestHistory, deleteDocument } from '@/lib/api'
+import { ingestFile, syncPHMSA, listDocuments, deleteDocument, type DocumentPage, type DocumentStatus } from '@/lib/api'
 
 const ACCEPTED = '.pdf,.csv,.zip,.geojson,.tsv,.xlsx'
 const MAX_MB = 50
+const PAGE_SIZE = 50
 
 const STATUS_BADGE: Record<string, 'success' | 'blue' | 'danger' | 'gray'> = {
   COMPLETED: 'success',
@@ -27,6 +28,20 @@ const SOURCE_LABEL: Record<string, string> = {
   phmsa: 'PHMSA TSV',
   phmsa_zip: 'PHMSA ZIP',
   geojson: 'GeoJSON',
+}
+
+const STATUS_FILTERS: { value: DocumentStatus | ''; label: string }[] = [
+  { value: '', label: 'All statuses' },
+  { value: 'COMPLETED', label: 'Indexed' },
+  { value: 'PENDING', label: 'Queued' },
+  { value: 'PROCESSING', label: 'Processing' },
+  { value: 'FAILED', label: 'Failed' },
+]
+
+/** "2009/ILI/report.pdf" -> ["report.pdf", "2009/ILI/"]; bulk imports keep their folder path. */
+function splitPath(filename: string): [string, string] {
+  const cut = filename.lastIndexOf('/') + 1
+  return [filename.slice(cut), filename.slice(0, cut)]
 }
 
 function formatDate(iso: string | null) {
@@ -52,33 +67,56 @@ export default function IngestPage() {
   const [syncState, setSyncState] = useState<'idle' | 'downloading' | 'queued' | 'already_loaded' | 'error'>('idle')
   const [syncQueued, setSyncQueued] = useState(0)
 
-  const [history, setHistory] = useState<any[]>([])
+  const [docs, setDocs] = useState<DocumentPage | null>(null)
   const [historyLoading, setHistoryLoading] = useState(true)
   const [historyError, setHistoryError] = useState(false)
+  const [offset, setOffset] = useState(0)
+  const [search, setSearch] = useState('')
+  const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<DocumentStatus | ''>('')
 
   const loadHistory = useCallback(async () => {
     if (!token) return
     try {
-      const data = await getIngestHistory(token)
-      setHistory(data)
+      const data = await listDocuments(
+        { limit: PAGE_SIZE, offset, q: query, status: statusFilter || undefined },
+        token,
+      )
+      // The page emptied (e.g. its last document was removed): step back one page.
+      if (data.items.length === 0 && offset > 0) {
+        setOffset(Math.max(0, offset - PAGE_SIZE))
+        return
+      }
+      setDocs(data)
       setHistoryError(false)
     } catch {
       setHistoryError(true)
     } finally {
       setHistoryLoading(false)
     }
-  }, [token])
+  }, [token, offset, query, statusFilter])
 
-  // Initial load
+  // Load on mount and whenever the page, search or filter changes
   useEffect(() => { loadHistory() }, [loadHistory])
 
-  // Poll every 5s while any document is PENDING or PROCESSING
+  // Search as the user types, without a request per keystroke
   useEffect(() => {
-    const hasActive = history.some(d => d.status === 'PENDING' || d.status === 'PROCESSING')
-    if (!hasActive) return
+    const id = setTimeout(() => {
+      setQuery(search.trim())
+      setOffset(0)
+    }, 300)
+    return () => clearTimeout(id)
+  }, [search])
+
+  const byStatus = docs?.summary.by_status
+  const inQueue = byStatus ? byStatus.PENDING + byStatus.PROCESSING : 0
+
+  // Poll every 5s while anything in the knowledge base is queued or processing
+  useEffect(() => {
+    if (inQueue === 0) return
     const id = setTimeout(() => loadHistory(), 5000)
     return () => clearTimeout(id)
-  }, [history, loadHistory])
+  }, [docs, inQueue, loadHistory])
 
   const addFiles = (incoming: FileList | null) => {
     if (!incoming) return
@@ -139,9 +177,9 @@ export default function IngestPage() {
     }
   }
 
-  const hasActive = history.some((d: any) => d.status === 'PENDING' || d.status === 'PROCESSING')
-  const totalChunks = history.reduce((sum: number, d: any) => sum + (d.chunk_count ?? 0), 0)
-  const indexedCount = history.filter((d: any) => d.status === 'COMPLETED').length
+  const hasActive = inQueue > 0
+  const filtered = query !== '' || statusFilter !== ''
+  const pageEnd = docs ? docs.offset + docs.items.length : 0
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0' }}>
@@ -232,7 +270,7 @@ export default function IngestPage() {
                   </div>
                 ))}
                 <p style={{ fontSize: '0.8125rem', color: '#8896A8', marginTop: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Info size={12} /> Processing takes 10–60 seconds depending on file size. The Ingestion History below updates automatically.
+                  <Info size={12} /> Processing takes 10–60 seconds depending on file size; scanned PDFs are read with OCR and take a few seconds per page. The list below updates automatically.
                 </p>
               </div>
             )}
@@ -333,12 +371,13 @@ export default function IngestPage() {
           </div>
 
           {/* Knowledge base summary strip */}
-          {history.length > 0 && (
+          {docs && byStatus && docs.summary.documents > 0 && (
             <div style={{ display: 'flex', gap: 0, background: '#FFFFFF', border: '1px solid #E4E8EF', borderRadius: 6, overflow: 'hidden', marginTop: 8, marginBottom: 8 }}>
               {[
-                { value: indexedCount, label: 'Documents indexed', color: '#1A7A4A' },
-                { value: totalChunks.toLocaleString(), label: 'Total chunks in knowledge base', color: '#006eb5' },
-                { value: history.filter((d: any) => d.status === 'FAILED').length, label: 'Failed', color: '#991B1B' },
+                { value: byStatus.COMPLETED.toLocaleString(), label: 'Documents indexed', color: '#1A7A4A' },
+                { value: inQueue.toLocaleString(), label: 'Queued or processing', color: '#92400E' },
+                { value: byStatus.FAILED.toLocaleString(), label: 'Failed', color: '#991B1B' },
+                { value: docs.summary.total_chunks.toLocaleString(), label: 'Total chunks in knowledge base', color: '#006eb5' },
               ].map((m, i) => (
                 <div key={m.label} style={{ flex: 1, padding: '14px 20px', borderLeft: i > 0 ? '1px solid #E4E8EF' : 'none' }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: m.color, letterSpacing: '-0.02em', lineHeight: 1 }}>{m.value}</div>
@@ -372,6 +411,30 @@ export default function IngestPage() {
               </button>
             </div>
 
+            {docs && docs.summary.documents > 0 && (
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', padding: '16px 24px 0' }}>
+                <label style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #E4E8EF', borderRadius: 4, padding: '7px 10px', background: '#F8F9FB' }}>
+                  <Search size={14} color="#8896A8" />
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search file name or folder, e.g. 2009/ILI"
+                    aria-label="Search documents"
+                    style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: '0.875rem', color: '#232e3e', minWidth: 0 }}
+                  />
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={e => { setStatusFilter(e.target.value as DocumentStatus | ''); setOffset(0) }}
+                  aria-label="Filter by status"
+                  style={{ border: '1px solid #E4E8EF', borderRadius: 4, padding: '7px 10px', fontSize: '0.875rem', color: '#232e3e', background: '#FFFFFF' }}
+                >
+                  {STATUS_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                </select>
+              </div>
+            )}
+
             {historyLoading ? (
               <div style={{ padding: '40px 24px', textAlign: 'center', color: '#8896A8', fontSize: '0.9rem' }}>
                 <Clock size={20} style={{ margin: '0 auto 8px', display: 'block' }} />
@@ -382,7 +445,12 @@ export default function IngestPage() {
                 <AlertCircle size={20} style={{ margin: '0 auto 8px', display: 'block' }} />
                 Could not load history. Is the backend running?
               </div>
-            ) : history.length === 0 ? (
+            ) : docs && docs.summary.documents > 0 && docs.items.length === 0 && filtered ? (
+              <div style={{ padding: '40px 24px', textAlign: 'center', color: '#8896A8', fontSize: '0.9rem' }}>
+                <Search size={20} style={{ margin: '0 auto 8px', display: 'block', opacity: 0.5 }} />
+                No documents match {query ? <>&ldquo;{query}&rdquo;</> : 'this filter'}.
+              </div>
+            ) : !docs || docs.items.length === 0 ? (
               <div style={{ padding: '48px 24px', textAlign: 'center', color: '#8896A8' }}>
                 <Database size={28} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.4 }} />
                 <p style={{ fontWeight: 600, marginBottom: 4 }}>No documents ingested yet</p>
@@ -403,10 +471,18 @@ export default function IngestPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {history.map((row) => (
+                    {docs.items.map((row) => {
+                      const [name, folder] = splitPath(row.filename)
+                      return (
                       <TableRow key={row.id} style={{ opacity: deleting === row.id ? 0.4 : 1, transition: 'opacity 0.2s' }}>
-                        <TableCell style={{ fontWeight: 500, color: '#232e3e', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {row.filename}
+                        <TableCell title={row.filename} style={{ maxWidth: 260 }}>
+                          <div style={{ fontWeight: 500, color: '#232e3e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+                          {folder && (
+                            <div style={{ fontSize: '0.75rem', color: '#8896A8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', direction: 'rtl', textAlign: 'left' }}>
+                              {/* rtl so a long path is cut at its start, keeping the nearest folders */}
+                              <bdi>{folder}</bdi>
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Badge variant="gray">{SOURCE_LABEL[row.source_type] ?? row.source_type}</Badge>
@@ -449,9 +525,32 @@ export default function IngestPage() {
                           </TableCell>
                         )}
                       </TableRow>
-                    ))}
+                      )
+                    })}
                   </TableBody>
                 </Table>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 24px', borderTop: '1px solid #E4E8EF', fontSize: '0.8125rem', color: '#55606e' }}>
+                  <span>
+                    {(docs.offset + 1).toLocaleString()}–{pageEnd.toLocaleString()} of {docs.total.toLocaleString()}
+                    {filtered && ` matching (${docs.summary.documents.toLocaleString()} in total)`}
+                  </span>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {[
+                      { label: 'Previous', icon: <ChevronLeft size={13} />, disabled: docs.offset === 0, to: Math.max(0, docs.offset - PAGE_SIZE) },
+                      { label: 'Next', icon: <ChevronRight size={13} />, disabled: pageEnd >= docs.total, to: docs.offset + PAGE_SIZE },
+                    ].map(b => (
+                      <button
+                        key={b.label}
+                        onClick={() => setOffset(b.to)}
+                        disabled={b.disabled}
+                        aria-label={`${b.label} page`}
+                        style={{ background: 'none', border: '1px solid #E4E8EF', borderRadius: 4, padding: '5px 10px', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.8125rem', color: b.disabled ? '#C8D0DC' : '#55606e', cursor: b.disabled ? 'not-allowed' : 'pointer' }}
+                      >
+                        {b.label === 'Previous' && b.icon}{b.label}{b.label === 'Next' && b.icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>

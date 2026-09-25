@@ -81,7 +81,22 @@ interface SourcePanelProps {
   onClose: () => void
 }
 
+/**
+ * Section labels come in three shapes: "Rows 1-20" (CSV), "Page 3" or "Page 3 (OCR)" (PDF),
+ * or a PHMSA incident cause. A PDF page label only repeats page_ref, so it isn't shown twice.
+ */
+function sectionField(label: string | undefined, pageRef: string | undefined): { name: string; value: string } | null {
+  if (!label) return null
+  const rows = label.match(/^Rows?\s+(.*)$/i)
+  if (rows) return { name: 'Rows', value: rows[1] }
+  const page = label.match(/^Page\s+(\S+)/i)
+  if (page) return pageRef ? null : { name: 'Page', value: page[1] }
+  return { name: 'Section', value: label }
+}
+
 function CitationEntry({ c, meta }: { c: Citation; meta: ReturnType<typeof getSourceMeta> }) {
+  const section = sectionField(c.section_label, c.page_ref)
+  const ocr = /\(OCR\)$/i.test(c.section_label ?? '')
   const { data: session } = useSession()
   const token = (session as any)?.accessToken
   const Icon = meta.icon
@@ -125,7 +140,15 @@ function CitationEntry({ c, meta }: { c: Citation; meta: ReturnType<typeof getSo
       {(c.page_ref || c.section_label) && (
         <div style={{ padding: '7px 14px', background: '#fafafa', borderBottom: '1px solid #d4d6d8', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           {c.page_ref && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>Page:</strong> {c.page_ref}</span>}
-          {c.section_label && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>Rows:</strong> {c.section_label.replace(/Rows?\s*/i, '')}</span>}
+          {section && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>{section.name}:</strong> {section.value}</span>}
+          {ocr && (
+            <span
+              title="Text read by OCR from a scanned page. It may contain recognition errors: check the original document for exact figures."
+              style={{ fontFamily: F, fontSize: 10, fontWeight: 700, color: '#92400E', background: '#FEF3C7', padding: '1px 6px', borderRadius: 2, letterSpacing: '0.06em', alignSelf: 'center' }}
+            >
+              OCR
+            </span>
+          )}
         </div>
       )}
 

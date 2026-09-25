@@ -17,7 +17,7 @@ import { TopNav } from '@/components/TopNav'
 import { PageHero } from '@/components/PageHero'
 import { Footer } from '@/components/Footer'
 import { NextStep } from '@/components/NextStep'
-import { getIngestHistory } from '@/lib/api'
+import { listDocuments, type DocumentItem, type DocumentPage } from '@/lib/api'
 
 const F    = 'Inter, system-ui, sans-serif'
 const BLUE = '#006eb5'
@@ -60,15 +60,6 @@ interface Insights {
   query_trend: TrendPoint[]
   confidence_distribution: { high: number; medium: number; low: number }
   has_insights: boolean
-}
-
-interface DocRecord {
-  id: string
-  filename: string
-  status: 'PENDING' | 'PROCESSING' | 'DONE' | 'FAILED'
-  chunk_count: number
-  created_at: string
-  uploaded_by?: string | null
 }
 
 /* ── Helpers ────────────────────────────────────────────────────── */
@@ -130,7 +121,7 @@ export default function DashboardPage() {
   const [insightsError, setInsightsError] = useState<string | null>(null)
   const [insightsLoading, setInsightsLoading] = useState(true)
   const [refreshing,    setRefreshing]    = useState(false)
-  const [docs,          setDocs]          = useState<DocRecord[]>([])
+  const [docPage,       setDocPage]       = useState<DocumentPage | null>(null)
   const [docsLoading,   setDocsLoading]   = useState(true)
 
   const token = (session as any)?.accessToken
@@ -169,9 +160,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!token) return
     setDocsLoading(true)
-    getIngestHistory(token)
-      .then(d => setDocs(d ?? []))
-      .catch(() => setDocs([]))
+    // Most recent documents for the list; counts come from the whole knowledge base.
+    listDocuments({ limit: 20 }, token)
+      .then(setDocPage)
+      .catch(() => setDocPage(null))
       .finally(() => setDocsLoading(false))
   }, [token])
 
@@ -222,8 +214,9 @@ export default function DashboardPage() {
   const trend = insights?.query_trend ?? []
   const conf = insights?.confidence_distribution ?? { high: 0, medium: 0, low: 0 }
   const confTotal = conf.high + conf.medium + conf.low
-  const doneDocs = docs.filter(d => d.status === 'DONE')
-  const failedDocs = docs.filter(d => d.status === 'FAILED')
+  const docs: DocumentItem[] = docPage?.items ?? []
+  const indexedCount = docPage?.summary.by_status.COMPLETED ?? 0
+  const failedCount = docPage?.summary.by_status.FAILED ?? 0
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0', fontFamily: F }}>
@@ -299,12 +292,12 @@ export default function DashboardPage() {
                   <div style={{ padding: '32px 24px', textAlign: 'center', color: '#8896A8' }}>
                     <IconCheckCircle size={32} style={{ marginBottom: 10, opacity: 0.4 }} color="#1A7A4A" />
                     <p style={{ fontSize: 13, fontWeight: 600, color: DARK, marginBottom: 6 }}>
-                      {docs.filter(d => d.status === 'DONE').length > 0
+                      {indexedCount > 0
                         ? 'No issues flagged in your documents'
                         : 'No documents indexed yet'}
                     </p>
                     <p style={{ fontSize: 12, marginBottom: 14 }}>
-                      {docs.filter(d => d.status === 'DONE').length > 0
+                      {indexedCount > 0
                         ? 'All documents have been analysed — nothing requires immediate attention.'
                         : 'Upload ILI reports, SCADA exports, or load the demo dataset to begin.'}
                     </p>
@@ -353,7 +346,7 @@ export default function DashboardPage() {
                 <div>
                   <h3 style={{ fontSize: 14, fontWeight: 700, color: DARK, margin: '0 0 2px' }}>Indexed Knowledge Base</h3>
                   <p style={{ fontSize: 12, color: '#8896A8', margin: 0 }}>
-                    {docsLoading ? 'Loading…' : doneDocs.length > 0 ? `${doneDocs.length} document${doneDocs.length !== 1 ? 's' : ''} ready for AI queries` : 'No documents indexed yet'}
+                    {docsLoading ? 'Loading…' : indexedCount > 0 ? `${indexedCount.toLocaleString()} document${indexedCount !== 1 ? 's' : ''} ready for AI queries` : 'No documents indexed yet'}
                   </p>
                 </div>
                 <Link href="/ingest" style={{ fontSize: 12, fontWeight: 600, color: BLUE, textDecoration: 'none' }}>Manage →</Link>
@@ -387,17 +380,17 @@ export default function DashboardPage() {
                     <Link href="/ingest" style={{ fontSize: 12, fontWeight: 600, color: BLUE }}>Upload documents →</Link>
                   </div>
                 ) : (
-                  docs.slice().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((doc, i) => {
-                    const isOk = doc.status === 'DONE'
+                  docs.map((doc, i) => {
+                    const isOk = doc.status === 'COMPLETED'
                     const isFail = doc.status === 'FAILED'
                     return (
                       <div key={doc.id} style={{ padding: '10px 20px', borderBottom: i < docs.length - 1 ? '1px solid #edeff0' : 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
                         <IconFileText size={14} color={isOk ? BLUE : isFail ? '#991B1B' : '#92400E'} style={{ flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 12, fontWeight: 600, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>{doc.filename}</p>
+                          <p title={doc.filename} style={{ fontSize: 12, fontWeight: 600, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>{doc.filename}</p>
                           <div style={{ display: 'flex', gap: 8, fontSize: 11, color: '#9CA3AF' }}>
                             {doc.chunk_count > 0 && <span>{doc.chunk_count} chunks</span>}
-                            <span>{timeAgo(doc.created_at)}</span>
+                            {doc.ingest_date && <span>{timeAgo(doc.ingest_date)}</span>}
                           </div>
                         </div>
                         {isOk  && <span style={{ fontSize: 10, fontWeight: 700, color: '#1A7A4A', background: '#D1FAE5', padding: '1px 6px', borderRadius: 2, flexShrink: 0 }}>READY</span>}
@@ -409,9 +402,9 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {failedDocs.length > 0 && (
+              {failedCount > 0 && (
                 <div style={{ padding: '8px 20px', borderTop: '1px solid #d4d6d8', background: '#FDF4F4', flexShrink: 0 }}>
-                  <span style={{ fontSize: 11, color: '#991B1B', fontWeight: 600 }}>{failedDocs.length} document{failedDocs.length !== 1 ? 's' : ''} failed to index</span>
+                  <span style={{ fontSize: 11, color: '#991B1B', fontWeight: 600 }}>{failedCount.toLocaleString()} document{failedCount !== 1 ? 's' : ''} failed to index</span>
                 </div>
               )}
             </div>
