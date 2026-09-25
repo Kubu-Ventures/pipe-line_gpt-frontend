@@ -139,8 +139,40 @@ export async function syncPHMSA(token?: string): Promise<{ task_ids: string[]; q
   return apiFetch('/ingest/phmsa-sync', { method: 'POST', token })
 }
 
-export async function getIngestHistory(token?: string) {
-  return apiFetch<any[]>('/ingest/history', { token })
+export type DocumentStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+
+export interface DocumentItem {
+  id: string
+  /** Bulk-imported documents carry their folder path, e.g. "2009/ILI/report.pdf". */
+  filename: string
+  source_type: string
+  status: DocumentStatus
+  chunk_count: number
+  ingest_date: string | null
+  segment_id: string | null
+  commodity: string | null
+  uploaded_by: string | null
+}
+
+export interface DocumentPage {
+  items: DocumentItem[]
+  /** Documents matching the filters. */
+  total: number
+  limit: number
+  offset: number
+  /** Totals for the whole knowledge base, whatever the filters. */
+  summary: { documents: number; by_status: Record<DocumentStatus, number>; total_chunks: number }
+}
+
+export async function listDocuments(
+  params: { limit?: number; offset?: number; q?: string; status?: DocumentStatus },
+  token?: string
+): Promise<DocumentPage> {
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') search.set(key, String(value))
+  }
+  return apiFetch(`/ingest/documents?${search}`, { token })
 }
 
 export async function deleteDocument(
