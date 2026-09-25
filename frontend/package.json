@@ -28,7 +28,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7",
     "react-markdown": "^9",
-    "recharts": "^2",
+    "recharts": "^3",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^2",
     "uuid": "^9",
