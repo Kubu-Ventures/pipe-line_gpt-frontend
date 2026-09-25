@@ -62,7 +62,12 @@
     "leftHeadline": "Inteligência de integridade de dutos, alimentada por linguagem natural.",
     "leftSub": "Dados de incidentes PHMSA · Análise de relatórios ILI · Exportações SCADA · Respostas com citações · Revisão de engenheiro",
     "mobileHome": "← Início",
-    "award": "PipelineGPT"
+    "award": "PipelineGPT",
+    "totpLabel": "Código de autenticação",
+    "totpHelp": "Digite o código de 6 dígitos do seu aplicativo autenticador.",
+    "totpInvalid": "Código inválido ou já utilizado. Digite o código atual.",
+    "lockedOut": "Muitas tentativas de login sem sucesso. Aguarde alguns minutos e tente novamente.",
+    "subtitleNoDemo": "Acesso somente por convite. Entre com suas credenciais."
   },
   "home": {
     "eyebrow": "Inteligência de Integridade de Dutos com IA",
@@ -356,7 +361,7 @@
     "title": "Aceitar convite",
     "subtitle": "Crie sua senha para ativar sua conta PipelineGPT.",
     "passwordLabel": "Senha",
-    "passwordHint": "Mínimo de 8 caracteres",
+    "passwordHint": "Mínimo de 12 caracteres",
     "submitBtn": "Ativar conta",
     "submitting": "Ativando…",
     "success": "Conta ativada! Redirecionando para o login…",

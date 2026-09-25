@@ -62,7 +62,12 @@
     "leftHeadline": "Inteligencia de integridad de tuberías, impulsada por lenguaje natural.",
     "leftSub": "Datos de incidentes PHMSA · Análisis de informes ILI · Exportaciones SCADA · Respuestas citadas · Revisión de ingenieros",
     "mobileHome": "← Inicio",
-    "award": "PipelineGPT"
+    "award": "PipelineGPT",
+    "totpLabel": "Código de autenticación",
+    "totpHelp": "Introduce el código de 6 dígitos de tu aplicación de autenticación.",
+    "totpInvalid": "El código no es válido o ya se utilizó. Introduce el código actual.",
+    "lockedOut": "Demasiados intentos fallidos de inicio de sesión. Espera unos minutos e inténtalo de nuevo.",
+    "subtitleNoDemo": "Acceso solo por invitación. Inicia sesión con tus credenciales."
   },
   "home": {
     "eyebrow": "Inteligencia de Integridad de Tuberías Impulsada por IA",
@@ -356,7 +361,7 @@
     "title": "Aceptar invitación",
     "subtitle": "Crea tu contraseña para activar tu cuenta PipelineGPT.",
     "passwordLabel": "Contraseña",
-    "passwordHint": "Mínimo 8 caracteres",
+    "passwordHint": "Mínimo 12 caracteres",
     "submitBtn": "Activar cuenta",
     "submitting": "Activando…",
     "success": "¡Cuenta activada! Redirigiendo al inicio de sesión…",

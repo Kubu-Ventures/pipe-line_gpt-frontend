@@ -62,7 +62,12 @@
     "leftHeadline": "自然言語を活用したパイプライン完全性インテリジェンス。",
     "leftSub": "PHMSAインシデントデータ · ILIレポート分析 · SCADAエクスポート · 引用付き回答 · エンジニアレビュー",
     "mobileHome": "← ホーム",
-    "award": "PipelineGPT"
+    "award": "PipelineGPT",
+    "totpLabel": "認証コード",
+    "totpHelp": "認証アプリに表示されている6桁のコードを入力してください。",
+    "totpInvalid": "コードが無効か、すでに使用されています。現在のコードを入力してください。",
+    "lockedOut": "ログインの失敗が多すぎます。数分待ってから再度お試しください。",
+    "subtitleNoDemo": "招待制のサービスです。認証情報でサインインしてください。"
   },
   "home": {
     "eyebrow": "AIを活用したパイプライン完全性インテリジェンス",
@@ -356,7 +361,7 @@
     "title": "招待を承認",
     "subtitle": "PipelineGPTアカウントを有効化するためのパスワードを作成してください。",
     "passwordLabel": "パスワード",
-    "passwordHint": "最低8文字",
+    "passwordHint": "最低12文字",
     "submitBtn": "アカウントを有効化",
     "submitting": "有効化中…",
     "success": "アカウントが有効化されました！ログインページにリダイレクト中…",

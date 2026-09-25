@@ -62,7 +62,12 @@
     "leftHeadline": "管道完整性智能，由自然语言驱动。",
     "leftSub": "PHMSA事故数据 · ILI报告分析 · SCADA导出 · 引用来源的答案 · 工程师审核",
     "mobileHome": "← 首页",
-    "award": "PipelineGPT"
+    "award": "PipelineGPT",
+    "totpLabel": "验证码",
+    "totpHelp": "请输入身份验证器应用中的 6 位验证码。",
+    "totpInvalid": "验证码无效或已被使用，请输入当前验证码。",
+    "lockedOut": "登录失败次数过多，请等待几分钟后重试。",
+    "subtitleNoDemo": "仅限受邀用户访问。请使用您的账号登录。"
   },
   "home": {
     "eyebrow": "AI驱动的管道完整性智能",
@@ -356,7 +361,7 @@
     "title": "接受邀请",
     "subtitle": "创建您的密码以激活PipelineGPT账户。",
     "passwordLabel": "密码",
-    "passwordHint": "最少8个字符",
+    "passwordHint": "最少12个字符",
     "submitBtn": "激活账户",
     "submitting": "正在激活…",
     "success": "账户已激活！正在重定向到登录页面…",
