@@ -36,6 +36,7 @@
     "heroSubtext": "PipelineGPT transforme vos rapports ILI, exports SCADA et enregistrements d'incidents PHMSA en une base de connaissances interrogeable instantanément — avec citations et supervision humaine intégrées.",
     "ctaDemo": "Essayer la démo",
     "ctaSignIn": "Se connecter avec vos identifiants",
+    "awardFinalist": "Finaliste 2026",
     "f1Title": "Requêtes en langage naturel",
     "f1Body": "Posez n'importe quelle question sur vos données de pipeline en français ou en anglais — sans SQL ni syntaxe spéciale. Le système récupère les réponses directement depuis vos rapports ILI, exports SCADA et enregistrements PHMSA téléversés.",
     "f2Title": "Réponses citées et traçables",
