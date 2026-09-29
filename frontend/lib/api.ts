@@ -90,6 +90,12 @@ export async function loginUser(email: string, password: string) {
   )
 }
 
+// Roles whose demo account is active. Empty unless the backend runs with DEMO_MODE=true.
+export async function getDemoRoles(): Promise<string[]> {
+  const { roles } = await apiFetch<{ roles: string[] }>('/auth/demo-accounts')
+  return roles
+}
+
 // Query — returns raw Response for SSE streaming
 export function buildQueryRequest(
   question: string,
