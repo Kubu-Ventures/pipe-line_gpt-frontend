@@ -60,7 +60,8 @@ NEXTAUTH_URL=http://localhost:3000        # Required: full URL of this app
 NEXT_PUBLIC_API_URL=http://localhost:8000 # Required: backend URL as seen from the browser
 # API_INTERNAL_URL=http://api:8000        # Optional: backend URL for server-side calls (sign-in)
 
-# Demo deployments only: one-click demo account buttons on the login page
+# Demo deployments only: one-click demo account buttons on the login page,
+# shown only for demo accounts the backend reports as active
 NEXT_PUBLIC_DEMO_MODE=false
 
 # Hosted marketing site only: hero "Book a demo" button and demo video link.

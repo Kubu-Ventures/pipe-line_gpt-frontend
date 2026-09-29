@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { useRouter } from '@/lib/navigation'
 import { Link } from '@/lib/navigation'
 import { LangSwitcher } from '@/components/LangSwitcher'
+import { getDemoRoles } from '@/lib/api'
 
 const F        = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
 const BLUE     = '#006eb5'
@@ -26,7 +27,8 @@ const DEMO_ACCOUNTS = [
 
 type DemoRole = typeof DEMO_ACCOUNTS[number]['role']
 
-// Demo buttons only on demo deployments; the backend must also run with DEMO_MODE=true.
+// Demo buttons only on demo deployments, and only for demo accounts the backend reports
+// as active (it must run with DEMO_MODE=true). Suspending an account hides its button.
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
 export default function LoginPage() {
@@ -41,6 +43,15 @@ export default function LoginPage() {
   const [demoLoading,  setDemoLoading]  = useState<DemoRole | null>(null)
   const [totp,         setTotp]         = useState('')
   const [needTotp,     setNeedTotp]     = useState(false)
+  const [demoRoles,    setDemoRoles]    = useState<string[]>([])
+
+  useEffect(() => {
+    if (!DEMO_MODE) return
+    getDemoRoles().then(setDemoRoles).catch(() => setDemoRoles([]))
+  }, [])
+
+  const demoAccounts = DEMO_ACCOUNTS.filter(a => demoRoles.includes(a.role.toUpperCase()))
+  const showDemo = demoAccounts.length > 0
 
   const busy = loading || demoLoading !== null
 
@@ -186,17 +197,17 @@ export default function LoginPage() {
               {t('title')}
             </h1>
             <p style={{ fontSize: '1rem', fontWeight: 400, lineHeight: '138%', color: GRAY_500, marginBottom: 32 }}>
-              {DEMO_MODE ? t('subtitle') : t('subtitleNoDemo')}
+              {showDemo ? t('subtitle') : t('subtitleNoDemo')}
             </p>
 
-            {DEMO_MODE && (<>
+            {showDemo && (<>
             {/* Demo account buttons */}
             <div style={{ marginBottom: 24 }}>
               <p style={{ fontSize: '0.75rem', fontWeight: 600, color: GRAY_500, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
                 {t('demoLabel')}
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
-                {DEMO_ACCOUNTS.map(({ role }) => {
+                {demoAccounts.map(({ role }) => {
                   const isLoading = demoLoading === role
                   return (
                     <button
