@@ -13,6 +13,23 @@ const GRAY_300 = '#edeff0'
 const GRAY_500 = '#a9b1b7'
 const TEXT   = '#232e3e'
 
+// Hosted marketing site only: the self-hosted image leaves these unset, so it
+// never points a customer's users at the author's calendar.
+const BOOKING_URL    = process.env.NEXT_PUBLIC_BOOKING_URL
+const DEMO_VIDEO_URL = process.env.NEXT_PUBLIC_DEMO_VIDEO_URL
+
+const ctaPrimary: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 8,
+  border: '2px solid #fff', color: '#fff', padding: '12px 28px',
+  fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.06em',
+  textTransform: 'uppercase', textDecoration: 'none',
+}
+
+const ctaSecondary: React.CSSProperties = {
+  fontSize: '0.875rem', fontWeight: 400, color: 'rgba(255,255,255,0.62)',
+  textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, letterSpacing: '0.02em',
+}
+
 function LogoIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden>
@@ -188,20 +205,24 @@ export default function LandingPage() {
             {t('heroSubtext')}
           </p>
           <div className="lp-cta-group" style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
-            <Link href="/login" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              border: '2px solid #fff', color: '#fff', padding: '12px 28px',
-              fontSize: '0.875rem', fontWeight: 600, letterSpacing: '0.06em',
-              textTransform: 'uppercase', textDecoration: 'none',
-            }}>
-              {t('ctaDemo')}
-            </Link>
-            <Link href="/login" style={{
-              fontSize: '0.875rem', fontWeight: 400, color: 'rgba(255,255,255,0.62)',
-              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, letterSpacing: '0.02em',
-            }}>
-              {t('ctaSignIn')} <span style={{ color: AZURE }}>→</span>
-            </Link>
+            {BOOKING_URL ? (
+              <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" style={ctaPrimary}>
+                {t('ctaBook')}
+              </a>
+            ) : (
+              <Link href="/login" style={ctaPrimary}>
+                {tn('signIn')}
+              </Link>
+            )}
+            {DEMO_VIDEO_URL ? (
+              <a href={DEMO_VIDEO_URL} target="_blank" rel="noopener noreferrer" style={ctaSecondary}>
+                {t('ctaWatch')} <span style={{ color: AZURE }}>→</span>
+              </a>
+            ) : BOOKING_URL && (
+              <Link href="/login" style={ctaSecondary}>
+                {t('ctaSignIn')} <span style={{ color: AZURE }}>→</span>
+              </Link>
+            )}
           </div>
           {/* Official award name stays in English; only "Finalist" is translated. */}
           <a
