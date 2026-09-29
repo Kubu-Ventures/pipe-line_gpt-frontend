@@ -62,6 +62,11 @@ NEXT_PUBLIC_API_URL=http://localhost:8000 # Required: backend URL as seen from t
 
 # Demo deployments only: one-click demo account buttons on the login page
 NEXT_PUBLIC_DEMO_MODE=false
+
+# Hosted marketing site only: hero "Book a demo" button and demo video link.
+# Unset, the hero shows a plain Sign in button.
+# NEXT_PUBLIC_BOOKING_URL=https://cal.com/...
+# NEXT_PUBLIC_DEMO_VIDEO_URL=https://youtu.be/...
 ```
 
 `NEXT_PUBLIC_*` values are baked in at build time. The Docker image is built with `NEXT_PUBLIC_API_URL=/backend` (same origin, routed by the reverse proxy), so one image works on any domain.
