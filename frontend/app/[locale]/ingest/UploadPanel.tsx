@@ -17,6 +17,7 @@ const LARGE_SELECTION_BYTES = 2 * 1024 ** 3
 const BULK_IMPORT_GUIDE = 'https://github.com/Kubu-Ventures/pipe-line_gpt-backend/blob/main/deploy/README.md#importing-an-archive'
 const SYSTEM_FILES = new Set(['thumbs.db', 'desktop.ini'])
 const LIST_PREVIEW = 8
+const TAG_MAX = 100  // backend limit for segment and commodity
 
 /** A file to upload; path is its place inside a chosen folder, or just its name. */
 interface Picked { file: File; path: string }
@@ -71,6 +72,8 @@ export function UploadPanel({ token, onQueued }: { token?: string; onQueued: () 
   const [dragging, setDragging] = useState(false)
   const [reading, setReading] = useState(false)
   const [showAll, setShowAll] = useState(false)
+  const [segment, setSegment] = useState('')
+  const [commodity, setCommodity] = useState('')
   const cancelled = useRef(false)
   const fileInput = useRef<HTMLInputElement>(null)
   const folderInput = useRef<HTMLInputElement | null>(null)
@@ -141,13 +144,14 @@ export function UploadPanel({ token, onQueued }: { token?: string; onQueued: () 
     setResults([])
     setSkipped([])
     setIgnoredCount(0)
+    const tags = { segment_id: segment, commodity }
 
     const worker = async () => {
       while (!cancelled.current && next < queue.length) {
         const item = queue[next++]
         try {
           // Only folder files carry a path; a single file's name is enough.
-          const res = await ingestFile(item.file, token, item.path.includes('/') ? item.path : undefined)
+          const res = await ingestFile(item.file, token, item.path.includes('/') ? item.path : undefined, tags)
           done.push({ path: item.path, outcome: res.task_id === 'dedup-skip' ? 'duplicate' : 'queued' })
           if (!notified) { notified = true; onQueued() }  // let the list below start following progress
         } catch (err) {
@@ -171,6 +175,10 @@ export function UploadPanel({ token, onQueued }: { token?: string; onQueued: () 
   for (const r of results) counts[r.outcome]++
   const failures = results.filter(r => r.outcome === 'failed')
   const shownFiles = showAll ? files : files.slice(0, LIST_PREVIEW)
+
+  const tagInput: React.CSSProperties = {
+    width: '100%', padding: '8px 10px', border: '1px solid #C8D0DC', borderRadius: 4, fontSize: '0.875rem', color: '#232e3e', background: '#FFFFFF',
+  }
 
   const button = (primary: boolean): React.CSSProperties => ({
     display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 4, fontSize: '0.875rem', fontWeight: 600,
@@ -272,6 +280,22 @@ export function UploadPanel({ token, onQueued }: { token?: string; onQueued: () 
               </span>
             </p>
           )}
+          {/* Tags for this upload: without them, chat's segment and commodity filters can't find these files */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
+            <label style={{ flex: '1 1 200px', fontSize: '0.8125rem', fontWeight: 600, color: '#232e3e' }}>
+              Pipeline segment <span style={{ fontWeight: 400, color: '#8896A8' }}>(optional)</span>
+              <input value={segment} onChange={e => setSegment(e.target.value)} maxLength={TAG_MAX}
+                placeholder="e.g. SEG-TX-4B" style={{ ...tagInput, marginTop: 4 }} />
+            </label>
+            <label style={{ flex: '1 1 200px', fontSize: '0.8125rem', fontWeight: 600, color: '#232e3e' }}>
+              Commodity <span style={{ fontWeight: 400, color: '#8896A8' }}>(optional)</span>
+              <input value={commodity} onChange={e => setCommodity(e.target.value)} maxLength={TAG_MAX}
+                placeholder="e.g. Natural Gas" style={{ ...tagInput, marginTop: 4 }} />
+            </label>
+          </div>
+          <p style={{ fontSize: '0.8125rem', color: '#8896A8' }}>
+            Applied to every file in this upload. Questions filtered by segment or commodity in chat only search documents tagged with exactly that value, so upload each segment&apos;s files separately.
+          </p>
           <button type="button" onClick={upload} style={{ ...button(true), marginTop: 4, width: 'fit-content', padding: '10px 24px', fontSize: '0.9375rem' }}>
             <Upload size={15} /> Upload {files.length.toLocaleString()} file{files.length !== 1 ? 's' : ''}
           </button>
