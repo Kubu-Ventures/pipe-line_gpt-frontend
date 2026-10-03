@@ -22,7 +22,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 const OPERATIONAL_EVENT_TYPES = [
   'HITL_APPROVED', 'HITL_REJECTED', 'HITL_EDITED',
   'ANOMALY_ESCALATED', 'COMPLIANCE_FLAG',
-  'QUERY_COMPLETED', 'INGEST_COMPLETED',
+  'QUERY_COMPLETED', 'INGEST_COMPLETED', 'DOCUMENT_TAGS_UPDATED',
 ] as const
 
 const ADMIN_ONLY_EVENT_TYPES = [
@@ -81,6 +81,15 @@ const EVENT_CONFIG: Record<string, {
     icon: Upload, label: 'Document Ingested',
     color: '#065F46', bg: '#D1FAE5', border: '#6EE7B7',
     description: e => `${e.payload.filename ?? 'Unknown file'} ingested — ${e.payload.chunks?.toLocaleString() ?? '—'} chunks indexed`,
+  },
+  DOCUMENT_TAGS_UPDATED: {
+    icon: FileText, label: 'Document Tags Updated',
+    color: BLUE, bg: '#E8F0F9', border: '#C5D8EF',
+    description: e => {
+      const changes = Object.entries(e.payload.changes ?? {}) as [string, { from: string | null; to: string | null }][]
+      const said = changes.map(([field, c]) => `${field === 'segment_id' ? 'segment' : field} ${c.from ?? '(none)'} → ${c.to ?? '(none)'}`)
+      return `${e.payload.filename ?? 'Document'} retagged${said.length ? `: ${said.join(', ')}` : ''}`
+    },
   },
   USER_LOGIN: {
     icon: LogIn, label: 'User Login',

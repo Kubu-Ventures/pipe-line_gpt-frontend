@@ -347,6 +347,7 @@ export default function IngestPage() {
                     <TableRow>
                       <TableHead>Filename</TableHead>
                       <TableHead>Type</TableHead>
+                      <TableHead>Segment</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Chunks</TableHead>
                       <TableHead>Uploaded by</TableHead>
@@ -370,6 +371,14 @@ export default function IngestPage() {
                         </TableCell>
                         <TableCell>
                           <Badge variant="gray">{SOURCE_LABEL[row.source_type] ?? row.source_type}</Badge>
+                        </TableCell>
+                        <TableCell style={{ fontSize: '0.8125rem', maxWidth: 160 }}>
+                          {row.segment_id || row.commodity ? (
+                            <>
+                              <div style={{ color: '#232e3e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.segment_id ?? undefined}>{row.segment_id ?? '—'}</div>
+                              {row.commodity && <div style={{ fontSize: '0.75rem', color: '#8896A8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.commodity}>{row.commodity}</div>}
+                            </>
+                          ) : <span style={{ color: '#8896A8' }}>—</span>}
                         </TableCell>
                         <TableCell>
                           <Badge variant={STATUS_BADGE[row.status] ?? 'gray'}>

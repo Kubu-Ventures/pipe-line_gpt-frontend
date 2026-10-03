@@ -139,6 +139,12 @@ export async function getUploadConfig(token?: string): Promise<UploadConfig> {
   return apiFetch('/ingest/config', { token })
 }
 
+/** What a document covers. Chat's segment and commodity filters match these exactly. */
+export interface DocumentTags {
+  segment_id?: string
+  commodity?: string
+}
+
 /**
  * Upload one document. relativePath is the file's path inside an uploaded folder
  * ("records/2009/ILI/report.pdf"); the backend keeps it as the document's name.
@@ -148,10 +154,13 @@ export async function ingestFile(
   file: File,
   token?: string,
   relativePath?: string,
+  tags: DocumentTags = {},
 ): Promise<{ task_id: string; document_id: string; filename: string; message: string }> {
   const form = new FormData()
   form.append('file', file)
   if (relativePath) form.append('relative_path', relativePath)
+  if (tags.segment_id?.trim()) form.append('segment_id', tags.segment_id.trim())
+  if (tags.commodity?.trim()) form.append('commodity', tags.commodity.trim())
   const res = await fetch(`${API_BASE}/ingest`, {
     method: 'POST',
     headers: { Authorization: token ? `Bearer ${token}` : '' },
