@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { CheckCircle, Flag, Edit3, XCircle, Clock } from 'lucide-react'
-import { injectCitationLabels } from '@/lib/utils'
+import { citationComponents } from '@/components/CitationChip'
+import { linkCitations } from '@/lib/utils'
 import type { Citation } from '@/lib/api'
 
 const THINKING_STAGES = [
@@ -171,8 +172,8 @@ export function MessageBubble({
             <ThinkingDots />
           ) : (
             <div className={`prose-brand${isStreaming ? ' stream-cursor' : ''}`}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {injectCitationLabels(content, citations)}
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={citationComponents(citations, onCitationClick)}>
+                {linkCitations(content, citations)}
               </ReactMarkdown>
             </div>
           )}

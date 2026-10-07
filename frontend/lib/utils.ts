@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /** Turn a filename like "ILI_Report_SEG-TX-4B_2024.csv" into "ILI Report SEG-TX-4B" */
-function shortDocName(filename: string): string {
+export function shortDocName(filename: string): string {
   return filename
     .replace(/\.[^.]+$/, '')       // strip extension
     .replace(/[_-]+/g, ' ')        // underscores/hyphens → spaces
@@ -18,24 +18,31 @@ function shortDocName(filename: string): string {
 
 const CITATION_TAG = /\[((?:SOURCE_ID=)?SRC-\d+(?:\s*,\s*(?:SOURCE_ID=)?SRC-\d+)*)\]/g
 
+/** Link target for a citation marker; `CitationChip` turns these links into buttons. */
+export const CITE_HREF_PREFIX = '#cite-'
+
 /**
  * Replace [SRC-NNN], [SOURCE_ID=SRC-NNN] and list markers like [SRC-001, SRC-004]
- * in text with readable document labels like [ILI Report SEG-TX-4B] drawn from
- * citations. A list citing several parts of one document shows its label once.
+ * in markdown with numbered links ([1](#cite-SRC-001)), one per cited source, which
+ * `CitationChip` renders as clickable chips. Ids with no matching citation stay as text.
  */
-export function injectCitationLabels(text: string, citations: Citation[]): string {
-  const byId: Record<string, string> = {}
-  for (const c of citations) {
-    byId[c.source_id] = shortDocName(c.filename)
-  }
-  return text.replace(CITATION_TAG, (_, list: string) => {
-    const labels = list.split(/\s*,\s*/).map(tag => {
-      const n = tag.replace('SOURCE_ID=', '').replace('SRC-', '')
-      const id = `SRC-${n.padStart(3, '0')}`
-      return byId[id] ?? `SRC-${n}`
-    })
-    return `**[${Array.from(new Set(labels)).join(', ')}]**`
-  })
+export function linkCitations(text: string, citations: Citation[]): string {
+  const known = new Set(citations.map(c => c.source_id))
+  return text.replace(CITATION_TAG, (_, list: string) =>
+    Array.from(new Set(list.split(/\s*,\s*/).map(tag => tag.replace('SOURCE_ID=', ''))))
+      .map(tag => {
+        const n = Number(tag.replace('SRC-', ''))
+        const id = `SRC-${String(n).padStart(3, '0')}`
+        return known.has(id) ? `[${n}](${CITE_HREF_PREFIX}${id})` : `[${tag}]`
+      })
+      .join('')
+  )
+}
+
+/** The first `length` characters of a markdown answer, without a citation marker cut in half. */
+export function previewText(text: string, length: number): string {
+  if (text.length <= length) return text
+  return text.slice(0, length).replace(/\[[^\]]*$/, '')
 }
 
 export function formatDate(date: string | Date) {
