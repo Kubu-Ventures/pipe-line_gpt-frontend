@@ -12,6 +12,16 @@ interface SSEState {
   error: string | null
 }
 
+// Plain-language messages for errors the API returns before the stream starts.
+function queryErrorMessage(status: number): string {
+  if (status === 429) {
+    return "You've used today's AI allowance for this account. It resets at midnight UTC, and an administrator can raise the daily limit."
+  }
+  if (status === 401) return 'Your session has expired. Sign in again to keep asking questions.'
+  if (status === 403) return "Your account doesn't have access to ask questions."
+  return `The server couldn't answer right now (error ${status}). Try again in a moment.`
+}
+
 export function useSSE() {
   const [state, setState] = useState<SSEState>({
     fullText: '',
@@ -40,7 +50,7 @@ export function useSSE() {
 
       try {
         const res = await fetch(url, { ...init, signal: controller.signal })
-        if (!res.ok) throw new Error(`Server returned ${res.status}`)
+        if (!res.ok) throw new Error(queryErrorMessage(res.status))
         if (!res.body) throw new Error('No response body')
 
         const reader = res.body.getReader()

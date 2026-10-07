@@ -388,7 +388,7 @@ export default function ChatPage() {
 
               {error && (
                 <div style={{ margin: '0 24px 16px', padding: '12px 16px', background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 6, fontSize: '0.875rem', color: '#991B1B' }}>
-                  Error: {error}
+                  {error}
                 </div>
               )}
               <div ref={bottomRef} />
