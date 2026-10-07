@@ -14,18 +14,13 @@ import { SourcePanel } from './components/SourcePanel'
 import { BLUE, F, INK, LINE, MUTED, SURFACE } from './components/reviewStyle'
 
 const FILTERS = [
-  { key: 'PENDING',  label: 'Awaiting review' },
-  { key: 'APPROVED', label: 'Approved' },
-  { key: 'REJECTED', label: 'Rejected' },
-  { key: 'all',      label: 'All' },
+  { key: 'PENDING', label: 'To review' },
+  { key: 'DECIDED', label: 'Decided' },
 ] as const
 
 type FilterKey = (typeof FILTERS)[number]['key']
 
 const RISK_ORDER: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 }
-
-/** An edited approval comes back from the API with status EDIT. */
-const isApproved = (status: string) => status === 'APPROVED' || status === 'EDIT'
 
 /** Pending first, then by risk, then newest first. */
 function byPriority(a: ReviewItem, b: ReviewItem) {
@@ -60,13 +55,10 @@ export default function ReviewPage() {
 
   const counts: Record<FilterKey, number> = {
     PENDING: all.filter(i => i.status === 'PENDING').length,
-    APPROVED: all.filter(i => isApproved(i.status)).length,
-    REJECTED: all.filter(i => i.status === 'REJECTED').length,
-    all: all.length,
+    DECIDED: all.filter(i => i.status !== 'PENDING').length,
   }
-  const highRisk = all.filter(i => i.status === 'PENDING' && i.risk_level === 'HIGH').length
   const visible = useMemo(
-    () => (filter === 'all' ? all : all.filter(i => (filter === 'APPROVED' ? isApproved(i.status) : i.status === filter))),
+    () => all.filter(i => (filter === 'PENDING' ? i.status === 'PENDING' : i.status !== 'PENDING')),
     [all, filter],
   )
   const selected = visible.find(i => i.id === selectedId) ?? visible[0] ?? null
@@ -105,16 +97,7 @@ export default function ReviewPage() {
     <div className="rq-page" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: SURFACE, fontFamily: F }}>
       <TopNav activeTab="review" />
 
-      <PageBand
-        eyebrow="Engineer review"
-        title="Review queue"
-        description="Answers that recommend action on the pipeline wait here until an engineer approves, edits or rejects them. Nothing reaches an operator before that."
-        stats={loading ? [] : [
-          { value: counts.PENDING, label: 'awaiting review' },
-          ...(highRisk > 0 ? [{ value: highRisk, label: 'high risk', tone: '#FDA29B' }] : []),
-          { value: counts.APPROVED, label: 'approved' },
-        ]}
-      />
+      <PageBand eyebrow="Engineer review" title="Review queue" compact />
 
       {/* Workspace: the queue on the left, the selected answer on the right */}
       <div className={`rq-workspace${mobileDetail ? ' rq-show-detail' : ''}`} style={{ flex: 1, minHeight: 0, display: 'flex' }}>
@@ -142,15 +125,12 @@ export default function ReviewPage() {
               <p style={{ padding: 24, color: MUTED, fontSize: 14 }}>Loading the queue…</p>
             ) : visible.length === 0 ? (
               <p style={{ padding: 24, color: MUTED, fontSize: 14, lineHeight: 1.5 }}>
-                {filter === 'PENDING' ? 'Nothing is waiting for review.' : 'No answers with this status yet.'}
+                {filter === 'PENDING' ? 'Nothing is waiting for review.' : 'No decisions yet.'}
               </p>
             ) : (
               <QueueList items={visible} selectedId={selected?.id ?? null} onSelect={id => { setSelectedId(id); setMobileDetail(true) }} />
             )}
           </div>
-          <p className="rq-keys" style={{ margin: 0, padding: '8px 14px', borderTop: `1px solid ${LINE}`, fontSize: 11.5, color: '#9AA4B2' }}>
-            Use ↑ and ↓ to move through the queue
-          </p>
         </aside>
 
         <main className="rq-detail" style={{ flex: 1, minWidth: 0, background: '#fff' }}>
@@ -204,7 +184,6 @@ export default function ReviewPage() {
           .rq-show-detail .rq-queue { display: none !important; }
           .rq-show-detail .rq-detail { display: block; }
           .rq-back { display: inline-flex !important; }
-          .rq-keys { display: none; }
           .rq-detail-body { padding: 20px 16px 24px !important; }
           .rq-decision { padding: 12px 16px !important; position: sticky; bottom: 0; }
         }
