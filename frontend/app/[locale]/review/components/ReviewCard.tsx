@@ -7,7 +7,8 @@ import { CheckCircle, Edit3, XCircle, FileText, Clock, ChevronDown, ChevronUp, A
 import { DecisionModal } from './DecisionModal'
 import { SourcePanel } from './SourcePanel'
 import { useSubmitDecision } from '@/hooks/useReviewQueue'
-import { injectCitationLabels } from '@/lib/utils'
+import { citationComponents } from '@/components/CitationChip'
+import { linkCitations, previewText } from '@/lib/utils'
 import type { ReviewItem } from '@/lib/api'
 
 const F    = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
@@ -70,10 +71,12 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
   const isPend = item.status === 'PENDING'
   const isHigh = item.risk_level === 'HIGH'
 
-  const renderedText = injectCitationLabels(item.answer_text ?? '', item.citations_json ?? [])
+  const citations    = item.citations_json ?? []
+  const answerText   = item.answer_text ?? ''
   const PREVIEW_LEN  = 280
-  const shortText    = renderedText.slice(0, PREVIEW_LEN)
-  const hasMore      = renderedText.length > PREVIEW_LEN
+  const renderedText = linkCitations(answerText, citations)
+  const shortText    = linkCitations(previewText(answerText, PREVIEW_LEN), citations)
+  const hasMore      = answerText.length > PREVIEW_LEN
 
   const handleApprove = () => mutate({ queryId: item.query_id, decision: { decision: 'APPROVE' } })
   const openModal = (mode: 'EDIT' | 'REJECT') => { setModalMode(mode); setModalOpen(true) }
@@ -177,7 +180,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
               AI Response
             </p>
             <div style={{ fontFamily: F, fontSize: 14, color: '#55606e', lineHeight: 1.75 }} className="review-md">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{expanded ? renderedText : shortText + (!expanded && hasMore ? '…' : '')}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={citationComponents(citations, () => setSourcesOpen(true))}>{expanded ? renderedText : shortText + (!expanded && hasMore ? '…' : '')}</ReactMarkdown>
             </div>
             {hasMore && (
               <button
