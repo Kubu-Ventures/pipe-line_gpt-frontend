@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { TopNav } from '@/components/TopNav'
+import { PageBand } from '@/components/PageBand'
 import { useReviewQueue, useSubmitDecision } from '@/hooks/useReviewQueue'
 import type { ReviewItem } from '@/lib/api'
 import { EmptyQueueArt } from './components/EmptyQueueArt'
@@ -104,32 +105,16 @@ export default function ReviewPage() {
     <div className="rq-page" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: SURFACE, fontFamily: F }}>
       <TopNav activeTab="review" />
 
-      {/* Header band */}
-      <header style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', background: '#1B2533' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="https://images.unsplash.com/photo-1559510981-10719ce4266a?q=80&w=1600&auto=format&fit=crop"
-          alt="" aria-hidden
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 55%' }}
-        />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(27,37,51,0.96) 0%, rgba(27,37,51,0.88) 45%, rgba(27,37,51,0.55) 100%)' }} />
-        <div className="rq-header-inner" style={{ position: 'relative', padding: '22px 32px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
-          <div>
-            <p style={{ margin: '0 0 6px', fontSize: 11.5, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8CC8F0' }}>Engineer review</p>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Review queue</h1>
-            <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'rgba(255,255,255,0.72)', maxWidth: 620, lineHeight: 1.5 }}>
-              Answers that recommend action on the pipeline wait here until an engineer approves, edits or rejects them. Nothing reaches an operator before that.
-            </p>
-          </div>
-          {!loading && (
-            <p style={{ margin: 0, fontSize: 13.5, color: 'rgba(255,255,255,0.85)', display: 'flex', gap: 18, flexWrap: 'wrap' }}>
-              <span><strong style={{ fontSize: 20, color: '#fff', marginRight: 6 }}>{counts.PENDING}</strong>awaiting review</span>
-              {highRisk > 0 && <span><strong style={{ fontSize: 20, color: '#FDA29B', marginRight: 6 }}>{highRisk}</strong>high risk</span>}
-              <span><strong style={{ fontSize: 20, color: '#fff', marginRight: 6 }}>{counts.APPROVED}</strong>approved</span>
-            </p>
-          )}
-        </div>
-      </header>
+      <PageBand
+        eyebrow="Engineer review"
+        title="Review queue"
+        description="Answers that recommend action on the pipeline wait here until an engineer approves, edits or rejects them. Nothing reaches an operator before that."
+        stats={loading ? [] : [
+          { value: counts.PENDING, label: 'awaiting review' },
+          ...(highRisk > 0 ? [{ value: highRisk, label: 'high risk', tone: '#FDA29B' }] : []),
+          { value: counts.APPROVED, label: 'approved' },
+        ]}
+      />
 
       {/* Workspace: the queue on the left, the selected answer on the right */}
       <div className={`rq-workspace${mobileDetail ? ' rq-show-detail' : ''}`} style={{ flex: 1, minHeight: 0, display: 'flex' }}>
@@ -220,7 +205,6 @@ export default function ReviewPage() {
           .rq-show-detail .rq-detail { display: block; }
           .rq-back { display: inline-flex !important; }
           .rq-keys { display: none; }
-          .rq-header-inner { padding: 18px 16px !important; }
           .rq-detail-body { padding: 20px 16px 24px !important; }
           .rq-decision { padding: 12px 16px !important; position: sticky; bottom: 0; }
         }
