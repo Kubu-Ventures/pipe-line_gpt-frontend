@@ -115,7 +115,7 @@ export function ReviewDetail({ item, onDecide, deciding, onOpenSource, onBack }:
           {pending && (
             <p style={{ display: 'flex', gap: 8, alignItems: 'flex-start', margin: '12px 0 0', fontSize: 13.5, lineHeight: 1.55, color: MUTED }}>
               <ShieldAlert size={15} color={risk.color} style={{ flexShrink: 0, marginTop: 2 }} />
-              <span>Held before reaching the operator. {holdReason(item.risk_level)}</span>
+              <span>{holdReason(item.risk_level)}</span>
             </p>
           )}
 

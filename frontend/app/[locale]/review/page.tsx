@@ -97,7 +97,12 @@ export default function ReviewPage() {
     <div className="rq-page" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: SURFACE, fontFamily: F }}>
       <TopNav activeTab="review" />
 
-      <PageBand eyebrow="Engineer review" title="Review queue" compact />
+      <PageBand
+        eyebrow="Engineer review"
+        title="Review queue"
+        description="An answer waits here when it recommends work on the pipeline, mentions harm to people, or isn't well backed by its sources. It reaches the operator only after an engineer signs off."
+        compact
+      />
 
       {/* Workspace: the queue on the left, the selected answer on the right */}
       <div className={`rq-workspace${mobileDetail ? ' rq-show-detail' : ''}`} style={{ flex: 1, minHeight: 0, display: 'flex' }}>

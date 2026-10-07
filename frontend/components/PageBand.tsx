@@ -32,7 +32,7 @@ export function PageBand({ eyebrow, title, description, stats = [], actions, com
         <div style={{ minWidth: 0 }}>
           <p style={{ margin: compact ? '0 0 3px' : '0 0 6px', fontSize: 11.5, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8CC8F0' }}>{eyebrow}</p>
           <h1 style={{ margin: 0, fontSize: compact ? 20 : 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>{title}</h1>
-          {description && <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'rgba(255,255,255,0.72)', maxWidth: 620, lineHeight: 1.5 }}>{description}</p>}
+          {description && <p style={{ margin: compact ? '4px 0 0' : '6px 0 0', fontSize: compact ? 13 : 13.5, color: 'rgba(255,255,255,0.68)', maxWidth: compact ? 'none' : 620, lineHeight: 1.5 }}>{description}</p>}
         </div>
         {(stats.length > 0 || actions) && (
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 22, flexWrap: 'wrap' }}>
