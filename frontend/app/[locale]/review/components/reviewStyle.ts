@@ -31,9 +31,9 @@ export function statusOf(status: string) {
 
 /** Why the answer was held, in the terms of the backend's risk rules (services/hitl.py). */
 export function holdReason(level: string): string {
-  if (level === 'HIGH') return 'The answer recommends an operational action (such as a repair, shutdown or pressure reduction) or reports harm to people.'
-  if (level === 'MEDIUM') return 'The answer recommends maintenance, inspection or HCA work, or its sources back it with low confidence.'
-  return 'The answer was flagged for a second look.'
+  if (level === 'HIGH') return 'Held because it recommends an operational action (such as a repair, shutdown or pressure reduction) or reports harm to people.'
+  if (level === 'MEDIUM') return 'Held because it recommends maintenance, inspection or HCA work, or its sources back it with low confidence.'
+  return 'Held for a second look.'
 }
 
 export function timeAgo(iso: string) {
