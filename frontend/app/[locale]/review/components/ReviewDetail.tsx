@@ -91,7 +91,7 @@ export function ReviewDetail({ item, onDecide, deciding, onOpenSource, onBack }:
   return (
     <article style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: F }}>
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', padding: '28px 32px 32px' }} className="rq-detail-body">
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '36px 40px 40px' }} className="rq-detail-body">
 
           {onBack && (
             <button onClick={onBack} className="rq-back" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', padding: 0, marginBottom: 18, color: BLUE, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: F }}>
@@ -99,32 +99,30 @@ export function ReviewDetail({ item, onDecide, deciding, onOpenSource, onBack }:
             </button>
           )}
 
-          {/* Status line */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 14px', fontSize: 13, color: MUTED, marginBottom: 14 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 999, background: risk.bg, color: risk.color, fontWeight: 600, fontSize: 12.5 }}>
-              <span aria-hidden style={{ width: 7, height: 7, borderRadius: '50%', background: risk.color }} />
-              {risk.label}
-            </span>
-            <span style={{ color: status.color, fontWeight: 600 }}>{status.label}</span>
-            <span>Asked {timeAgo(item.created_at)} · {new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
-            <span>Confidence {confidence}%</span>
-          </div>
+          {/* One quiet line: risk (or outcome) and when it was asked */}
+          <p style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 10px', fontSize: 13, color: MUTED }}>
+            <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: pending ? risk.color : '#C4CBD4' }} />
+            <span style={{ fontWeight: 600, color: pending ? risk.color : status.color }}>{pending ? risk.label : status.label}</span>
+            <span title={new Date(item.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}>· asked {timeAgo(item.created_at)}</span>
+          </p>
 
           {/* The question */}
-          <h2 style={{ fontSize: 21, lineHeight: 1.4, fontWeight: 650, color: INK, letterSpacing: '-0.01em', margin: '0 0 18px' }}>
+          <h2 style={{ fontSize: 22, lineHeight: 1.4, fontWeight: 650, color: INK, letterSpacing: '-0.01em', margin: 0 }}>
             {item.question_raw}
           </h2>
 
-          {/* Why it is here */}
+          {/* Why it is here, in one line of plain text */}
           {pending && (
-            <p style={{ display: 'flex', gap: 10, alignItems: 'flex-start', margin: '0 0 26px', padding: '12px 14px', background: risk.bg, borderRadius: 8, fontSize: 13.5, lineHeight: 1.55, color: INK }}>
-              <ShieldAlert size={17} color={risk.color} style={{ flexShrink: 0, marginTop: 1 }} />
-              <span><strong style={{ fontWeight: 600 }}>Held before reaching the operator.</strong> {holdReason(item.risk_level)}</span>
+            <p style={{ display: 'flex', gap: 8, alignItems: 'flex-start', margin: '12px 0 0', fontSize: 13.5, lineHeight: 1.55, color: MUTED }}>
+              <ShieldAlert size={15} color={risk.color} style={{ flexShrink: 0, marginTop: 2 }} />
+              <span>Held before reaching the operator. {holdReason(item.risk_level)}</span>
             </p>
           )}
 
+          <div style={{ height: 1, background: LINE, margin: '26px 0 26px' }} />
+
           {/* The answer, or the editor */}
-          <p style={label}>{mode === 'edit' ? 'Edit the answer the operator will receive' : 'Draft answer'}</p>
+          {mode === 'edit' && <p style={label}>Edit the answer the operator will receive</p>}
           {mode === 'edit' ? (
             <>
               <textarea
@@ -146,13 +144,10 @@ export function ReviewDetail({ item, onDecide, deciding, onOpenSource, onBack }:
 
           {/* Sources */}
           {citations.length > 0 && (
-            <section style={{ marginTop: 30 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <p style={label}>Sources ({citations.length})</p>
-                <button onClick={() => onOpenSource(null)} style={{ background: 'none', border: 'none', padding: 0, color: BLUE, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: F }}>
-                  View all records
-                </button>
-              </div>
+            <section style={{ marginTop: 36 }}>
+              <p style={label}>
+                Sources <span style={{ fontWeight: 500, letterSpacing: 0, textTransform: 'none', color: '#9AA4B2' }}>· {citations.length} · answer confidence {confidence}%</span>
+              </p>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, borderBottom: `1px solid ${LINE}` }}>
                 {citations.map(c => <SourceRow key={c.source_id} c={c} onOpen={() => onOpenSource(c.source_id)} />)}
               </ul>
@@ -162,8 +157,8 @@ export function ReviewDetail({ item, onDecide, deciding, onOpenSource, onBack }:
       </div>
 
       {/* Decision bar */}
-      <footer style={{ flexShrink: 0, borderTop: `1px solid ${LINE}`, background: pending ? '#fff' : SURFACE, padding: '14px 32px' }} className="rq-decision">
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <footer style={{ flexShrink: 0, borderTop: `1px solid ${LINE}`, background: pending ? '#fff' : SURFACE, padding: '14px 40px' }} className="rq-decision">
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
           {!pending && (
             <p style={{ margin: 0, fontSize: 13.5, color: status.color, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
               {item.status === 'REJECTED' ? <X size={16} /> : <Check size={16} />}
