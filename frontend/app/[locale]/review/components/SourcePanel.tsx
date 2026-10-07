@@ -1,31 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { X, ExternalLink, FileText, Database, MapPin, BarChart2, File, Loader } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { getChunkText } from '@/lib/api'
+import { useEffect, useRef } from 'react'
+import { X, ExternalLink, FileText, Database, MapPin, BarChart2, File } from 'lucide-react'
 import type { Citation } from '@/lib/api'
-
-function parseChunkRows(text: string): Array<{ row: number; fields: Record<string, string> }> {
-  const rowRegex = /\[ROW (\d+)\]([\s\S]*?)(?=\[ROW \d+\]|$)/g
-  const rows: Array<{ row: number; fields: Record<string, string> }> = []
-  let m: RegExpExecArray | null
-  while ((m = rowRegex.exec(text)) !== null) {
-    const rowNum = parseInt(m[1], 10)
-    const fields: Record<string, string> = {}
-    m[2].split('|').forEach(pair => {
-      const colonIdx = pair.indexOf(':')
-      if (colonIdx < 0) return
-      const k = pair.slice(0, colonIdx).trim()
-      const v = pair.slice(colonIdx + 1).trim()
-      if (k) fields[k] = v
-    })
-    if (Object.keys(fields).length) rows.push({ row: rowNum, fields })
-  }
-  return rows
-}
-
-function isCsvChunk(text: string) { return /\[ROW \d+\]/.test(text) }
+import { SourceRecord } from '@/components/SourceRecord'
+import { citationNumber, sourceHeading } from '@/lib/utils'
 
 const F      = 'Inter, "Proxima Nova", ProximaNova, sans-serif'
 const BLUE   = '#006eb5'
@@ -79,113 +58,55 @@ interface SourcePanelProps {
   citations: Citation[]
   open: boolean
   onClose: () => void
+  /** Source to highlight and scroll to, e.g. the one whose chip was clicked */
+  activeId?: string | null
 }
 
-/**
- * Section labels come in three shapes: "Rows 1-20" (CSV), "Page 3" or "Page 3 (OCR)" (PDF),
- * or a PHMSA incident cause. A PDF page label only repeats page_ref, so it isn't shown twice.
- */
-function sectionField(label: string | undefined, pageRef: string | undefined): { name: string; value: string } | null {
-  if (!label) return null
-  const rows = label.match(/^Rows?\s+(.*)$/i)
-  if (rows) return { name: 'Rows', value: rows[1] }
-  const page = label.match(/^Page\s+(\S+)/i)
-  if (page) return pageRef ? null : { name: 'Page', value: page[1] }
-  return { name: 'Section', value: label }
-}
-
-function CitationEntry({ c, meta }: { c: Citation; meta: ReturnType<typeof getSourceMeta> }) {
-  const section = sectionField(c.section_label, c.page_ref)
+function CitationEntry({ c, meta, active }: { c: Citation; meta: ReturnType<typeof getSourceMeta>; active: boolean }) {
+  const heading = sourceHeading(c)
   const ocr = /\(OCR\)$/i.test(c.section_label ?? '')
-  const { data: session } = useSession()
-  const token = (session as any)?.accessToken
   const Icon = meta.icon
-  const [fullText, setFullText] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
-  async function loadFull() {
-    if (!c.document_id || c.chunk_index === undefined) return
-    setLoading(true)
-    try {
-      const res = await getChunkText(c.document_id, c.chunk_index!, token)
-      setFullText(res.text_content)
-    } catch { setFullText(null) }
-    finally { setLoading(false) }
-  }
-
-  const displayText = fullText ?? c.excerpt ?? ''
-  const rows = isCsvChunk(displayText) ? parseChunkRows(displayText) : []
+  useEffect(() => {
+    if (active) ref.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }, [active])
 
   return (
-    <div style={{ marginBottom: 12, border: `1px solid ${meta.borderColor}`, borderLeft: `4px solid ${meta.color}`, overflow: 'hidden' }}>
-      {/* Header */}
+    <div ref={ref} style={{
+      marginBottom: 12, overflow: 'hidden', scrollMarginTop: 12,
+      border: `1px solid ${active ? meta.color : meta.borderColor}`, borderLeft: `4px solid ${meta.color}`,
+      boxShadow: active ? `0 0 0 2px ${meta.bg}` : 'none',
+    }}>
+      {/* Header: number, what it is, which file */}
       <div style={{ padding: '11px 14px', background: meta.bg, borderBottom: `1px solid ${meta.borderColor}`, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        <div style={{ width: 30, height: 30, background: 'rgba(255,255,255,0.6)', border: `1px solid ${meta.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon size={14} color={meta.color} />
-        </div>
+        <span style={{
+          minWidth: 26, height: 26, padding: '0 6px', flexShrink: 0,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: F, fontSize: 12, fontWeight: 700, color: '#fff', background: meta.color,
+        }}>
+          {citationNumber(c.source_id)}
+        </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
-            {c.source_id && (
-              <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: meta.color, background: 'rgba(255,255,255,0.7)', padding: '1px 6px', border: `1px solid ${meta.borderColor}`, letterSpacing: '0.04em' }}>
-                {c.source_id}
+          <p style={{ fontFamily: F, fontSize: 13, fontWeight: 700, color: DARK, lineHeight: 1.4 }}>{heading.title}</p>
+          <p style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', fontFamily: F, fontSize: 11, color: '#55606e', marginTop: 3 }}>
+            <Icon size={11} color={meta.color} />
+            <span style={{ fontWeight: 700, color: meta.color, letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: 10 }}>{meta.type}</span>
+            <span style={{ wordBreak: 'break-word' }}>{heading.detail}</span>
+            {ocr && (
+              <span
+                title="Text read by OCR from a scanned page. It may contain recognition errors: check the original document for exact figures."
+                style={{ fontSize: 10, fontWeight: 700, color: '#92400E', background: '#FEF3C7', padding: '1px 6px', borderRadius: 2, letterSpacing: '0.06em' }}
+              >
+                OCR
               </span>
             )}
-            <span style={{ fontSize: 10, fontWeight: 700, color: meta.color, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{meta.type}</span>
-          </div>
-          <p style={{ fontFamily: F, fontSize: 12, fontWeight: 600, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.filename}</p>
+          </p>
         </div>
       </div>
 
-      {/* Section / page */}
-      {(c.page_ref || c.section_label) && (
-        <div style={{ padding: '7px 14px', background: '#fafafa', borderBottom: '1px solid #d4d6d8', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          {c.page_ref && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>Page:</strong> {c.page_ref}</span>}
-          {section && <span style={{ fontFamily: F, fontSize: 12, color: '#55606e' }}><strong style={{ color: DARK }}>{section.name}:</strong> {section.value}</span>}
-          {ocr && (
-            <span
-              title="Text read by OCR from a scanned page. It may contain recognition errors: check the original document for exact figures."
-              style={{ fontFamily: F, fontSize: 10, fontWeight: 700, color: '#92400E', background: '#FEF3C7', padding: '1px 6px', borderRadius: 2, letterSpacing: '0.06em', alignSelf: 'center' }}
-            >
-              OCR
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Excerpt — parsed rows or plain text */}
       <div style={{ padding: '12px 14px' }}>
-        <p style={{ fontFamily: F, fontSize: 10, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#a9b1b7', marginBottom: 8 }}>
-          Retrieved passage
-        </p>
-        {rows.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {rows.map(({ row, fields }) => (
-              <div key={row} style={{ border: '1px solid #E4E8EF', borderLeft: `3px solid ${meta.color}`, borderRadius: 3, overflow: 'hidden' }}>
-                <div style={{ background: '#F8F9FB', padding: '3px 8px', borderBottom: '1px solid #E4E8EF' }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: meta.color }}>ROW {row}</span>
-                </div>
-                <div style={{ padding: '6px 8px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {Object.entries(fields).map(([k, v]) => (
-                    <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11, lineHeight: 1.5 }}>
-                      <span style={{ fontWeight: 600, color: '#55606e', minWidth: 110, flexShrink: 0 }}>{k.replace(/_/g, ' ')}</span>
-                      <span style={{ color: '#232e3e', wordBreak: 'break-word' }}>{v || '—'}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ fontFamily: F, fontSize: 12, color: '#55606e', lineHeight: 1.7, borderLeft: `3px solid ${meta.color}`, paddingLeft: 12, fontStyle: 'italic' }}>
-            {displayText || 'No excerpt available.'}
-          </p>
-        )}
-
-        {!fullText && c.document_id && c.chunk_index !== undefined && (
-          <button onClick={loadFull} disabled={loading} style={{ marginTop: 10, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '6px 0', fontSize: 11, fontWeight: 600, color: loading ? '#8896A8' : meta.color, background: '#F8F9FB', border: '1px solid #E4E8EF', cursor: loading ? 'not-allowed' : 'pointer' }}>
-            {loading ? <><Loader size={11} style={{ animation: 'spin 1s linear infinite' }} /> Loading…</> : 'Load full retrieved passage'}
-          </button>
-        )}
+        <SourceRecord key={c.source_id} citation={c} color={meta.color} />
       </div>
 
       {/* External link */}
@@ -202,7 +123,7 @@ function CitationEntry({ c, meta }: { c: Citation; meta: ReturnType<typeof getSo
   )
 }
 
-export function SourcePanel({ citations, open, onClose }: SourcePanelProps) {
+export function SourcePanel({ citations, open, onClose, activeId = null }: SourcePanelProps) {
   if (!open) return null
 
   return (
@@ -284,7 +205,7 @@ export function SourcePanel({ citations, open, onClose }: SourcePanelProps) {
             </div>
           ) : (
             citations.map((c, i) => (
-              <CitationEntry key={c.source_id ?? i} c={c} meta={getSourceMeta(c.filename)} />
+              <CitationEntry key={c.source_id ?? i} c={c} meta={getSourceMeta(c.filename)} active={c.source_id === activeId} />
             ))
           )}
         </div>

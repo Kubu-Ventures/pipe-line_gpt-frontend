@@ -3,7 +3,7 @@
 import type { AnchorHTMLAttributes } from 'react'
 import type { Components, ExtraProps } from 'react-markdown'
 import type { Citation } from '@/lib/api'
-import { CITE_HREF_PREFIX, shortDocName } from '@/lib/utils'
+import { CITE_HREF_PREFIX, sourceHeading } from '@/lib/utils'
 
 /**
  * ReactMarkdown `components` that render citation links from `linkCitations`
@@ -22,7 +22,7 @@ export function citationComponents(citations: Citation[], onOpen?: (c: Citation)
       <button
         type="button"
         onClick={() => onOpen?.(citation)}
-        title={`${citation.source_id} · ${shortDocName(citation.filename)}`}
+        title={sourceHeading(citation).title}
         aria-label={`Open source ${citation.source_id}`}
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',

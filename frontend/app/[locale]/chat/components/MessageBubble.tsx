@@ -55,7 +55,8 @@ export interface MessageBubbleProps {
   reviewReason?: string | null
   timestamp?: Date
   fromHistory?: boolean
-  onCitationClick?: (c: Citation) => void
+  /** Opens a source; `all` is every source this answer cites */
+  onCitationClick?: (c: Citation, all: Citation[]) => void
 }
 
 function ReviewBadge({ hitlRequired, queryStatus, reviewDecision, reviewReason }: {
@@ -172,7 +173,7 @@ export function MessageBubble({
             <ThinkingDots />
           ) : (
             <div className={`prose-brand${isStreaming ? ' stream-cursor' : ''}`}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={citationComponents(citations, onCitationClick)}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={citationComponents(citations, c => onCitationClick?.(c, citations))}>
                 {linkCitations(content, citations)}
               </ReactMarkdown>
             </div>
@@ -183,7 +184,7 @@ export function MessageBubble({
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
           {!isUser && citations.length > 0 && (
             <button
-              onClick={() => citations[0] && onCitationClick?.(citations[0])}
+              onClick={() => citations[0] && onCitationClick?.(citations[0], citations)}
               style={{ fontSize: '0.75rem', color: '#006eb5', fontWeight: 500, background: '#dff0ff', padding: '2px 8px', borderRadius: 3, border: '1px solid rgba(0,93,170,0.15)', cursor: onCitationClick ? 'pointer' : 'default' }}
             >
               {citations.length} source{citations.length !== 1 ? 's' : ''}
