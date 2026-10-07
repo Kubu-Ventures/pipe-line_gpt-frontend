@@ -222,10 +222,12 @@ export default function ChatPage() {
 
   // ── Finalise streaming message ───────────────────────────────────────────
   useEffect(() => {
-    if (!isStreaming && fullText && streamIdRef.current) {
+    const streamId = streamIdRef.current
+    if (!isStreaming && fullText && streamId) {
+      // Capture the id: React may run this updater after the ref is cleared below.
       setMessages(prev =>
         prev.map(m =>
-          m.id === streamIdRef.current
+          m.id === streamId
             ? {
                 ...m,
                 content: fullText,
@@ -243,9 +245,10 @@ export default function ChatPage() {
 
   // ── Live-update streaming content ───────────────────────────────────────
   useEffect(() => {
-    if (isStreaming && fullText && streamIdRef.current) {
+    const streamId = streamIdRef.current
+    if (isStreaming && fullText && streamId) {
       setMessages(prev =>
-        prev.map(m => m.id === streamIdRef.current ? { ...m, content: fullText } : m)
+        prev.map(m => m.id === streamId ? { ...m, content: fullText } : m)
       )
     }
   }, [fullText, isStreaming])
