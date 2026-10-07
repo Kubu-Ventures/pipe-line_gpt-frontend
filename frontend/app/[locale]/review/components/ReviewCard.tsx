@@ -63,6 +63,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
   const [modalOpen,   setModalOpen]   = useState(false)
   const [modalMode,   setModalMode]   = useState<'EDIT' | 'REJECT' | null>(null)
   const [sourcesOpen, setSourcesOpen] = useState(false)
+  const [activeSource, setActiveSource] = useState<string | null>(null)
   const { mutate, isPending } = useSubmitDecision()
 
   const risk   = RISK_CONFIG[item.risk_level as keyof typeof RISK_CONFIG] ?? RISK_CONFIG.LOW
@@ -141,7 +142,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
 
             {(item.citations_json?.length ?? 0) > 0 && (
               <button
-                onClick={() => setSourcesOpen(true)}
+                onClick={() => { setActiveSource(null); setSourcesOpen(true) }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   fontFamily: F, fontSize: 11, fontWeight: 600, color: BLUE,
@@ -180,7 +181,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
               AI Response
             </p>
             <div style={{ fontFamily: F, fontSize: 14, color: '#55606e', lineHeight: 1.75 }} className="review-md">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={citationComponents(citations, () => setSourcesOpen(true))}>{expanded ? renderedText : shortText + (!expanded && hasMore ? '…' : '')}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={citationComponents(citations, c => { setActiveSource(c.source_id); setSourcesOpen(true) })}>{expanded ? renderedText : shortText + (!expanded && hasMore ? '…' : '')}</ReactMarkdown>
             </div>
             {hasMore && (
               <button
@@ -303,6 +304,7 @@ export function ReviewCard({ item }: { item: ReviewItem }) {
         citations={item.citations_json ?? []}
         open={sourcesOpen}
         onClose={() => setSourcesOpen(false)}
+        activeId={activeSource}
       />
     </>
   )

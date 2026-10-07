@@ -123,6 +123,7 @@ export default function ChatPage() {
   const [legendOpen, setLegendOpen] = useState(false)
   const [sessionId] = useState(() => uuidv4())
   const [activeCitation, setActiveCitation] = useState<Citation | null>(null)
+  const [activeSources, setActiveSources] = useState<Citation[]>([])
   const streamIdRef = useRef<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const messageAreaRef = useRef<HTMLDivElement>(null)
@@ -379,7 +380,7 @@ export default function ChatPage() {
                       reviewReason={msg.reviewReason}
                       timestamp={msg.timestamp}
                       fromHistory={msg.fromHistory}
-                      onCitationClick={setActiveCitation}
+                      onCitationClick={(c, all) => { setActiveCitation(c); setActiveSources(all) }}
                     />
                   </div>
                 )
@@ -415,7 +416,12 @@ export default function ChatPage() {
         </div>
       </main>
 
-      <CitationPanel citation={activeCitation} onClose={() => setActiveCitation(null)} />
+      <CitationPanel
+        citation={activeCitation}
+        citations={activeSources}
+        onSelect={setActiveCitation}
+        onClose={() => setActiveCitation(null)}
+      />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )

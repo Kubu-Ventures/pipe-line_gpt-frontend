@@ -1,38 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { X, FileText, ChevronDown, ChevronUp, Loader, Database, BarChart2, MapPin, File } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { getChunkText } from '@/lib/api'
+import { X, FileText, Database, BarChart2, MapPin } from 'lucide-react'
 import type { Citation } from '@/lib/api'
+import { SourceRecord } from '@/components/SourceRecord'
+import { citationNumber, sourceHeading } from '@/lib/utils'
 
 interface CitationPanelProps {
+  /** The source being shown, or null when the panel is closed */
   citation: Citation | null
+  /** Every source cited by the same answer, for switching between them */
+  citations: Citation[]
+  onSelect: (c: Citation) => void
   onClose: () => void
-}
-
-/** Parse "[ROW N] key: value | key: value | ..." into an array of row objects */
-function parseChunkRows(text: string): Array<{ row: number; fields: Record<string, string> }> {
-  const rowRegex = /\[ROW (\d+)\]([\s\S]*?)(?=\[ROW \d+\]|$)/g
-  const rows: Array<{ row: number; fields: Record<string, string> }> = []
-  let m: RegExpExecArray | null
-  while ((m = rowRegex.exec(text)) !== null) {
-    const rowNum = parseInt(m[1], 10)
-    const fields: Record<string, string> = {}
-    m[2].split('|').forEach(pair => {
-      const colonIdx = pair.indexOf(':')
-      if (colonIdx < 0) return
-      const k = pair.slice(0, colonIdx).trim()
-      const v = pair.slice(colonIdx + 1).trim()
-      if (k) fields[k] = v
-    })
-    if (Object.keys(fields).length) rows.push({ row: rowNum, fields })
-  }
-  return rows
-}
-
-function isCsvChunk(text: string) {
-  return /\[ROW \d+\]/.test(text)
 }
 
 function sourceIcon(filename: string) {
@@ -52,38 +31,33 @@ function sourceColor(filename: string) {
   return '#55606e'
 }
 
-export function CitationPanel({ citation, onClose }: CitationPanelProps) {
-  const { data: session } = useSession()
-  const token = (session as any)?.accessToken
-  const [fullText, setFullText] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [expanded, setExpanded] = useState(false)
+function NumberBadge({ n, color, active = true, size = 22 }: { n: number; color: string; active?: boolean; size?: number }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      minWidth: size, height: size, padding: '0 6px', borderRadius: 4, flexShrink: 0,
+      fontSize: size > 22 ? 12 : 11, fontWeight: 700,
+      color: active ? '#fff' : color,
+      background: active ? color : '#dff0ff',
+      border: `1px solid ${active ? color : 'rgba(0,93,170,0.18)'}`,
+    }}>
+      {n}
+    </span>
+  )
+}
 
-  async function loadFull() {
-    if (!citation?.document_id || citation.chunk_index === undefined) return
-    setLoading(true)
-    try {
-      const res = await getChunkText(citation.document_id, citation.chunk_index!, token)
-      setFullText(res.text_content)
-      setExpanded(true)
-    } catch {
-      setFullText(null)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const displayText = fullText ?? citation?.excerpt ?? ''
-  const rows = isCsvChunk(displayText) ? parseChunkRows(displayText) : []
+export function CitationPanel({ citation, citations, onSelect, onClose }: CitationPanelProps) {
   const Icon = citation ? sourceIcon(citation.filename) : FileText
   const color = citation ? sourceColor(citation.filename) : '#006eb5'
+  const heading = citation ? sourceHeading(citation) : null
+  const sources = citations.length ? citations : citation ? [citation] : []
 
   return (
     <div
       style={{
         position: 'fixed',
         top: '72px', right: 0, bottom: 0,
-        width: '420px',
+        width: '440px', maxWidth: '100vw',
         background: '#FFFFFF',
         borderLeft: '1px solid #E4E8EF',
         boxShadow: '-4px 0 24px rgba(0,0,0,0.10)',
@@ -95,91 +69,63 @@ export function CitationPanel({ citation, onClose }: CitationPanelProps) {
       }}
     >
       {/* Header */}
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid #E4E8EF', background: '#F8F9FB', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Icon size={16} color={color} />
-          <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#232e3e' }}>Source Reference</span>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid #E4E8EF', background: '#F8F9FB', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Icon size={16} color={color} />
+            <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#232e3e' }}>
+              {sources.length > 1 ? `Sources for this answer (${sources.length})` : 'Source'}
+            </span>
+          </div>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8896A8', padding: 4, display: 'flex' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#232e3e')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#8896A8')}>
+            <X size={18} />
+          </button>
         </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8896A8', padding: 4, display: 'flex' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#232e3e')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#8896A8')}>
-          <X size={18} />
-        </button>
+
+        {/* One tab per cited source */}
+        {sources.length > 1 && (
+          <div role="tablist" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+            {sources.map(c => {
+              const active = c.source_id === citation?.source_id
+              return (
+                <button
+                  key={c.source_id}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => onSelect(c)}
+                  title={sourceHeading(c).title}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                >
+                  <NumberBadge n={citationNumber(c.source_id)} color={sourceColor(c.filename)} active={active} size={24} />
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      {citation && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+      {citation && heading && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '18px 20px' }}>
 
-          {/* Document name */}
-          <div style={{ borderLeft: `4px solid ${color}`, paddingLeft: 12, marginBottom: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color, marginBottom: 4 }}>
-              {citation.source_id}
-            </p>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#232e3e', lineHeight: 1.4, wordBreak: 'break-word' }}>
-              {citation.filename}
-            </p>
-            {citation.section_label && (
-              <p style={{ fontSize: 12, color: '#8896A8', marginTop: 4 }}>
-                {citation.section_label}{citation.page_ref ? ` · page ${citation.page_ref}` : ''}
-              </p>
-            )}
-          </div>
-
-          <div style={{ borderTop: '1px solid #E4E8EF', marginBottom: 16 }} />
-
-          {/* Retrieved data */}
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#8896A8', marginBottom: 10 }}>
-            Retrieved Data
-          </p>
-
-          {rows.length > 0 ? (
-            /* Parsed CSV rows */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {rows.map(({ row, fields }) => (
-                <div key={row} style={{ border: `1px solid #E4E8EF`, borderLeft: `3px solid ${color}`, borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ background: '#F8F9FB', padding: '5px 10px', borderBottom: '1px solid #E4E8EF' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color, letterSpacing: '0.06em' }}>ROW {row}</span>
-                  </div>
-                  <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {Object.entries(fields).map(([k, v]) => (
-                      <div key={k} style={{ display: 'flex', gap: 8, fontSize: 12, lineHeight: 1.5 }}>
-                        <span style={{ fontWeight: 600, color: '#55606e', minWidth: 120, flexShrink: 0 }}>{k.replace(/_/g, ' ')}</span>
-                        <span style={{ color: '#232e3e', wordBreak: 'break-word' }}>{v || '—'}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+          {/* What this source is */}
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 16 }}>
+            <NumberBadge n={citationNumber(citation.source_id)} color={color} />
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#232e3e', lineHeight: 1.4 }}>{heading.title}</p>
+              <p style={{ fontSize: 11.5, color: '#8896A8', marginTop: 3, wordBreak: 'break-word' }}>{heading.detail}</p>
             </div>
-          ) : (
-            /* Plain text passage */
-            <p style={{ fontSize: 13, color: '#4A5568', lineHeight: 1.7, background: '#F8F9FB', border: '1px solid #E4E8EF', borderLeft: `3px solid ${color}`, padding: '12px 14px', fontStyle: 'italic' }}>
-              {displayText || 'No excerpt available.'}
-            </p>
-          )}
-
-          {/* Load full chunk */}
-          {!fullText && citation.document_id && citation.chunk_index !== undefined && (
-            <button
-              onClick={loadFull}
-              disabled={loading}
-              style={{
-                marginTop: 14, width: '100%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                padding: '8px 0', fontSize: 12, fontWeight: 600,
-                color: loading ? '#8896A8' : color,
-                background: '#F8F9FB', border: '1px solid #E4E8EF',
-                borderRadius: 4, cursor: loading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {loading ? <><Loader size={12} style={{ animation: 'spin 1s linear infinite' }} /> Loading full data…</> : 'Load full retrieved passage'}
-            </button>
-          )}
-
-          {/* Note about original file */}
-          <div style={{ marginTop: 20, padding: '10px 12px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 4, fontSize: 12, color: '#92400E', lineHeight: 1.55 }}>
-            <strong>About this source:</strong> The data above is the exact text chunk the AI used to generate its answer. The original uploaded file is not stored after ingestion — only the indexed text chunks are retained.
           </div>
+
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', color: '#8896A8', marginBottom: 8 }}>
+            What the answer drew on
+          </p>
+          <SourceRecord key={citation.source_id} citation={citation} color={color} />
+
+          <p style={{ marginTop: 18, fontSize: 11.5, color: '#8896A8', lineHeight: 1.55 }}>
+            This is the exact text the answer was generated from. The original uploaded file isn&apos;t kept after ingestion, only its indexed text.
+          </p>
         </div>
       )}
 
