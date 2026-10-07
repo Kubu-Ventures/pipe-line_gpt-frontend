@@ -116,8 +116,10 @@ export function buildQueryRequest(
 
 // Review
 export async function getReviewQueue(status?: string, token?: string): Promise<ReviewItem[]> {
-  const qs = status && status !== 'all' ? `?status=${status}` : ''
-  return apiFetch<ReviewItem[]>(`/review${qs}`, { token })
+  // The API pages at 20 by default (oldest first); 100 is its maximum page size
+  const params = new URLSearchParams({ page_size: '100' })
+  if (status && status !== 'all') params.set('status', status)
+  return apiFetch<ReviewItem[]>(`/review?${params}`, { token })
 }
 
 export async function submitDecision(

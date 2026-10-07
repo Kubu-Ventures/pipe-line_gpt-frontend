@@ -1,185 +1,230 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, AlertCircle } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
-import { PageHero } from '@/components/PageHero'
-import { Footer } from '@/components/Footer'
-import { NextStep } from '@/components/NextStep'
-import { ReviewCard } from './components/ReviewCard'
-import { useReviewQueue } from '@/hooks/useReviewQueue'
+import { useReviewQueue, useSubmitDecision } from '@/hooks/useReviewQueue'
+import type { ReviewItem } from '@/lib/api'
+import { EmptyQueueArt } from './components/EmptyQueueArt'
+import { QueueList } from './components/QueueList'
+import { ReviewDetail, type Decision } from './components/ReviewDetail'
+import { SourcePanel } from './components/SourcePanel'
+import { BLUE, F, INK, LINE, MUTED, SURFACE } from './components/reviewStyle'
 
-const F = 'Inter, system-ui, sans-serif'
-
-const TABS = [
-  { key: 'all',      label: 'All'      },
-  { key: 'PENDING',  label: 'Pending'  },
+const FILTERS = [
+  { key: 'PENDING',  label: 'Awaiting review' },
   { key: 'APPROVED', label: 'Approved' },
   { key: 'REJECTED', label: 'Rejected' },
-]
+  { key: 'all',      label: 'All' },
+] as const
+
+type FilterKey = (typeof FILTERS)[number]['key']
+
+const RISK_ORDER: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 }
+
+/** An edited approval comes back from the API with status EDIT. */
+const isApproved = (status: string) => status === 'APPROVED' || status === 'EDIT'
+
+/** Pending first, then by risk, then newest first. */
+function byPriority(a: ReviewItem, b: ReviewItem) {
+  const pa = a.status === 'PENDING' ? 0 : 1
+  const pb = b.status === 'PENDING' ? 0 : 1
+  if (pa !== pb) return pa - pb
+  const ra = RISK_ORDER[a.risk_level] ?? 2
+  const rb = RISK_ORDER[b.risk_level] ?? 2
+  if (ra !== rb) return ra - rb
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+}
 
 export default function ReviewPage() {
   const { data: session, status: sessionStatus } = useSession()
   const router = useRouter()
   const role = (session?.user as any)?.role as string | undefined
-  const [activeTab, setActiveTab] = useState('all')
 
   useEffect(() => {
     if (sessionStatus === 'loading') return
     if (!role || role === 'OPERATOR') router.replace('/home')
   }, [role, sessionStatus, router])
-  const { data: items, isLoading } = useReviewQueue(activeTab)
 
-  const sessionLoading = sessionStatus === 'loading'
-  const displayItems = items ?? []
+  // Fetch everything once, so the counts stay right whichever filter is shown
+  const { data, isLoading } = useReviewQueue('all')
+  const { mutate, isPending: deciding } = useSubmitDecision()
+  const all = useMemo(() => [...(data ?? [])].sort(byPriority), [data])
 
-  const filteredItems = activeTab === 'all'
-    ? displayItems
-    : displayItems.filter(i => i.status === activeTab || i.status?.toUpperCase() === activeTab)
+  const [filter, setFilter] = useState<FilterKey>('PENDING')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [mobileDetail, setMobileDetail] = useState(false)
+  const [sources, setSources] = useState<{ open: boolean; activeId: string | null }>({ open: false, activeId: null })
 
-  const pendingCount   = displayItems.filter(i => i.status === 'PENDING').length
-  const highRiskCount  = displayItems.filter(i => i.risk_level === 'HIGH' && i.status === 'PENDING').length
-  const approvedCount  = displayItems.filter(i => i.status === 'APPROVED').length
-  const rejectedCount  = displayItems.filter(i => i.status === 'REJECTED').length
+  const counts: Record<FilterKey, number> = {
+    PENDING: all.filter(i => i.status === 'PENDING').length,
+    APPROVED: all.filter(i => isApproved(i.status)).length,
+    REJECTED: all.filter(i => i.status === 'REJECTED').length,
+    all: all.length,
+  }
+  const highRisk = all.filter(i => i.status === 'PENDING' && i.risk_level === 'HIGH').length
+  const visible = useMemo(
+    () => (filter === 'all' ? all : all.filter(i => (filter === 'APPROVED' ? isApproved(i.status) : i.status === filter))),
+    [all, filter],
+  )
+  const selected = visible.find(i => i.id === selectedId) ?? visible[0] ?? null
 
-  const tabCounts: Record<string, number> = {
-    all:      displayItems.length,
-    PENDING:  pendingCount,
-    APPROVED: approvedCount,
-    REJECTED: rejectedCount,
+  // Move through the queue with the arrow keys (or j / k) when not typing
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const t = e.target as HTMLElement
+      if (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || sources.open || !visible.length) return
+      const step = e.key === 'ArrowDown' || e.key === 'j' ? 1 : e.key === 'ArrowUp' || e.key === 'k' ? -1 : 0
+      if (!step) return
+      e.preventDefault()
+      const i = Math.max(0, visible.findIndex(v => v.id === selected?.id))
+      setSelectedId(visible[Math.min(visible.length - 1, Math.max(0, i + step))].id)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [visible, selected, sources.open])
+
+  function decide(d: Decision) {
+    if (!selected) return
+    const current = selected.id
+    // After a decision, go to the next item still waiting
+    const next = visible.find(i => i.id !== current && i.status === 'PENDING')
+    mutate({ queryId: selected.query_id, decision: d }, {
+      onSuccess: () => {
+        setSelectedId(next?.id ?? current)
+        if (!next) setMobileDetail(false)
+      },
+    })
   }
 
-  const showSpinner = sessionLoading || isLoading
+  const loading = sessionStatus === 'loading' || isLoading
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#edeff0', fontFamily: F }}>
+    <div className="rq-page" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: SURFACE, fontFamily: F }}>
       <TopNav activeTab="review" />
 
-      <PageHero
-        step="Step 3 of 5 · AI Review"
-        title="Engineer Review Queue"
-        subtitle="No AI recommendation ever reaches an operator without engineer sign-off. Approve, edit, or reject each response below."
-        compact
-      />
-
-      {/* ── Controls strip ── */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #d4d6d8', padding: '20px 40px 0' }}>
-        <div className="page-content" style={{ maxWidth: 1200, margin: '0 auto', paddingTop: 0, paddingBottom: 0 }}>
-
-          {/* Alert badge */}
-          {pendingCount > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: '#FDF4F4', border: '1px solid #E8BCBC',
-                borderLeft: '4px solid #991B1B', padding: '8px 16px',
-              }}>
-                <AlertCircle size={15} color="#991B1B" />
-                <span style={{ fontFamily: F, fontSize: 13, fontWeight: 600, color: '#991B1B' }}>
-                  {pendingCount} response{pendingCount !== 1 ? 's' : ''} awaiting review
-                  {highRiskCount > 0 && ` · ${highRiskCount} high risk`}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* ── Metric strip ── */}
-          <div className="metric-strip" style={{
-            background: '#FFFFFF', border: '1px solid #d4d6d8',
-            borderTop: '4px solid #006eb5', marginBottom: 24, overflow: 'hidden',
-          }}>
-            {[
-              { value: pendingCount,  label: 'Awaiting Sign-Off',   sub: 'Responses needing engineer review',                         urgent: pendingCount > 0,  urgentColor: '#991B1B' },
-              { value: highRiskCount, label: 'High Risk Pending',    sub: highRiskCount > 0 ? 'Require immediate sign-off' : 'None open', urgent: highRiskCount > 0, urgentColor: '#991B1B' },
-              { value: approvedCount, label: 'Responses Cleared',    sub: 'Approved and ready for delivery',                          urgent: false, urgentColor: '' },
-              { value: rejectedCount, label: 'Rejected Responses',   sub: rejectedCount > 0 ? 'Returned for correction' : 'None recorded', urgent: false, urgentColor: '' },
-            ].map(m => (
-              <div key={m.label} className="metric-strip-cell">
-                <div style={{ fontFamily: F, fontSize: 32, fontWeight: 700, letterSpacing: '-0.03em', color: m.urgent ? m.urgentColor : '#232e3e', lineHeight: 1, marginBottom: 6 }}>
-                  {showSpinner ? '—' : m.value}
-                </div>
-                <div style={{ fontFamily: F, fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 3 }}>{m.label}</div>
-                <div style={{ fontFamily: F, fontSize: 12, color: m.urgent ? m.urgentColor : '#9CA3AF', fontWeight: m.urgent ? 500 : 400 }}>{m.sub}</div>
-              </div>
-            ))}
+      {/* Header band */}
+      <header style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', background: '#1B2533' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="https://images.unsplash.com/photo-1559510981-10719ce4266a?q=80&w=1600&auto=format&fit=crop"
+          alt="" aria-hidden
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 55%' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(27,37,51,0.96) 0%, rgba(27,37,51,0.88) 45%, rgba(27,37,51,0.55) 100%)' }} />
+        <div className="rq-header-inner" style={{ position: 'relative', padding: '22px 32px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
+          <div>
+            <p style={{ margin: '0 0 6px', fontSize: 11.5, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8CC8F0' }}>Engineer review</p>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Review queue</h1>
+            <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'rgba(255,255,255,0.72)', maxWidth: 620, lineHeight: 1.5 }}>
+              Answers that recommend action on the pipeline wait here until an engineer approves, edits or rejects them. Nothing reaches an operator before that.
+            </p>
           </div>
+          {!loading && (
+            <p style={{ margin: 0, fontSize: 13.5, color: 'rgba(255,255,255,0.85)', display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+              <span><strong style={{ fontSize: 20, color: '#fff', marginRight: 6 }}>{counts.PENDING}</strong>awaiting review</span>
+              {highRisk > 0 && <span><strong style={{ fontSize: 20, color: '#FDA29B', marginRight: 6 }}>{highRisk}</strong>high risk</span>}
+              <span><strong style={{ fontSize: 20, color: '#fff', marginRight: 6 }}>{counts.APPROVED}</strong>approved</span>
+            </p>
+          )}
+        </div>
+      </header>
 
-          {/* Tab bar */}
-          <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #d4d6d8', marginBottom: -2 }}>
-            {TABS.map(({ key, label }) => {
-              const isActive = activeTab === key
-              const count = tabCounts[key] ?? 0
+      {/* Workspace: the queue on the left, the selected answer on the right */}
+      <div className={`rq-workspace${mobileDetail ? ' rq-show-detail' : ''}`} style={{ flex: 1, minHeight: 0, display: 'flex' }}>
+        <aside className="rq-queue" style={{ width: 380, flexShrink: 0, display: 'flex', flexDirection: 'column', background: '#fff', borderRight: `1px solid ${LINE}` }}>
+          <nav aria-label="Filter" style={{ display: 'flex', gap: 4, padding: '10px 12px', borderBottom: `1px solid ${LINE}`, overflowX: 'auto' }}>
+            {FILTERS.map(f => {
+              const active = filter === f.key
               return (
                 <button
-                  key={key}
-                  onClick={() => setActiveTab(key)}
+                  key={f.key}
+                  onClick={() => { setFilter(f.key); setSelectedId(null) }}
                   style={{
-                    fontFamily: F, padding: '10px 20px', border: 'none',
-                    borderBottom: isActive ? '2px solid #006eb5' : '2px solid transparent',
-                    background: 'none', color: isActive ? '#006eb5' : '#6B7280',
-                    fontSize: 14, fontWeight: isActive ? 600 : 400,
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 7,
-                    marginBottom: -2, transition: 'all 0.12s',
+                    fontFamily: F, fontSize: 13, fontWeight: active ? 600 : 500, whiteSpace: 'nowrap',
+                    padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                    background: active ? '#E6F1FA' : 'transparent', color: active ? BLUE : MUTED,
                   }}
                 >
-                  {label}
-                  {count > 0 && (
-                    <span style={{ background: isActive ? '#006eb5' : '#d4d6d8', color: isActive ? '#fff' : '#6B7280', fontSize: 11, fontWeight: 700, padding: '1px 6px', lineHeight: '16px' }}>
-                      {count}
-                    </span>
-                  )}
+                  {f.label} <span style={{ fontWeight: 600, color: active ? BLUE : '#9AA4B2' }}>{counts[f.key]}</span>
                 </button>
               )
             })}
+          </nav>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {loading ? (
+              <p style={{ padding: 24, color: MUTED, fontSize: 14 }}>Loading the queue…</p>
+            ) : visible.length === 0 ? (
+              <p style={{ padding: 24, color: MUTED, fontSize: 14, lineHeight: 1.5 }}>
+                {filter === 'PENDING' ? 'Nothing is waiting for review.' : 'No answers with this status yet.'}
+              </p>
+            ) : (
+              <QueueList items={visible} selectedId={selected?.id ?? null} onSelect={id => { setSelectedId(id); setMobileDetail(true) }} />
+            )}
           </div>
-        </div>
+          <p className="rq-keys" style={{ margin: 0, padding: '8px 14px', borderTop: `1px solid ${LINE}`, fontSize: 11.5, color: '#9AA4B2' }}>
+            Use ↑ and ↓ to move through the queue
+          </p>
+        </aside>
+
+        <main className="rq-detail" style={{ flex: 1, minWidth: 0, background: '#fff' }}>
+          {selected ? (
+            <ReviewDetail
+              key={selected.id}
+              item={selected}
+              onDecide={decide}
+              deciding={deciding}
+              onOpenSource={id => setSources({ open: true, activeId: id })}
+              onBack={() => setMobileDetail(false)}
+            />
+          ) : (
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+              <EmptyQueueArt />
+              <h2 style={{ margin: '22px 0 6px', fontSize: 18, fontWeight: 650, color: INK }}>
+                {loading ? 'Loading…' : filter === 'PENDING' ? 'All clear' : 'Nothing to show'}
+              </h2>
+              {!loading && (
+                <p style={{ margin: 0, maxWidth: 380, fontSize: 14, lineHeight: 1.55, color: MUTED }}>
+                  {filter === 'PENDING'
+                    ? 'No answers are waiting for sign-off. Held answers appear here as soon as they are generated.'
+                    : 'Answers you decide on are listed here.'}
+                </p>
+              )}
+            </div>
+          )}
+        </main>
       </div>
 
-      {/* ── Cards ── */}
-      <main style={{ flex: 1 }}>
-        <div className="page-content" style={{ maxWidth: 1200, margin: '0 auto' }}>
-          {showSpinner ? (
-            <div style={{ textAlign: 'center', padding: '80px', color: '#8896A8' }}>
-              <div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #d4d6d8', borderTopColor: '#006eb5', borderRadius: '50%', animation: 'spin 0.7s linear infinite', marginBottom: 14 }} />
-              <p style={{ fontFamily: F, fontSize: 15 }}>Loading review queue…</p>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px', background: '#FFFFFF', border: '1px solid #d4d6d8', borderTop: '4px solid #d4d6d8' }}>
-              <CheckCircle size={48} color="#1A7A4A" style={{ marginBottom: 16 }} />
-              <p style={{ fontFamily: F, fontSize: 16, fontWeight: 600, color: '#232e3e', marginBottom: 6 }}>
-                {activeTab === 'all' ? 'Queue is empty' : 'No items in this filter'}
-              </p>
-              <p style={{ fontFamily: F, fontSize: 14, color: '#6B7280' }}>
-                {activeTab === 'all'
-                  ? 'Ask a question in the chat to generate responses for review.'
-                  : 'No responses match this status.'}
-              </p>
-            </div>
-          ) : (
-            [...filteredItems]
-              .sort((a, b) => {
-                const order = { HIGH: 0, MEDIUM: 1, LOW: 2 }
-                const statusOrder = { PENDING: 0, APPROVED: 1, REJECTED: 2 }
-                const rA = order[a.risk_level as keyof typeof order] ?? 2
-                const rB = order[b.risk_level as keyof typeof order] ?? 2
-                const sA = statusOrder[a.status as keyof typeof statusOrder] ?? 1
-                const sB = statusOrder[b.status as keyof typeof statusOrder] ?? 1
-                return sA !== sB ? sA - sB : rA - rB
-              })
-              .map(item => <ReviewCard key={item.id} item={item} />)
-          )}
-        </div>
-      </main>
+      {selected && (
+        <SourcePanel
+          citations={selected.citations_json ?? []}
+          open={sources.open}
+          activeId={sources.activeId}
+          onClose={() => setSources({ open: false, activeId: null })}
+        />
+      )}
 
-      <NextStep
-        href="/dashboard"
-        label="View Analytics"
-        description="After reviewing AI recommendations, track incident trends and system performance on the dashboard."
-      />
-      <Footer />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        .rq-row:hover { background: #F7F9FB !important; }
+        .rq-row:focus-visible, .rq-source:focus-visible { outline: 2px solid ${BLUE}; outline-offset: -2px; }
+        .rq-source:hover { background: #F7F9FB !important; }
+        .rq-answer > :first-child { margin-top: 0; }
+        .rq-back { display: none !important; }
+        @media (max-width: 900px) {
+          .rq-page { height: auto !important; min-height: 100vh; }
+          .rq-workspace { display: block !important; }
+          .rq-queue { width: auto !important; border-right: none !important; }
+          .rq-detail { display: none; }
+          .rq-show-detail .rq-queue { display: none !important; }
+          .rq-show-detail .rq-detail { display: block; }
+          .rq-back { display: inline-flex !important; }
+          .rq-keys { display: none; }
+          .rq-header-inner { padding: 18px 16px !important; }
+          .rq-detail-body { padding: 20px 16px 24px !important; }
+          .rq-decision { padding: 12px 16px !important; position: sticky; bottom: 0; }
+        }
+      `}</style>
     </div>
   )
 }
