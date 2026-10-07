@@ -6,6 +6,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Replace em dashes (and spaced en dashes used as dashes) in generated text with commas.
+ * En dashes in ranges such as 1930–1989 are kept.
+ */
+export function noDashes(text: string): string {
+  return text.replace(/\s*—\s*|\s+–\s+/g, ', ')
+}
+
+/** "FUEL GAS SKID HIGH PRESSURE ALARM" → "Fuel gas skid high pressure alarm"; mixed case is left alone. */
+export function tidyCase(text: string): string {
+  if (!/[A-Z]{3}/.test(text) || /[a-z]/.test(text)) return text
+  const lower = text.toLowerCase()
+    .replace(/\b(esd|scada|prv|maop|psig|ili|hca|nrc|erw|smys|cdt|cst|ok|mo|ks|tx|ky)\b/g, w => w.toUpperCase())
+  return lower.charAt(0).toUpperCase() + lower.slice(1)
+}
+
 /** Turn a filename like "ILI_Report_SEG-TX-4B_2024.csv" into "ILI Report SEG-TX-4B" */
 export function shortDocName(filename: string): string {
   return filename
