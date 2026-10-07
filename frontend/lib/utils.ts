@@ -16,23 +16,26 @@ function shortDocName(filename: string): string {
     .trim()
 }
 
+const CITATION_TAG = /\[((?:SOURCE_ID=)?SRC-\d+(?:\s*,\s*(?:SOURCE_ID=)?SRC-\d+)*)\]/g
+
 /**
- * Replace all [SOURCE_ID=SRC-NNN] and [SRC-NNN] markers in text with
- * a readable document label like [ILI Report SEG-TX-4B] drawn from citations.
+ * Replace [SRC-NNN], [SOURCE_ID=SRC-NNN] and list markers like [SRC-001, SRC-004]
+ * in text with readable document labels like [ILI Report SEG-TX-4B] drawn from
+ * citations. A list citing several parts of one document shows its label once.
  */
 export function injectCitationLabels(text: string, citations: Citation[]): string {
   const byId: Record<string, string> = {}
   for (const c of citations) {
     byId[c.source_id] = shortDocName(c.filename)
   }
-  return text
-    .replace(/\[SOURCE_ID=(SRC-\d+)\]/g, (_, id) =>
-      byId[id] ? `**[${byId[id]}]**` : `**[${id}]**`
-    )
-    .replace(/\[SRC-(\d+)\]/g, (_, n) => {
-      const id = `SRC-${String(n).padStart(3, '0')}`
-      return byId[id] ? `**[${byId[id]}]**` : `**[SRC-${n}]**`
+  return text.replace(CITATION_TAG, (_, list: string) => {
+    const labels = list.split(/\s*,\s*/).map(tag => {
+      const n = tag.replace('SOURCE_ID=', '').replace('SRC-', '')
+      const id = `SRC-${n.padStart(3, '0')}`
+      return byId[id] ?? `SRC-${n}`
     })
+    return `**[${Array.from(new Set(labels)).join(', ')}]**`
+  })
 }
 
 export function formatDate(date: string | Date) {
